@@ -1,0 +1,22 @@
+# build outputs / artifacts
+_build/
+_selftest/
+_tools/
+*.dll
+*.exe
+*.obj
+*.pdb
+*.ilk
+*.log
+*.corrupt
+*.pre-fix
+*.pre-fix2
+*.pre-litfix
+*.v1368-broken
+warcraft3/
+# 源码由 git 管理：不要再用 .pre-xxx 副本做备份（2026-10-02 清理）
+*.pre-v13*
+# keep source + build script + docs
+
+# working config snapshot (backend=2 / encoding=2 verified)
+!_config/
