@@ -1,0 +1,5058 @@
+=== SECTIONS ===
+.text    VA=0x1000 VSize=0xc841c RawPtr=0x400 RawSize=0xc8600
+.rdata   VA=0xca000 VSize=0x3f0b8 RawPtr=0xc8a00 RawSize=0x3f200
+.data    VA=0x10a000 VSize=0x39438 RawPtr=0x107c00 RawSize=0x16c00
+.detourc VA=0x144000 VSize=0x11c0 RawPtr=0x11e800 RawSize=0x1200
+.detourd VA=0x146000 VSize=0xc RawPtr=0x11fa00 RawSize=0x200
+.rsrc    VA=0x147000 VSize=0x428 RawPtr=0x11fc00 RawSize=0x600
+.reloc   VA=0x148000 VSize=0xc1a4 RawPtr=0x120200 RawSize=0xc200
+
+=== EXPORTS (directory RVA=0x107d20) ===
+DLL Name: WFEDll.dll
+Base ordinal: 1, num functions: 13, num names: 13
+ord=   1 rva=0x   2d800  ??0INIReader@@QAE@ABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z
+ord=   2 rva=0x   2da40  ?Get@INIReader@@QBE?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@ABV23@00@Z
+ord=   3 rva=0x   2e090  ?GetBoolean@INIReader@@QBE_NABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0_N@Z
+ord=   4 rva=0x   2e5b0  ?GetFloat@INIReader@@QBEMABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0M@Z
+ord=   5 rva=0x   2df20  ?GetInteger@INIReader@@QBEHABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0J@Z
+ord=   6 rva=0x   2ddf0  ?GetLong@INIReader@@QBEJABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0J@Z
+ord=   7 rva=0x   2e700  ?GetMap@INIReader@@QBEABV?$map@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@U?$less@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@V?$allocator@U?$pair@$$CBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@std@@@2@@std@@XZ
+ord=   8 rva=0x   2df60  ?GetReal@INIReader@@QBENABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0N@Z
+ord=   9 rva=0x   2df40  ?GetUInteger@INIReader@@QBEIABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0J@Z
+ord=  10 rva=0x   2dcc0  ?GetULong@INIReader@@QBEKABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0J@Z
+ord=  11 rva=0x   2d8a0  ?MakeKey@INIReader@@CA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@ABV23@0@Z
+ord=  12 rva=0x   2d890  ?ParseError@INIReader@@QBEHXZ
+ord=  13 rva=0x   2d620  ?ValueHandler@INIReader@@CAHPAXPBD11@Z
+
+=== IMPORTS ===
+
+[DLL] VERSION.dll
+  VerQueryValueA
+  GetFileVersionInfoA
+  GetFileVersionInfoSizeA
+
+[DLL] KERNEL32.dll
+  GetLastError
+  CloseHandle
+  K32GetProcessMemoryInfo
+  GetModuleHandleA
+  ReadFile
+  GetProcAddress
+  GetCurrentProcess
+  VirtualQuery
+  GetThreadContext
+  GetCurrentThread
+  GetModuleFileNameA
+  GetConsoleWindow
+  SetConsoleTitleA
+  AttachConsole
+  SetConsoleCP
+  GetCurrentProcessId
+  SetConsoleOutputCP
+  AllocConsole
+  VirtualProtect
+  TlsGetValue
+  SetLastError
+  GetTickCount64
+  GetLocalTime
+  WriteFile
+  UnmapViewOfFile
+  LoadLibraryA
+  FreeLibraryAndExitThread
+  Sleep
+  CreateThread
+  CreateFileMappingA
+  MapViewOfFile
+  GetFinalPathNameByHandleA
+  K32GetModuleInformation
+  HeapSize
+  DisableThreadLibraryCalls
+  GetCurrentThreadId
+  SuspendThread
+  ResumeThread
+  SetThreadContext
+  FlushInstructionCache
+  VirtualAlloc
+  VirtualFree
+  FreeLibrary
+  GetModuleHandleW
+  LoadLibraryExW
+  SetStdHandle
+  GetProcessHeap
+  FreeEnvironmentStringsW
+  GetEnvironmentStringsW
+  GetCommandLineW
+  GetCommandLineA
+  GetOEMCP
+  GetACP
+  IsValidCodePage
+  HeapReAlloc
+  EnumSystemLocalesW
+  GetUserDefaultLCID
+  IsValidLocale
+  GetLocaleInfoW
+  LCMapStringW
+  ReadConsoleW
+  GetConsoleMode
+  GetConsoleOutputCP
+  FlushFileBuffers
+  SetFilePointerEx
+  GetFileSizeEx
+  GetFileType
+  GetStdHandle
+  HeapAlloc
+  HeapFree
+  GetModuleFileNameW
+  ExitProcess
+  GetModuleHandleExW
+  ExitThread
+  TlsFree
+  TlsSetValue
+  TlsAlloc
+  WriteConsoleW
+  SetEndOfFile
+  K32EmptyWorkingSet
+  WideCharToMultiByte
+  InitializeCriticalSectionAndSpinCount
+  RaiseException
+  InterlockedFlushSList
+  RtlUnwind
+  InitializeSListHead
+  FormatMessageA
+  CreateFileW
+  FindClose
+  FindFirstFileExW
+  FindNextFileW
+  AreFileApisANSI
+  MultiByteToWideChar
+  LocalFree
+  GetLocaleInfoEx
+  WaitForSingleObjectEx
+  GetExitCodeThread
+  ReleaseSRWLockExclusive
+  AcquireSRWLockExclusive
+  TryAcquireSRWLockExclusive
+  QueryPerformanceCounter
+  QueryPerformanceFrequency
+  SleepConditionVariableSRW
+  EnterCriticalSection
+  LeaveCriticalSection
+  InitializeCriticalSectionEx
+  DeleteCriticalSection
+  EncodePointer
+  DecodePointer
+  LCMapStringEx
+  WakeAllConditionVariable
+  GetSystemTimeAsFileTime
+  GetStringTypeW
+  GetCPInfo
+  UnhandledExceptionFilter
+  SetUnhandledExceptionFilter
+  TerminateProcess
+  IsProcessorFeaturePresent
+  IsDebuggerPresent
+  GetStartupInfoW
+
+[DLL] USER32.dll
+  GetWindowRect
+  BlockInput
+  GetWindowLongA
+  SendMessageA
+  GetWindowInfo
+  ClipCursor
+  MapVirtualKeyA
+  DefWindowProcA
+  GetClientRect
+  GetWindowPlacement
+  SetWindowPlacement
+  MonitorFromWindow
+  GetMonitorInfoA
+  GetForegroundWindow
+  GetActiveWindow
+  SetCursorPos
+  GetCursorPos
+  SendInput
+  IsWindowVisible
+  ShowWindow
+  SetWindowPos
+  SetWindowLongA
+  GetKeyState
+  SetTimer
+  KillTimer
+  FindWindowA
+  GetWindowTextA
+
+=== ASCII STRINGS (len>=4) ===
+0x  108482                            
+0x   eef28    !"
+0x   ee638    ({:08X}) -> [ {} ]
+0x   fa072    %X
+0x   ee604    CAgentBaseAbs ({:08X}) -> CAgentWar3 ({:08X})
+0x   b01f5   _^[
+0x   e9400   !"#$%&'()*+,-./0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+0x   e99a7   !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+0x   e9580   !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~
+0x   ee670   ({}{:d})
+0x   ee5e4   ({}{})
+0x   f8c68   ({2:.3f} {1} {0}{3:.3f}|r)
+0x   f8c24   {:d} - {:d}
+0x   f8d74   {}{:.2f} sec|r
+0x   f8d2c   {0}{2:.2f} sec|r ({3:.2f} {1} {0}{4:.2f}|r)
+0x   f8cb8   {1}|r 
+0x   f8c98   {2:d} - {3:d} {0}{1}{4:d}|r
+0x   f8cc0   {2}|r ({3:d} {0} {4}|r 
+0x   f8cd9   {5:d} {0} {6}|r)
+0x   f261f   `0H
+0x   b43e0   <;u
+0x   f9000   |c{:X}{}{:.2f}|r
+0x   f2f2f   7 2 
+0x   e7fe8   Base Class Array'
+0x   e7fcc   Base Class Descriptor at (
+0x   fd2b8   cf>
+0x   e7ffc   Class Hierarchy Descriptor'
+0x   e801c   Complete Object Locator'
+0x   e7b08   delete
+0x   e7db4   delete[]
+0x   cc7e2   Ejs%
+0x   f8b84   FPS: {:5.2f}
+0x   abbee   j8Z
+0x   e7b00   new
+0x   e7dac   new[]
+0x   dfcb8   P>Gg
+0x   dd15e   P>GkD
+0x   7fff3   SVW
+0x   e7fb8   Type Descriptor'
+0x   ab548   VWh
+0x   b6a96   VWj
+0x   e7a48  __based(
+0x   e7a54  __cdecl
+0x   e7a9c  __clrcall
+0x   e7aa8  __eabi
+0x   e7a80  __fastcall
+0x   e7a5c  __pascal
+0x   e7ad4  __ptr64
+0x   e7adc  __restrict
+0x   e7a68  __stdcall
+0x   e7ab0  __swift_1
+0x   e7abc  __swift_2
+0x   e7ac8  __swift_3
+0x   e7a74  __thiscall
+0x   e7ae8  __unaligned
+0x   e7a8c  __vectorcall
+0x   d5230  _![GJ
+0x   a9ccf  _[^]
+0x   bbace  _^[]
+0x   9b4ec  _^[3
+0x   4b10c  _^[Y]
+0x   b0a39  _^tWh
+0x   59f4e  _^Y]
+0x   cfb58  _5eh6
+0x   e5148  _7`3
+0x   ea8a8  _cabs
+0x   c95ac  _CorExeMain
+0x   ae6c4  _f9;u
+0x   ea8b0  _hypot
+0x   ea8d4  _logb
+0x   ea8dc  _nextafter
+0x   b133d  _PSSSSS
+0x   ab8eb  _t^PVj@
+0x   e71e6  _w&2
+0x   e2488  --@C
+0x   ca603  -{:n
+0x   ae68e  -^_[
+0x  128008  -070D0u0
+0x   3f25b  -cpmut(
+0x   61351  -d3w+
+0x   3d54c  -d3w+t
+0x   61599  -d3w+t~
+0x   6147e  -dusA
+0x   61460  -euqAt
+0x   36db6  -iamAt'-
+0x   aff49  -jd[;
+0x   3d11d  -nrpu
+0x   5d52d  -Pj%
+0x   3f2a4  -rvmut
+0x   e6c7d  -sSN\
+0x   e393f  -ucD
+0x   135f6  -VQW
+0x   3f412  -xhsut
+0x   cdc20  ,`_0
+0x   f9106  ,<X94<
+0x   cb058  ,$,TPu
+0x  1263a0  ,01060C0J0W0^0i0r0y0
+0x  126858  ,0i0p2
+0x   d3208  ,6J@
+0x   d67cf  ,c>qI3
+0x   2e39b  ,h8z
+0x   2e4ba  ,hHz
+0x   2e5a1  ,hTz
+0x   ca7c4  ,oGlN
+0x   5d4bc  ,Pj$
+0x   cbe94  ,tjPV
+0x   cef3d  ,Z%'
+0x   cf137  ,Z%CR
+0x   cbea9  ,Z^$
+0x  12bcd5  ; ;(;,;4;8;@;D;L;P;X;\;d;h;p;t;|;
+0x  124df9  ; ;+;0;e;m;
+0x  129759  ; ;$;(;,;0;4;8;<;@;D;H;L;P;T;X;\;`;d;h;l;p;t;x;|;
+0x  12a37f  ; ;$;4;8;H;L;P;X;p;
+0x  12286d  ; ;6;>;D;P;X;_;
+0x  120a23  ; ;7;B;_;
+0x   d94a1  ;_`8
+0x   19cdf  ;_^[
+0x    5ab5  ;_^[+
+0x  1258fd  ;,;M;y;
+0x  120b0b  ;,;v;
+0x  128f23  ;,<6<@<Q<[<
+0x  1266d9  ;,<Z<x<
+0x  122ff3  ;:;y;
+0x  127037  ;!;(;H;
+0x  12147f  ;!;i;|;
+0x  1275af  ;.;B;a;u;
+0x  1216b5  ;.;S;b;s;
+0x  12542b  ;.=y=
+0x  12854d  ;';,;1;N;r;
+0x  122403  ;';1;T;^;h;r;|;
+0x  124d5f  ;';B;];};
+0x  124fa3  ;';X;
+0x  1245fb  ;";,;6;@;J;V;`;j;t;~;
+0x  12216b  ;";,;6;@;T;^;h;r;|;
+0x  120f17  ;(;,;0;4;p;t;x;|;
+0x  12403d  ;(;2;<;F;P;Z;d;n;x;
+0x  123b5f  ;(;3;G;j;|;
+0x  121dff  ;);?;
+0x  123795  ;);3;=;G;Q;[;e;o;y;
+0x  1231ed  ;);9;`;{;i=
+0x  120dfb  ;)<;<
+0x  124bd9  ;)<:<M<j<
+0x  1215b5  ;)<<<S<
+0x  1259c5  ;*;w;
+0x  124921  ;*<d<
+0x   e88c1  ;*xh
+0x  122d89  ;&;0;:;D;N;X;d;i;
+0x  121b63  ;&;0;:;D;S;X;
+0x  12076b  ;&;6;F;V;f;q;
+0x  125e2d  ;#;-;7;C;M;W;a;k;t;
+0x  127bd5  ;#;>;];x;
+0x  123a69  ;%;/;9;C;M;W;a;k;u;
+0x  1252b7  ;%;1;D;V;d;t;
+0x  126f6b  ;^<e<l<
+0x  127f4b  ;+;S;g;
+0x  128ceb  ;+<A<K<m<
+0x  123235  ;<;\;
+0x  1233ab  ;<<@<D<H<L<P<T<g<s<
+0x  12652f  ;=;f;
+0x  1278b3  ;=<M<
+0x  1277bf  ;><l<
+0x  125c37  ;><n<&=-={=
+0x  12b4e7  ;$;,;4;@;`;h;t;
+0x  12c231  ;$;,;4;<;D;L;T;\;d;l;t;|;
+0x  12b27b  ;$;,;4;<;H;h;p;x;
+0x  12a91f  ;$;,;8;X;`;l;
+0x  126063  ;$;:;B;I;
+0x  12b6dd  ;$;(;,;0;4;<;P;X;`;h;l;t;
+0x  127925  ;$;U;{;
+0x   ccd07  ;$?V
+0x  125679  ;0;:;G;
+0x   2e1fc  ;0rFj
+0x   27450  ;0tAA
+0x   4e5d8  ;0u :
+0x   75cd1  ;0uU
+0x  1273f7  ;1<<<U<w<
+0x  1259cf  ;1<A<
+0x   49dbf  ;1uS
+0x  128f07  ;2;<;g;q;{;
+0x  127df1  ;3;K;
+0x  1235a9  ;3<\<
+0x  128aa1  ;3<M<V<^<
+0x   b36f6  ;3t'
+0x   7dca0  ;3u6
+0x   ca961  ;5Bt
+0x  127f97  ;6;V;d;k;q;
+0x  12768d  ;7;g;
+0x  128973  ;7;T;h;s;
+0x  121085  ;8;_;x;
+0x  127147  ;8;>;G;c;
+0x  1268ef  ;8;F;O;
+0x  120b85  ;8<<<@<D<H<L<P<T<
+0x  120c0d  ;9<K<
+0x   179b1  ;9rO
+0x  1274bb  ;A;W;^;
+0x  124995  ;C;`;
+0x  122755  ;C;h;
+0x  126951  ;c;q;z;
+0x   9e3c1  ;csm
+0x   a3fc6  ;D9$
+0x  122723  ;f;w;
+0x  12681d  ;f<u<
+0x  126b85  ;F<W<
+0x   a2f7f  ;F4u
+0x   38019  ;G<s
+0x    9a75  ;H t
+0x  125055  ;H;v;
+0x  12581b  ;H;X;
+0x  1288a9  ;H<d<
+0x  1275bb  ;I<[<t<
+0x  127159  ;I<[<y<
+0x  126d49  ;i<y<
+0x  124847  ;i<y<h=r=m>y>
+0x   b5a16  ;K\u
+0x  121a1d  ;L<P<T<
+0x  1285f1  ;L>l>
+0x  1283ed  ;m;};
+0x  127c89  ;M;\;k;
+0x   9e645  ;MOC
+0x  126e5d  ;N<z<
+0x  124ef5  ;O;Y;d;v;
+0x   9bbdc  ;p$u
+0x   5db5b  ;Pj8
+0x  1241d1  ;Q<s<
+0x  120c67  ;r<Z=
+0x   9e64d  ;RCC
+0x  1241cb  ;S;u;
+0x   b5ad1  ;S\u
+0x  122887  ;T<d<
+0x   a3fbc  ;T9 
+0x   5bd5d  ;w$tP
+0x  121d4b  ;x;};
+0x  128137  ;x<S=6>f>
+0x   f93ff  ;X94<X94<
+0x  121ecf  ;Y;i;
+0x  1254bd  ;Y<k<
+0x  120f2f  ;Y=l=
+0x  12169b  : :):1:9:D:
+0x  12b6bf  : :@:`:
+0x  123761  : :*:4:>:H:R:\:f:p:z:
+0x  12bc7f  : :$:,:0:8:<:D:H:P:T:\:`:h:l:t:x:
+0x  127f25  : :$:(:,:0:4:8:<:@:D:H:L:P:
+0x  1295b9  : :$:(:,:0:4:8:<:@:D:H:L:P:T:X:\:`:d:h:l:p:t:x:|:
+0x  1251d7  :_:w:
+0x  127133  :;:A:J:f:
+0x  126523  :;:d:
+0x  128667  ::;U;k;
+0x  12874f  :!;Z;q;
+0x  125c29  :!:;:M:s;{;
+0x  121075  :!:1:
+0x   cee67  :!Nz
+0x  1250e1  :?;Y;n;u;
+0x  1273e5  :.;5;<;\;p;
+0x   cbc8a  :.BC
+0x  125a83  :';1;;;E;O;
+0x  1290d7  :';1;;;R;\;
+0x  125e07  :":(:Y:c:m:w:
+0x  1273d7  :":6:
+0x  122fe5  :":8:?:E:U:
+0x  125a79  :":n:~:
+0x  12a357  :(:,:0:8:P:`:p:t:x:
+0x  124ba9  :(:2:@:L:W:
+0x  1245cf  :(:2:<:F:P:_:i:s:}:
+0x  1262b9  :(:4:@:`:l:u:
+0x  1288ff  :(:G:M:r;
+0x  1218cf  :(:R:h:|:
+0x  1275a1  :(:U:
+0x  125517  :);;;
+0x  127b51  :);<;N;m;
+0x  123b49  :*:<:U:b:
+0x  127679  :*:0:V:
+0x  1205f9  :*:1:c:
+0x  1209bd  :/:_:x:1;8;
+0x  124919  :\;b;l;
+0x  123a3d  :&:5:?:I:S:]:g:q:{:
+0x   dfc51  :# #
+0x  128a95  :#;+;;;r;
+0x  122d5b  :%:/:9:C:M:W:a:k:u:
+0x  121b3b  :%:/:9:C:W:a:k:u:
+0x  127797  :%:2:?:L:Y:f:s:
+0x  128533  :%:F:S:h:q:z:
+0x  1259bb  :`:p:
+0x  128bdd  :<;{;
+0x  1290bb  :<:F:P:a:f:n:{:
+0x  126805  :<:h:";*;3;=;J;X;g;
+0x  12bf59  :<:X:
+0x  12565f  :>:K:U:i:v:
+0x  126c2b  :>:m:
+0x  1244c7  :$;2;8;l;v;
+0x  12c1f1  :$:,:4:<:D:L:T:\:d:l:t:|:
+0x  12b4bd  :$:,:4:<:D:L:T:`:
+0x  12b251  :$:,:8:X:`:l:
+0x  12a6c1  :$:,:8:X:d:
+0x  12400b  :$:.:8:B:L:V:`:j:t:~:
+0x  1244a9  :$:.:8:B:N:X:b:l:v:
+0x  124a27  :$:):
+0x  122267  :$:3:8:m:
+0x  120355  :$:H:N:T:[:
+0x  122b2f  :0;:;D;N;];g;q;{;
+0x   dcd58  :1)U
+0x  127229  :2;E;L;S;w;
+0x  1241bb  :2:;:i:{:
+0x  127c73  :2:>:P:b:{:
+0x  12159f  :2:H:\:a:j:
+0x  124d3d  :3:;:D:W:]:
+0x  1283e1  :3:m:
+0x  12131d  :4;C;I;O;Y;m;|;
+0x  122849  :4:<:B:N:V:\:
+0x  125049  :4:b:
+0x  128467  :5;Y;
+0x  1258ed  :6:b:r:
+0x  126885  :7;y<
+0x  124c71  :8;{;
+0x  124a31  :8;o;
+0x  1277b3  :9;L;o;
+0x  1229e5  :9:K:Q:W:]:i:
+0x  12781f  :A:u:
+0x  1235a1  :C:=;~;
+0x  1252ab  :C:i:
+0x   9e86e  :csm
+0x  127bc1  :D:[:w:
+0x  128d7b  :e;q;{;
+0x  122efd  :E;R;e;
+0x  128223  :E<M<x<
+0x   fd587  :Esp
+0x   b5cdc  :f;>u
+0x  1262cd  :F;L;
+0x   d9f89  :F!$
+0x   db270  :f/&
+0x  1279eb  :f<x<j?
+0x  12721b  :G:^:
+0x  128eed  :G:Q:[:r:|:
+0x  120fef  :H<r<
+0x  1217c1  :I;\;u;
+0x  12541d  :I:Y:
+0x   e2578  :jW~1
+0x  1266cf  :M;{;
+0x  1251e1  :M;f;u;
+0x  1208e7  :m;s;
+0x  1269c5  :m:{:
+0x   5daea  :Pj7
+0x  124ee1  :Q:j:
+0x   4ccc0  :SPQWV
+0x  128e31  :t;k<
+0x  126e4b  :t:{:
+0x   cf061  :U9+
+0x  1278ad  :V;f;
+0x   e705b  :V!2m
+0x  121fe7  :Y;l;
+0x   ca430  !4(x]
+0x   e6d34  !a9X
+0x   b52c5  !FX@
+0x   ca634  !q^}M)R
+0x   67768  !t5j
+0x      4d  !This program cannot be run in DOS mode.
+0x   fc007  ? ,6
+0x  12b8cd  ? ?(?,?4?8?@?D?L?P?X?\?d?h?p?t?|?
+0x  129d0f  ? ?(?0?8?@?H?P?X?`?h?p?x?
+0x  12b595  ? ?(?0?8?@?L?l?t?
+0x  12385f  ? ?*?4?>?H?R?\?f?p?z?
+0x  1298bb  ? ?$?(?,?0?4?<?@?D?H?L?P?T?X?d?l?t?x?|?
+0x  129fa1  ? ?$?(?,?0?4?P?T?X?\?t?x?|?
+0x  129a49  ? ?$?X?d?p?|?
+0x  128349  ?,?A?Q?^?
+0x  123bbb  ?:?L?e?r?
+0x   fb2ef  ?:Rp
+0x  12568f  ?!?-?3?8?>?E?y?
+0x  120653  ?!?<?Z?a?v?
+0x  128f77  ?!?1?A?Q?a?k?
+0x  1207ed  ?!?1?F?V?c?h?r?
+0x  126e89  ?!?8?l?
+0x  1067d5  ??0INIReader@@QAE@ABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z
+0x  122449  ?.?>?W?g?
+0x  125c73  ?.?8?B?L?[?e?o?y?
+0x  12485b  ?.?q?
+0x   fccff  ?."S-
+0x  123e5d  ?'?1?;?E?O?Y?c?r?|?
+0x  1235bf  ?'?W?
+0x  122bbd  ?"?.?8?A?V?_?
+0x  12453f  ?"?*?J?
+0x  128405  ?"?m?|?
+0x   520ff  ?"tn
+0x  129f3d  ?(?@?X?p?
+0x  12a42d  ?(?8?<?@?H?`?p?
+0x   fbe8f  ?(F_
+0x  128253  ?)?7?>?D?_?f?
+0x  1286d3  ?)?9?
+0x  126f9f  ?)?l?
+0x  1259f1  ?)?v?
+0x   fb14f  ?)]G
+0x   f9ecf  ?)0>
+0x   faeaf  ?)Ao
+0x  125795  ?]?m?
+0x   fae0f  ?{yK+;
+0x   fafba  ?}>v
+0x   11e32  ?}u4
+0x   11e02  ?}un
+0x   fb3b7  ?* A
+0x  12094f  ?\?s?
+0x  1274ff  ?&?+?^?o?
+0x  126371  ?&?5???I?S?s?}?
+0x   d0238  ?&[+
+0x  120397  ?#?-?O?d?
+0x  125ebd  ?#?/?9?B?X?`?g?
+0x  1222e1  ?#?2?7?l?
+0x  12137b  ?#?2?A?F?O?
+0x  12847d  ?#?c?
+0x  121811  ?#?T?^?h?n?
+0x   12a2c  ?#u 
+0x  122a4f  ?%?/?9?C?M?W?a?k?u?
+0x   fb147  ?`\@
+0x   d5017  ?`Ht
+0x  122531  ?+?F?s?
+0x  127959  ?>?H?
+0x  1275e5  ?>?R?
+0x  1269e7  ?>?U?
+0x   facef  ?>6)}
+0x   f9eaf  ?|}}
+0x   d2d96  ?~I$
+0x   d30c8  ?~uA
+0x  12a147  ?$?,?0?4?<?@?D?H?L?T?X?\?`?d?l?p?t?x?
+0x  12c331  ?$?,?4?<?D?L?T?\?d?l?t?|?
+0x  12b327  ?$?,?4?<?D?L?X?x?
+0x  12be2b  ?$?(?0?4?<?@?H?L?T?X?`?d?l?p?x?|?
+0x  12a995  ?$?D?L?T?\?h?
+0x  1276cd  ?$?H?N?W?s?
+0x   fb237  ?$*2
+0x   fd38f  ?$rxxx
+0x   12a51  ?0u&
+0x  1250ff  ?1?6?@?G?`?
+0x  12109d  ?1?r?
+0x   fbcbf  ?1mm
+0x  121917  ?3?`?j?
+0x   fd367  ?333333
+0x  121e25  ?4?;?A?N?
+0x  127425  ?4?n?y?
+0x  128bf7  ?4?r?
+0x   fa45f  ?4Td
+0x   edb37  ?5Wg4p
+0x   faeef  ?765@Z
+0x  127ebb  ?8???D?H?L?P?
+0x   e6467  ?8EGr
+0x  125933  ?a?q?
+0x   f5b73  ?AutoHotkey.exe
+0x   fb017  ?B?}
+0x  126573  ?C?O?T?m?r?
+0x   fc4db  ?c3y
+0x   fcbbb  ?c3y?
+0x   fb4cf  ?cos
+0x   9bedb  ?csm
+0x   fab0f  ?dDR
+0x  12170f  ?E?_?
+0x   fb37f  ?e')lW
+0x  124699  ?F?T?z?
+0x   e63a7  ?fffff
+0x   e636f  ?ffffff
+0x   fa9bf  ?FnH
+0x  10682a  ?Get@INIReader@@QBE?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@ABV23@00@Z
+0x  106888  ?GetBoolean@INIReader@@QBE_NABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0_N@Z
+0x  1068ea  ?GetFloat@INIReader@@QBEMABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0M@Z
+0x  106948  ?GetInteger@INIReader@@QBEHABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0J@Z
+0x  1069a8  ?GetLong@INIReader@@QBEJABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0J@Z
+0x  106a05  ?GetMap@INIReader@@QBEABV?$map@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@U?$less@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@V?$allocator@U?$pair@$$CBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V12@@std@@@2@@std@@XZ
+0x  106b1c  ?GetReal@INIReader@@QBENABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0N@Z
+0x  106b79  ?GetUInteger@INIReader@@QBEIABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0J@Z
+0x  106bda  ?GetULong@INIReader@@QBEKABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@0J@Z
+0x   dd9b8  ?h$2,
+0x   fae67  ?i|e
+0x   fa10f  ?ju!4
+0x   fb19f  ?KYC
+0x  1260ed  ?L?V?`?j?t?~?
+0x   fb257  ?l$G~
+0x   fa8ef  ?M]-
+0x   fab9f  ?m}I
+0x   fcc47  ?m|1
+0x  106c38  ?MakeKey@INIReader@@CA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@ABV23@0@Z
+0x   9bed3  ?MOC
+0x   e8a7f  ?nz(
+0x   fa5bf  ?o.x
+0x   fd14f  ?P),
+0x   fb6bf  ?P/Y
+0x  106c98  ?ParseError@INIReader@@QBEHXZ
+0x   5dd1f  ?Pj<
+0x   fb47f  ?PV3
+0x   9becb  ?RCC
+0x   fbcdf  ?sin
+0x   b8903  ?SVW
+0x   e42d8  ?tb(
+0x   fd4a7  ?UUUUUU
+0x   fbb5f  ?uZEeu
+0x   fa43f  ?V:e:
+0x  106cb6  ?ValueHandler@INIReader@@CAHPAXPBD11@Z
+0x   fabff  ?VV&
+0x   8b40e  ?w|P
+0x   fd21f  ?X1U
+0x   fbbbf  ?Xw$
+0x   fa96f  ?y]h
+0x  128a0d  ?Z?b?n?
+0x   fb387  ?zD@
+0x   fab6f  ?ZEM-'^
+0x   fa20f  ?Zxg
+0x  11dd14  .?AU_Crt_new_delete@std@@
+0x  11db9c  .?AU_Fmt_buffer_traits@std@@
+0x  11dcd4  .?AUctype_base@std@@
+0x  11dd58  .?AV_Facet_base@std@@
+0x  11df54  .?AV_Generic_error_category@std@@
+0x  11dd78  .?AV_Iostream_error_category2@std@@
+0x  11db40  .?AV_Locimp@locale@std@@
+0x  11df28  .?AV_System_error_category@std@@
+0x  11d93c  .?AV_System_error@std@@
+0x  11dc94  .?AV?$_Fmt_buffer@D@std@@
+0x  11dbc8  .?AV?$_Fmt_iterator_buffer@V?$back_insert_iterator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@std@@DU_Fmt_buffer_traits@2@@std@@
+0x  11e660  .?AV?$_Func_base@X$$V@std@@
+0x  11e688  .?AV?$_Func_impl_no_alloc@V<lambda_1>@?4??SetRenderingState@CBuffUI@@SAX_N@Z@X$$V@std@@
+0x  11e6e8  .?AV?$_Func_impl_no_alloc@V<lambda_1>@?4??SetRenderingState@CCooldownUI@@SAX_N@Z@X$$V@std@@
+0x  11e750  .?AV?$_Func_impl_no_alloc@V<lambda_1>@?4??SetState@CustomIndicator@Features@@YAX_N@Z@X$$V@std@@
+0x  11def0  .?AV?$_Iosb@H@std@@
+0x  11de04  .?AV?$basic_filebuf@DU?$char_traits@D@std@@@std@@
+0x  11deb8  .?AV?$basic_ios@DU?$char_traits@D@std@@@std@@
+0x  11ddc8  .?AV?$basic_ofstream@DU?$char_traits@D@std@@@std@@
+0x  11de40  .?AV?$basic_ostream@DU?$char_traits@D@std@@@std@@
+0x  11de7c  .?AV?$basic_streambuf@DU?$char_traits@D@std@@@std@@
+0x  11dc68  .?AV?$codecvt@DDU_Mbstatet@@@std@@
+0x  11dcb8  .?AV?$ctype@D@std@@
+0x  11e0a8  .?AV?$InstanceGenerator@UCFrameWar3EventData@@@@
+0x  11e070  .?AV?$InstanceGenerator@UCFrameWar3EventReg@@@@
+0x  11e5a8  .?AV?$InstanceGenerator@UCPlayerKeyEventReg@@@@
+0x  11e150  .?AV?$InstanceGenerator@UCPlayerMinimapPingEventData@@@@
+0x  11e56c  .?AV?$InstanceGenerator@UCPlayerMouseEventReg@@@@
+0x  11e198  .?AV?$InstanceGenerator@UCPlayerProjectileEventData@@@@
+0x  11e1d8  .?AV?$InstanceGenerator@UCPlayerTradeResourceEventData@@@@
+0x  11e220  .?AV?$InstanceGenerator@UCPlayerUnitAbilityLevelChangedEventData@@@@
+0x  11e270  .?AV?$InstanceGenerator@UCPlayerUnitAbsorbItemChargesEventData@@@@
+0x  11e2c0  .?AV?$InstanceGenerator@UCPlayerUnitAnyItemEventData@@@@
+0x  11e308  .?AV?$InstanceGenerator@UCPlayerUnitMoveItemSlotEventData@@@@
+0x  11e350  .?AV?$InstanceGenerator@UCPlayerUnitSpellOtherEventDataBase@@@@
+0x  11e5e0  .?AV?$InstanceGenerator@UCPlayerVariableSyncEventReg@@@@
+0x  11e398  .?AV?$InstanceGenerator@UCProjectileEventData@@@@
+0x  11e3d8  .?AV?$InstanceGenerator@UCUnitAbilityLevelChangedEventData@@@@
+0x  11e420  .?AV?$InstanceGenerator@UCUnitAbsorbItemChargesEventData@@@@
+0x  11e468  .?AV?$InstanceGenerator@UCUnitAnyItemEventData@@@@
+0x  11e4a8  .?AV?$InstanceGenerator@UCUnitMoveItemSlotEventData@@@@
+0x  11e4e8  .?AV?$InstanceGenerator@UCUnitSpellOtherEventDataBase@@@@
+0x  11e52c  .?AV?$InstanceGenerator@UCWidgetDamagedEventData@@@@
+0x  11dfa4  .?AV?$InstanceGenerator@VCCameraHandle@@@@
+0x  11dfd8  .?AV?$InstanceGenerator@VCDataFieldWar3@@@@
+0x  11e00c  .?AV?$InstanceGenerator@VCDoodadWar3@@@@
+0x  11e040  .?AV?$InstanceGenerator@VCFrameWar3@@@@
+0x  11e0e4  .?AV?$InstanceGenerator@VCHandleListWar3@@@@
+0x  11e11c  .?AV?$InstanceGenerator@VCSpriteWar3@@@@
+0x  11db7c  .?AV?$numpunct@D@std@@
+0x  11da6c  .?AV<lambda_1>@?4??SetRenderingState@CBuffUI@@SAX_N@Z@
+0x  11dab0  .?AV<lambda_1>@?4??SetRenderingState@CCooldownUI@@SAX_N@Z@
+0x  11daf8  .?AV<lambda_1>@?4??SetState@CustomIndicator@Features@@YAX_N@Z@
+0x  11d920  .?AVbad_alloc@std@@
+0x  11d9dc  .?AVbad_any_cast@std@@
+0x  11d8f8  .?AVbad_array_new_length@std@@
+0x  11d8dc  .?AVbad_cast@std@@
+0x  11d878  .?AVbad_exception@std@@
+0x   f6938  .?AVCAgentListWar3@@
+0x   f684c  .?AVCCameraHandle@@
+0x   f6a8c  .?AVCCPlayerMinimapPingEventData@@
+0x   f6af4  .?AVCCPlayerTradeResourceEventData@@
+0x   f6870  .?AVCDataFieldWar3@@
+0x   f6898  .?AVCDoodadWar3@@
+0x   f68d8  .?AVCFrameWar3@@
+0x   f68ec  .?AVCFrameWar3EventData@@
+0x   f68bc  .?AVCFrameWar3EventReg@@
+0x  11dcf4  .?AVcodecvt_base@std@@
+0x   f6df0  .?AVCPlayerKeyEventReg@@
+0x   f6a68  .?AVCPlayerMinimapPingEventData@@
+0x   f6dd4  .?AVCPlayerMouseEventReg@@
+0x   f6ac0  .?AVCPlayerProjectileEventData@@
+0x   f6b1c  .?AVCPlayerTradeResourceEventData@@
+0x   f6b50  .?AVCPlayerUnitAbilityLevelChangedEventData@@
+0x   f6b90  .?AVCPlayerUnitAbsorbItemChargesEventData@@
+0x   f6bcc  .?AVCPlayerUnitAnyItemEventData@@
+0x   f6c00  .?AVCPlayerUnitMoveItemSlotEventData@@
+0x   f6c38  .?AVCPlayerUnitSpellOtherEventDataBase@@
+0x   f6e2c  .?AVCPlayerVariableSyncEventReg@@
+0x   f6c74  .?AVCProjectileEventData@@
+0x   f6960  .?AVCSpriteWar3@@
+0x   f6ca0  .?AVCUnitAbilityLevelChangedEventData@@
+0x   f6cd8  .?AVCUnitAbsorbItemChargesEventData@@
+0x   f6d10  .?AVCUnitAnyItemEventData@@
+0x   f6d3c  .?AVCUnitMoveItemSlotEventData@@
+0x   f6d70  .?AVCUnitSpellOtherEventDataBase@@
+0x   f6da4  .?AVCWidgetDamagedEventData@@
+0x  11dda4  .?AVerror_category@std@@
+0x  11d99c  .?AVexception@std@@
+0x  11dd38  .?AVfacet@locale@std@@
+0x  11d8b8  .?AVfailure@ios_base@std@@
+0x  11d898  .?AVformat_error@std@@
+0x  11da28  .?AVinvalid_argument@std@@
+0x  11df0c  .?AVios_base@std@@
+0x  11d858  .?AVlength_error@std@@
+0x  11e624  .?AVLibraryHandler@@
+0x  11da08  .?AVlogic_error@std@@
+0x  11df80  .?AVMPQ@LibraryHandler@@
+0x  11da4c  .?AVout_of_range@std@@
+0x  11d97c  .?AVruntime_error@std@@
+0x  11d95c  .?AVsystem_error@std@@
+0x  11db64  .?AVtype_info@@
+0x  11e644  .?AVWFEInstance@@
+0x   fc360  ."S-
+0x   e2308  .)DY
+0x  125860  .0>0
+0x   ff334  .00cfg
+0x   e659e  .Afff
+0x   f8b60  .asi
+0x   f7244  .blp
+0x   ff630  .bss
+0x   ff344  .CRT$XCA
+0x   ff358  .CRT$XCC
+0x   ff36c  .CRT$XCL
+0x   ff380  .CRT$XCU
+0x   ff394  .CRT$XCZ
+0x   ff3a8  .CRT$XIA
+0x   ff3bc  .CRT$XIC
+0x   ff3d0  .CRT$XIZ
+0x   ff3e4  .CRT$XLA
+0x   ff3f8  .CRT$XLZ
+0x   ff40c  .CRT$XPA
+0x   ff420  .CRT$XPX
+0x   ff434  .CRT$XPXA
+0x   ff448  .CRT$XPZ
+0x   ff45c  .CRT$XTA
+0x   ff470  .CRT$XTZ
+0x   ff5fc  .data
+0x   ff60c  .data$r
+0x   ff61c  .data$rs
+0x   f7210  .dds
+0x   c95b8  .detour
+0x   ff640  .detourc
+0x   ff654  .detourd
+0x   ff59c  .edata
+0x   107c4  .Fj0V
+0x   f8b68  .flt
+0x   ff5ac  .idata$2
+0x   ff5c0  .idata$3
+0x   ff5d4  .idata$4
+0x   ff320  .idata$5
+0x   ff5e8  .idata$6
+0x   f8b58  .m3d
+0x   f8b24  .mix
+0x  11b150  .mix|.asi|.flt
+0x  11b108  .mpq
+0x   5d59e  .Pj&
+0x   ca8e3  .Q.U
+0x   ff484  .rdata
+0x   ff4a8  .rdata$r
+0x   ff4bc  .rdata$sxdata
+0x   ff494  .rdata$T
+0x   ff4d4  .rdata$voltmd
+0x   ff4ec  .rdata$zzzdbg
+0x     2d8  .rsrc
+0x   ff668  .rsrc$01
+0x   ff67c  .rsrc$02
+0x   ff504  .rtc$IAA
+0x   ff518  .rtc$IZZ
+0x   ff52c  .rtc$TAA
+0x   ff540  .rtc$TZZ
+0x   d39d3  .T1/
+0x     210  .text
+0x   ff2d4  .text$di
+0x   ff2e8  .text$mn
+0x   ff2fc  .text$x
+0x   ff30c  .text$yd
+0x   f723c  .tga
+0x   f6228  .tga|.blp|.png|.dds|.jpg
+0x   ff554  .tls
+0x   ff564  .tls$
+0x   ff574  .tls$ZZZ
+0x  11b0f0  .w3g
+0x  11b120  .w3n
+0x   f72b8  .w3n|.w3g
+0x  11b138  .w3x|.w3m
+0x   ff588  .xdata$x
+0x   f7d84  '{}'
+0x  123d5c  '050<0R0_0
+0x   f9eda  'HR%
+0x   e51b7  'wnGz$
+0x   f7f3a  "{}" [{:d} bytes : {}]
+0x  1271a0  "0@0
+0x  123468  "0Z0c0
+0x   edd9a  "B <1=
+0x   d7af8  "Mw^r
+0x   e4369  "P3gy
+0x   fc8fd  "Q??
+0x   e86b2  "RP(
+0x   a9587  "tNj
+0x   ca7d9  "Vfy
+0x   b04d2  (_^[
+0x   e6e7a  (:W"
+0x   ee6dc  ({}{:d})
+0x   be334  (``f
+0x   cc5fb  (`>P
+0x   be370  (H@f
+0x   be32b  (H0f
+0x   be35f  (Hpf
+0x   e1219  (K m
+0x   d59c9  (K|i
+0x   e5161  (K1.
+0x   edc32  (lX 
+0x   f7978  (null)
+0x   5d2f8  (Pj 
+0x   f724c  (priority)
+0x   653e3  (SVW
+0x   e120f  (yt*
+0x   e4591  (ytR>
+0x   e1915  (ytR>u
+0x   d33c9  )):4
+0x   e3330  )`#?
+0x   e3970  )BEI/
+0x   e6acc  )c=H
+0x   4e8d7  )D$(
+0x   e606f  )jXG
+0x   658f7  )L$()T$,
+0x   d9ed9  )ob&
+0x   5d369  )Pj!
+0x   dff39  )R85
+0x   f7fa8  [ '{}' | {:d} ]
+0x   f7d10  [ '{}' | {:d} ] {:d}
+0x   9eeb2  [_^]
+0x   e892b  ["93
+0x   cb8ea  [(~[
+0x   f8b2c  [{}] {}
+0x   e72f9  [@JO
+0x   e6c25  [*QlU
+0x   58f46  [^_]
+0x  12171c  [0`0v0~0
+0x   e8654  [aOni*{
+0x   d1ba0  [hN"
+0x   d7468  [NVJ2
+0x   d5e56  [NVJfx'
+0x   b1039  [PVVVVV
+0x   b09b3  [Sh,
+0x   b0995  [Sh$
+0x   b09d1  [Sh4
+0x   da400  ]]S5
+0x   f9776  ]>Zd
+0x   d2015  ]C14
+0x   cbfd8  ]HTP
+0x   e6ad5  ]rH`
+0x   d2619  ]UY!
+0x   cb51b  ]xEc
+0x   e1888  ]xgK
+0x   f67b0  {:.0f}
+0x   f677c  {:.0f} {}
+0x   f67c4  {:.1f}
+0x   f6794  {:.2f} {}
+0x   f67a0  {:.2f}b
+0x   f678c  {:.2f}k
+0x   f67a8  {:.2f}m
+0x   f71d4  {:02d}{}{:02d}{}{:02d}
+0x   f673c  {:08X}
+0x   ee5c8  {:d}
+0x   ee5d4  {:d} ({}{:d})
+0x   ee55c  {:d}, {:d}
+0x   f67b8  {:d}:{:02d}
+0x   f5cd8  {:d}/{:d}
+0x   f6fcc  {:f}
+0x   d5950  {'e4
+0x   d49b6  {'e4|
+0x   f7df8  {} '{}'
+0x   f7e30  {} [ '{}' | {:d} ]
+0x   f8c5c  {} {:.0f}|n
+0x   f73e4  {} {:02d}:{:02d}
+0x   f7330  {} {:d}
+0x   f7338  {} {:d}/{:d}
+0x   f7384  {} {:d}% | {} {:d}%
+0x   f7df0  {} {:f}
+0x   f7de8  {} {}
+0x   f8188  {} {} [ '{}' | {:d} ]
+0x   f8140  {} {} [ '{}' | {:d} ] Level: {:d}
+0x   f8018  {} {} = [ '{}' | {:d} ]
+0x   f8d60  {} {}{:.0f}%|r|n
+0x   f8dd0  {} {}{:.2f}%|r|n
+0x   f8c84  {} {}{:.3f}/sec|r
+0x   f8d14  {} {}|n
+0x   f7fc8  {} = [ '{}' | {:d} ]
+0x   f734c  {} >> {}
+0x   f72fc  {} >> {} {:.0f}
+0x   f736c  {} >> {} {:d} - {:d}
+0x   f730c  {} >> {} {:d} | {} {:d} | {} {:d}
+0x   f73c4  {} >> {} {:d}/{:d} ({:.2f}%)
+0x   f72ec  {} >> {} | {}
+0x   f7358  {} >> {} | {} {}
+0x   f7398  {} >> lvl: {:d} | xp: {:d}/{:d} ({:.2f}%)
+0x   ee5ec  {} | '{}' | {} | {}
+0x   f7e44  {} ERROR!
+0x   f81cc  {} GameDll = {:08X} | StormDll = {:08X}
+0x   f823c  {} is {}d!
+0x   f7f80  {} x = {:.2f} | y = {:.2f} | z = {:.2f}
+0x   f80a0  {} x = {:f} | y = {:f} | z = {:f}
+0x   f806c  {}->{} [ '{}'->'{}' | {:d}->{:d} ]
+0x   f67cc  {}: 
+0x   f7e14  {}( {:d} ) {} {}( {:d} )
+0x   f7edc  {}( {} ) = int = {:d} | uint = {:d} | {:08X}
+0x   f8d84  {}{:.0f}%|r
+0x   f8e40  {}{:.0f}|r
+0x   f8c10  {}{:d}
+0x   f67d4  {}{}
+0x   f8fd8  {}|c{:X}{:.2f}%|r
+0x   f8cf8  {}|n
+0x   f7e50  {}Count: {:d} | Total Length: {:d} | Total Memory Occupied: {:d} (bytes)
+0x   f8e4c  {0}{3:.0f}|r ({4:.0f} {1} {2}{5:.2f}|r)
+0x   f8e18  {0}{3:.1f}|r ({4:.0f} {1} {2}{5:.1f}|r)
+0x   f8d90  {0}{3:.2f}%|r ({4:.2f}% {1} {2}{5:.2f}%|r)
+0x   cb912  {vQ@
+0x   d86c9  {Xb4z
+0x   d6ff5  {Xb4z:
+0x   e725e  {zel#|67
+0x   d5ca7  {Zn[
+0x   cb2f2  }?G4g*
+0x   b01b1  }'9E
+0x   b28bf  }$YY
+0x   dace8  }4PU
+0x   fb362  }6lw
+0x   e4e59  }HL6
+0x   e129e  }m9h
+0x   e4620  }m9hR'
+0x   e19a4  }m9hR'>M.
+0x   e1858  }Nws/
+0x   d11a9  }r &
+0x   edd3c  }s"=
+0x   fa8b2  }Tw5
+0x   9e8cd  @_^[]
+0x   cf86e  @,#~
+0x     25f  @.data
+0x     2af  @.detourd
+0x     2ff  @.reloc
+0x   ad114  @( t
+0x   e648f  @]D5
+0x   e3118  @*p{
+0x   439eb  @|_^[
+0x   d18b8  @~I$
+0x  12727c  @0G0N0n0
+0x  12b754  @1D1H1L1P1T1X1\1`1d1p1t1x1|1
+0x   e867e  @2&@
+0x   cbe49  @3{?
+0x   e64d7  @3333
+0x   cc258  @9hP
+0x   d2140  @AgP
+0x   e8844  @b;zO]
+0x   e6ef1  @BXV
+0x   e6537  @fff
+0x   3f82f  @h_^
+0x   e6fc6  @iZb
+0x   d6b60  @jd!
+0x   dbb58  @JjN
+0x   3a31e  @p;E
+0x   5dd64  @Pj=
+0x   d0967  @T>`
+0x    de77  @tif
+0x   9e6f7  @u)j
+0x   3384e  @WPV
+0x   44bbc  @x^_[
+0x   cb6e1  @Zo@
+0x   cc332  * ^{
+0x   cb0c0  * Bj*y
+0x   b2bd8  *?QP
+0x   fa731  *+xi(
+0x  121f18  *0:0
+0x   5d3da  *Pj"
+0x   e4b18  *REm
+0x   b2824  *ti-
+0x   d380c  *X)u
+0x   d4505  /_![G
+0x   d4ff1  /_![GJ
+0x   e1dd0  /;#(
+0x   cbd50  />tsF
+0x   f3054  /3dnow
+0x    d0d8  /Kim
+0x   f3040  /mod
+0x   d4269  /Mz8
+0x   5d60f  /Pj'
+0x   f3038  /reg
+0x   f305c  /sse
+0x   f304c  /vendor
+0x   f3068  /vex
+0x   f3070  /vexl
+0x   f3078  /vexw
+0x   f3080  /x87
+0x   cf8a1  /Z{2
+0x   edda9  \-!y
+0x   cbe60  \!4O5
+0x   dd66e  \%Fd
+0x   e0288  \%Fd"U
+0x   e89c2  \lo}
+0x   cc1c6  \t`>.
+0x   e6de7  \xsK
+0x   e54b8  \Xw^(
+0x   d4d98  &+y|
+0x   d4236  &+y|O{
+0x   e32df  &<xD
+0x   d9561  &|E%
+0x  124c1c  &000=0D0W0u0
+0x  120c3c  &040
+0x  1224c8  &141
+0x   fcdb5  &2@UUUUUU
+0x   e5f21  &P9)
+0x   e89e7  &Sgw
+0x   d0c04  #_.!@
+0x   d0ea6  #_.!x
+0x   cf2fe  #;6m:
+0x   ceef2  #;6m89
+0x   cf0ec  #;6m89P
+0x   eddcb  #.X'=
+0x   edcfc  #{ =
+0x   e6516  #@wJ
+0x   cdf06  #89=
+0x   cdd84  #89=E
+0x   fc46a  #wi#:
+0x   fccaa  #wi#:=
+0x   e6d64  %4xY
+0x   f624c  %d.%d.%d.%d
+0x   e2a59  %GQ 
+0x   cade6  %J\eH
+0x   edd49  %S#[k
+0x     237  `.rdata
+0x   edd01  `~R=
+0x   e8038  `anonymous namespace'
+0x   e7d40  `copy constructor closure'
+0x   e7c14  `default constructor closure'
+0x   d2cc1  `Du)
+0x   e7ecc  `dynamic atexit destructor for '
+0x   e7eb0  `dynamic initializer for '
+0x   e7cd4  `eh vector constructor iterator'
+0x   e7e5c  `eh vector copy constructor iterator'
+0x   e7cf8  `eh vector destructor iterator'
+0x   e7d18  `eh vector vbase constructor iterator'
+0x   e7e84  `eh vector vbase copy constructor iterator'
+0x   e7bbc  `local static guard'
+0x   e7f6c  `local static thread guard'
+0x   e7d88  `local vftable constructor closure'
+0x   e7d78  `local vftable'
+0x   e7e0c  `managed vector constructor iterator'
+0x   e7f40  `managed vector copy constructor iterator'
+0x   e7e34  `managed vector destructor iterator'
+0x   e7dc0  `omni callsig'
+0x   e7dd0  `placement delete closure'
+0x   e7dec  `placement delete[] closure'
+0x   e7d70  `RTTI
+0x   e7c34  `scalar deleting destructor'
+0x   e7bd4  `string'
+0x   d17a6  `tQl
+0x   d14d4  `tQl3
+0x   e7bb0  `typeof'
+0x   e1810  `u"Z2
+0x   e7d5c  `udt returning'
+0x   e7be0  `vbase destructor'
+0x   e7b9c  `vbtable'
+0x   e7ba8  `vcall'
+0x   e7c54  `vector constructor iterator'
+0x   e7ef0  `vector copy constructor iterator'
+0x   e7bf4  `vector deleting destructor'
+0x   e7c74  `vector destructor iterator'
+0x   e7c94  `vector vbase constructor iterator'
+0x   e7f14  `vector vbase copy constructor iterator'
+0x   e7b90  `vftable'
+0x   e7cb8  `virtual displacement map'
+0x   99776  ^_[]
+0x   9c08c  ^_[3
+0x   cc2f4  ^!\E
+0x   fb2e9  ^\sY0
+0x   19845  ^^[]
+0x   e8da2  ^<V7w
+0x   da3d9  ^|-U
+0x   a2484  ^88_
+0x   d2407  ^gm$x,
+0x   d2105  ^gmjp*
+0x   d1e1b  ^gmjpP
+0x   e2531  ^H}:
+0x   b6df7  ^PQQQQQ
+0x   dd581  ^W\$
+0x   cb219  ^WdP
+0x   df400  ^z0h
+0x   fcae0  +*tsJ
+0x   e6dce  +\/I
+0x   d667f  +<[>
+0x  128418  +0^0
+0x   3fab9  +1du
+0x   3fb37  +1rut*
+0x   3fb2d  +1suwBt9
+0x   dcf81  +2D(
+0x   3f9ff  +2ru
+0x   d389c  +6J@
+0x   e0420  +70r
+0x   39bfa  +D$ t
+0x   5d44b  +Pj#
+0x   3f9b2  +vmut
+0x   d3178  +X)u
+0x   ddfa1  +yO!
+0x   cada0  +yv|
+0x  124e17  < <-<3<E<J<T<Y<c<h<r<w<
+0x  12a0d1  < <(<
+0x  12b7cd  < <(<,<4<8<@<D<L<P<X<\<d<h<p<t<|<
+0x  1209cb  < <$<(<
+0x  12a3ab  < <$<(<0<H<X<h<l<p<x<
+0x   aa453  < t4<
+0x  124629  <-<7<A<K<Z<d<n<x<
+0x  126775  <-=~=
+0x  128285  <,<C<^<
+0x   2c81a  <;tw<#ts
+0x  128b67  <:=P=`=
+0x  126ccd  <:=W=
+0x   b2e13  <:u 
+0x  125779  <?=O=
+0x  127dff  <?=r=
+0x  120b9b  <?>_>
+0x   132b2  <?u:
+0x  11ff90  <?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+0x  12505f  <.<\<
+0x  121493  <.<=<b<q<
+0x  128b5b  <.<4<I<n<
+0x  1262ef  <'<1<;<E<O<Y<h<r<|<
+0x  125e53  <'<1<;<J<T<^<h<r<
+0x  120611  <'<D<a<~<
+0x  123d17  <'<G<Q<]<g<s<x<
+0x   de319  <'f7
+0x  1244eb  <"<,<6<?<U<]<d<
+0x  1211d5  <"<,<6<@<J<T<h<r<|<
+0x  1290f3  <"<,<W<a<k<
+0x  125b3d  <"<><{<
+0x  125a93  <"<L<j<
+0x  1274cd  <"<X<{<
+0x  1250f5  <"=B=I=
+0x  121d59  <"=i=y=
+0x  121c89  <(<0<6<?<G<
+0x  12a703  <(<0<8<@<H<T<t<|<
+0x  12b713  <(<0<D<L<`<h<l<p<t<|<
+0x  12b50b  <(<H<P<X<`<p<
+0x  121345  <)<8<><D<N<Z<`<f<p<
+0x  127a5f  <[>f>
+0x  122f05  <]<e<
+0x    6026  <}-3
+0x   10abd  <}%3
+0x  122195  <@<]<R=W=r=z=
+0x  12a0d9  <@=D=H=L=d=h=x=|=
+0x  1233c1  <*?Y?
+0x  12731d  <*<><
+0x  124d75  <*<X<
+0x  120014  </assembly>
+0x   630d5  </u(
+0x   186ec  <\u>
+0x  12078b  <&<2<R<_<i<s<
+0x  123243  <&<A<`<
+0x  122287  <&<F<
+0x  126629  <&=5=P=V=b=h=
+0x  124345  <&=6===]=
+0x  1209d5  <&=Q=y=
+0x  1237c7  <#<-<7<A<K<U<_<i<s<}<
+0x  122001  <#<-<7<K<U<_<i<s<}<
+0x  1208f5  <#<"=y=
+0x  128567  <#<><M<X<]<b<}<
+0x  127c9f  <#=x=
+0x  1251ed  <%<;<B<}<
+0x  122b59  <%</<9<B<X<`<g<
+0x  126619  <%<<<D<O<x<
+0x  1217d5  <%<6<E<V<^<d<
+0x  12499f  <%<c<
+0x  127327  <%=.=9=Y=c=i=r=
+0x  127b67  <`<f<y<
+0x  120cc3  <=<~<
+0x  124faf  <==k=
+0x   b098a  <=upG8
+0x  127be7  <><^<v<~<
+0x  128759  <><P<b<t<
+0x  12c271  <$<,<4<<<D<L<T<\<d<l<t<|<
+0x  12bd2b  <$<(<0<4<<<@<H<L<T<X<`<d<l<p<x<|<
+0x  126769  <$<A<Y<
+0x  12a93b  <$<D<P<p<|<
+0x  1278b9  <$=4=f=
+0x  127939  <$=B=T=v=|=
+0x   bd62b  <$tIf
+0x   b9fcb  <$tL
+0x   bd42b  <$tmf
+0x   bd72b  <$tMf
+0x  125769  <0<@<s<
+0x   b95d8  <0WV
+0x  127fad  <1<;<G<c<r<w<|<
+0x  12653b  <2<><&=8=s=x=
+0x   cb313  <2$[
+0x  12590d  <3<C<d<
+0x  12b2a7  <4<<<D<L<T<\<d<l<t<|<
+0x  12890d  <4<X<c<p<
+0x  12406d  <5<<<T<j<
+0x  12769b  <5<A<J<a<
+0x  123b77  <5<B<h<s<
+0x  1275c3  <5=<=C=l=y=
+0x  1280e5  <7<;<?<C<G<
+0x  1234c3  <7<Z<s<
+0x  122da7  <7=e=
+0x  12516b  <8=e=
+0x   a1da3  <8et
+0x   a1dbc  <8xu
+0x   32a3e  <9\u
+0x  12272d  <9<x<
+0x  120fc1  <9=L=
+0x  11ffc9  <assembly xmlns='urn:schemas-microsoft-com:asm.v1' manifestVersion='1.0'>
+0x   b0811  <at.<rt!<wt
+0x  1286b5  <B=]=g=
+0x  128cf7  <C=Q=]=
+0x  127f67  <d<s<S=
+0x  129a0b  <D=L=T=\=d=l=t=|=
+0x  12591b  <D=T=
+0x  127163  <E=L=S=s=}=
+0x   cbb07  <eF2
+0x  12846f  <F<w=
+0x  12891b  <g=|=
+0x  12782b  <G=Q=
+0x   a31df  <Gu(
+0x   139ea  <Gul
+0x   144be  <Gum
+0x  1259db  <H=X=
+0x  124a3d  <i<{<
+0x  12242b  <i<w<~<
+0x  125525  <I=[=
+0x  120c15  <i={=
+0x  121e13  <I=Y=o=
+0x   a2874  <ItC<Lt3<Tt#<h
+0x   d7e10  <L/{
+0x  126081  <L<V<e<o<{<
+0x  124929  <l=s=
+0x  123405  <L=w>
+0x  121ee3  <M<j<[=`=v=~=
+0x   a2829  <Nu4
+0x   5dbcc  <Pj9
+0x  120375  <S<]<d<k<w<
+0x  125827  <S<c<
+0x   1d3e3  <SVW
+0x   16d75  <Xu 
+0x   15c14  <Xu!;
+0x   16242  <Xu#
+0x   16733  <Xu%;
+0x  122733  <Y?k?
+0x  1218ed  <Y<l<
+0x   a292a  <zu1
+0x  1266ed  = ?$?(?,?0?4?8?<?@?D?i?{?
+0x  1297d3  = =(=0=8=@=H=P=X=`=h=p=x=
+0x  12b2d3  = =@=H=P=X=`=h=p=|=
+0x  12bd7f  = =$=,=0=8=<=D=H=P=T=\=`=h=l=t=x=
+0x  12a3d7  = =0=@=D=H=P=h=x=
+0x  1234d3  = >K>l>
+0x  128585  =,=>=T=Y=^=
+0x  1218fd  =,=1=:=l=
+0x  126dd7  =,=1=@=a=
+0x  12a4d9  =,=4=<=D=L=T=\=d=l=x=
+0x  129129  =,>6>@>R>`>m>x>
+0x  122db1  =,>d>s>
+0x  12740b  =:=J=
+0x  1288b3  =:=l=
+0x  12631f  =!=+=5=?=f=p=z=
+0x  12910d  =!=+=B=L=w=
+0x  122ba1  =!>->9>U>a>j>
+0x  127945  =!>*>5>U>_>m>
+0x  128599  =?>c>
+0x  124bef  =?>G>N>p>~>
+0x  122031  ='=1=;=E=O={=
+0x  1237fb  ='=1=@=J=T=^=h=r=|=
+0x  1215cf  ='=1=B=Q=[=j=o=x=
+0x  1274db  ='=2=X=e=j=
+0x  127eb3  ='=E=S=
+0x  123b8d  ='=J=\=u=
+0x  127ca9  ='>3>H>V>d>p>}>
+0x  125211  ='>E>
+0x  123e33  =">.>d>n>x>
+0x   d6db8  =(:S(
+0x  12a955  =(=H=T=t=
+0x  1228a7  =(>3>I>N>j>o>
+0x  1252e9  =(>m>s>y>
+0x  1275d1  =)>0>7>`>m>r>
+0x  120ead  =[?y?
+0x  123d3b  =[>i>o>
+0x   e6cec  =@[V
+0x   ca782  =@53-;
+0x  120627  =*=?=I=k=
+0x  122291  =/=d=n=x=
+0x  123a99  =/=Q=
+0x  122b7f  =&=0=:=D=`=j=t=~=
+0x  1207a9  =&=1=F=V=a=q=
+0x  122a15  =&=2=>=F=N=V=
+0x  126f7b  =#=;=A=P=g=
+0x  127fd3  =#=(=-=K=U=a=f=k=
+0x  12344f  =#>g>
+0x   e5bb1  =#Zz
+0x  124a45  =%=-=>=T=
+0x  125e7f  =%=.=D=L=S=
+0x  124511  =%=B=J=Q=
+0x  1249b1  =`=|=
+0x  126a47  =+=;=
+0x  121b87  =+=5=?=N=X=b=n=x=
+0x  121d65  =+>H>4?>?F?N?
+0x  1255cd  =<=o=
+0x   ee650  ========== Agent Count =======
+0x   ee6b8  ========== Handle Count =======
+0x   f7f70  =============
+0x   f7d8c  ==============  String Analysis  ==============
+0x   ee694  ===============================
+0x   ee700  ============================================
+0x   f7e9c  ===============================================
+0x  12288d  ===C=\=f=m=y=
+0x  1286bd  ==>\>
+0x  12c2b1  =$=,=4=<=D=L=T=\=d=l=t=|=
+0x  12b533  =$=,=4=<=D=P=t=|=
+0x  12b823  =$=(=0=4=<=@=H=L=T=X=`=d=l=p=x=|=
+0x  12262d  =$=S=`=
+0x  125aa5  =$>:>d>
+0x  128815  =$>+>k>r>{>
+0x  126590  =0_0
+0x  127bfd  =0=_=w=
+0x  124add  =0>`>
+0x  125a9d  =1=[=y=
+0x  12095c  =1I1z1
+0x  124653  =2=9=?=H=N=
+0x  126e67  =2=k=
+0x   e61af  =33s?
+0x  12a723  =4=<=D=P=p=x=
+0x  12108f  =4=G=i=
+0x  12bec9  =4=T=t=
+0x  12451f  =4>B>H>x>
+0x   f95e7  =5^:=5^:=)\
+0x  1274eb  =5>T>Z>a>
+0x  12677f  =6?j?
+0x  12831f  =6=E=W=j=
+0x  12695f  =6>>>c>)?d?j?q?
+0x  128987  =6>V>f>
+0x  1276ad  =7=K=
+0x  127179  =7>J>Q>X>|>
+0x   e8b32  =87M
+0x  124e53  =9=>=H=M=W=\=f=k=u=z=
+0x  1269df  =9>I>
+0x  121365  =9>L>c>
+0x  121ca5  =A=K=\=f=u=z=
+0x  1260a1  =A=K=U=_=i=x=
+0x  125833  =a=q=
+0x  1266e5  =A=v=
+0x  12828f  =A>P>Y>g>
+0x   65437  =b'v
+0x  122763  =b>}>
+0x   3aa19  =bpsA
+0x   83db5  =btHAuW
+0x  1276bb  =C>J>Q>q>
+0x   a4411  =csm
+0x  121205  =D=N=X=b=l=v=
+0x   3c364  =d3w+
+0x   3796f  =dpIBt
+0x   37976  =dscBt
+0x   37966  =dspBw
+0x   37981  =dssBu
+0x   22cb1  =dusA
+0x   56db1  =ENONw
+0x  123aa1  =F>r>
+0x  122cd7  =G>q>]?
+0x  122f1b  =G>t>|>
+0x   83d9c  =gtdAw@t^=hsOAw't,=lbEAt
+0x  1283fb  =I>|>
+0x   22c91  =iamAtU=tipA
+0x   22c7d  =iesAw
+0x  128f41  =J=T=^=q={=
+0x  128803  =K=Z=h=
+0x   22c9f  =lesAtG=disA
+0x   fcdd4  =m=@
+0x  12646f  =M=&>5>
+0x  1289f7  =M>b>
+0x  1281a9  =m>u>e?m?
+0x   4452e  =metit
+0x   531f6  =metiu
+0x   39ab6  =metiu(
+0x   fbd54  =mm?
+0x   36228  =nimsu
+0x   3595a  =nimsua
+0x   56dc1  =NPCTt:
+0x  125b4f  =O>r>
+0x  126aff  =o>t>
+0x   ca5a4  =Oe$
+0x   5dc3d  =Pj:
+0x  123001  =R=`=x=
+0x  124f15  =S=o=
+0x   83dec  =stdAt
+0x   aa5cb  =t7j
+0x   56dba  =TENB
+0x   83fd3  =u3w+
+0x   5a5af  =u3w+t
+0x   78800  =u3w+u
+0x   3f8c9  =u3w+u,
+0x   3f7a4  =u3w+u"
+0x   40b49  =u3w+u[W
+0x   4176f  =u3w+u}
+0x   45867  =u3w+u\
+0x   41653  =u3w+u`
+0x   4330f  =u3w+u`W
+0x   3f679  =u3w+u^
+0x   5efcb  =u3w+u0
+0x   414c5  =u3w+ucW
+0x   4563d  =u3w+uD
+0x   411d2  =u3w+udW
+0x   7d277  =u3w+uH
+0x   42828  =u3w+uI
+0x   452db  =u3w+uJ
+0x   4596a  =u3w+ujW
+0x   3fdc6  =u3w+uJW
+0x   41006  =u3w+uK
+0x   45186  =u3w+uL
+0x   429b0  =u3w+ulW
+0x   7bc93  =u3w+uM
+0x   42f8d  =u3w+umW
+0x   457c8  =u3w+uN
+0x   44c7a  =u3w+unW
+0x   41807  =u3w+uO
+0x   4575d  =u3w+uP
+0x   4339d  =u3w+upW
+0x   42b8b  =u3w+ur
+0x   44da0  =u3w+uR
+0x   43446  =u3w+urW
+0x   8aa60  =u3w+uS
+0x   83330  =u3w+uT
+0x   42da1  =u3w+uu
+0x   389dd  =u3w+uU
+0x   44a36  =u3w+uUW
+0x   4141a  =u3w+uv
+0x   4509f  =u3w+uVW
+0x   44be6  =u3w+uWW
+0x   60bf2  =u3w+ux
+0x   40eaa  =u3w+uyW
+0x   44f09  =u3w+uYW
+0x   42cee  =u3w+uz
+0x   83dfc  =urtAu
+0x   801e4  =UUU
+0x   db3c1  =V25
+0x   83df3  =vygAt
+0x  1216d1  =Y=l=
+0x  125171  =Y>z>
+0x  120e03  =Z>9?L?
+0x  127c0b  =Z>h>u>}>
+0x  127267  > ?-?<?S?
+0x  123455  > ?)?
+0x  12a971  > >,>L>T>\>d>p>
+0x  125c49  > >.>5>A>I>Q>v>
+0x  12bdd5  > >(>,>4>8>@>D>L>P>X>\>d>h>p>t>|>
+0x  12a403  > >(>@>P>`>d>h>p>
+0x  129813  > >(>0>8>@>H>P>X>`>h>p>x>
+0x  123255  > ><>
+0x  12b877  > >$>,>0>8><>D>H>P>T>\>`>h>l>t>x>
+0x  12a109  > >$>(>0>H>X>\>l>p>x>
+0x  12bedd  > >D>d>
+0x  12a747  > >D>L>T>\>d>l>t>|>
+0x   331b6  >_^[
+0x   aab54  >_^]
+0x  1259e7  >_>o>
+0x  125533  >-?5?
+0x  128145  >-?9?D?Q?`?t?}?
+0x  121ef7  >->>>c>t>
+0x  120ba1  >,?0?4?8?<?@?D?H?
+0x  129141  >,?6?@?Q?[?f?r?
+0x   a7ca6  >;9u
+0x  126beb  >:?@?
+0x  1214bd  >:?`?
+0x  127ccb  >!?c?
+0x  124679  >!>+>G>Q>[>e>q>{>
+0x  128f5b  >!>1>A>K>z>
+0x  1214b3  >!>i>{>
+0x  124f21  >.>\>
+0x  128827  >"?/?^?j?
+0x  1222b5  >">,>6>@>J>T>^>
+0x  1249bb  >">/>J>t>x>|>
+0x  1216e9  >">6>E>O>Y>c>
+0x  126de5  >">A>
+0x  123ba3  >">H>S>g>
+0x  124e83  >)?;?
+0x  126847  >)?<?q?
+0x  121cbd  >)?<?U?
+0x  12634d  >)>3>=>F>b>j>v>
+0x  1217f5  >)>5>?>[>e>q>{>
+0x   12fc5  >}u1F_
+0x  1224f1  >@>f?u?
+0x  127e0f  >*?0?9?B?K?Q?W?l?x?~?
+0x  125ea3  >*>2>9>~>
+0x  12683d  >*>S>a>h>
+0x  125927  >\>l>
+0x  1204bb  >&?V?f?{?
+0x   d1446  >&[+
+0x  128b75  >&>}>
+0x  12382d  >&>0>:>D>N>X>b>l>v>
+0x  1207cb  >&>1>F>Q>a>{>
+0x  12741b  >&>f>}>
+0x  12584b  >#?3?z?
+0x  127257  >#>?>Y>
+0x  12205b  >%>/>9>C>M>W>a>k>u>
+0x  12583f  >%>l>|>
+0x  129f7d  >`>d>h>l>
+0x  124c79  >+>a>h>m>
+0x  127837  >+>Q>X>k>
+0x  127c1f  ><?V?
+0x  12b2fd  ><>D>L>T>\>d>l>t>|>
+0x   a4e39  ><xt
+0x   e59f9  >=?2
+0x  120d47  >=>k>
+0x  12122d  >>>[>P?Z?`?f?w?
+0x  122437  >>>E>
+0x   fb2da  >|.~
+0x  128d01  >$?D?
+0x  12c2f1  >$>,>4><>D>L>T>\>d>l>t>|>
+0x  121bb3  >$>2>>>G>V>`>h>~>
+0x  1277d1  >0?K?
+0x  12264b  >1???G?O?t?
+0x  126b0d  >1?X?y?
+0x  1260c9  >1>;>E>O>Y>e>o>y>
+0x  128335  >3>:>Y>
+0x  126e75  >3>9>B>^>o>
+0x  127a67  >6?A?q?
+0x  12bee7  >8?\?t?
+0x  12276f  >9?k?
+0x  1215eb  >9?L?c?
+0x  123d47  >A?O?U?
+0x  121a47  >A>K>_>n>}>
+0x  1241e5  >B?J?
+0x   d5349  >Bx1
+0x   9ea8c  >csm
+0x  12664d  >D?z?
+0x  126f8f  >E>o>
+0x   4fe94  >F;u
+0x  122641  >f>n>
+0x  126555  >F>Q>h>y>
+0x  1254cf  >i?{?
+0x  1285af  >I?R?i?{?
+0x  127fed  >J>Q>W>
+0x  126893  >J>y?
+0x  1221b5  >L>]>n>
+0x  1277c5  >L>h>
+0x  124c93  >O?^?
+0x   fc9a7  >o3fW
+0x   5dcae  >Pj;
+0x  126a5d  >Q>_>g>m>~>
+0x  122a2f  >R>^>
+0x  120639  >V>f>v>
+0x  125789  >X>l>
+0x   fcc97  >Xzv
+0x  126ded  >Y?k?
+0x  125077  >Y?l?
+0x  127063  >Z?a?h?
+0x   bd026  |!=2
+0x   ca1f8  |?5^
+0x    7d46  |'VQW
+0x   ba15a  |%=2
+0x   8ac32  |$(;
+0x   8b3e7  |$(3
+0x   8a8f5  |$(9
+0x   8ac2d  |$(G
+0x   4236d  |$0j\
+0x   88912  |$43
+0x   e0d15  |1T8x
+0x   e38e9  |1T8xBO
+0x   e141b  |1T8xBO`
+0x   f8f88  |c{:X}{}|r
+0x   f8f94  |c{:X}{}|r / |c{:X}{}|r
+0x   f8c44  |cFF00FF00
+0x   f8b94  |cFFDCDA3CMemory(MB): {:5.2f}/2048 ({:.2f}%)|r
+0x   f8c18  |cFFFF0000
+0x   e6e19  |M$D
+0x   dcfe1  |sj,
+0x   fbdf5  |u?!u$
+0x   ca57a  |U]8
+0x   e8835  ~ $s%r
+0x   e61ca  ~?33
+0x   d4c86  ~~ZP
+0x   d5cf8  ~~ZP&
+0x   a33f6  ~0SW
+0x   a2ba0  ~2Pj0
+0x   e31f1  ~9P(
+0x   e71b4  ~B v
+0x   e3359  ~d81
+0x   cfd7e  ~tfn
+0x   d9726  ~yjS$
+0x   d9bbc  ~yjS6/
+0x   db980  ~yjS6/1
+0x   cfd58  $_.!@
+0x   ce5e8  $;6m89
+0x   cc1a3  $19;@)2
+0x   cd5b0  $89=E
+0x   fcd2c  $9t?
+0x   cc284  $Jlr
+0x   e8883  $qE}
+0x   a3d4f  $SVW
+0x   df3c9  $zU/
+0x  12a1af  0 0(0,00040<0D0H0L0T0X0`0h0
+0x  12a463  0 0(0@0D0\0l0|0
+0x  129d57  0 0(00080@0H0P0X0`0h0p0x0
+0x  12b359  0 0(00080@0L0l0x0
+0x  12989b  0 0(00080@0P6T6X6
+0x  12be89  0 0$0,00080<0D0H0P0T0\0`0h0l0t0x0
+0x  124a79  0 0$0:0
+0x  1298f9  0 0$0(0,0004080<0@0D0H0L0
+0x  12125f  0 080y0
+0x  121f21  0 1*141>1R1\1f1p1
+0x  124f41  0-0;0M0{0
+0x  1296af  0,7074787<7@7T7X7\7`7d7h7l7p7t7x7|7
+0x  1276f1  0;0Z0q0
+0x  123e95  0!0+050?0I0S0]0g0q0
+0x  127a07  0?1[1
+0x  124201  0"0,060@0J0T0^0h0r0|0
+0x  122de5  0"0,060@0J0T0^0m0w0
+0x  1203b5  0"0/090C0P0Y0c0m0{0
+0x  127ad9  0"040<0i0r0
+0x  125ca5  0"0U0_0i0x0
+0x  123277  0"1.1d1n1x1
+0x  1256b5  0(090H0{0
+0x  127853  0(0i0y0
+0x  126671  0(0S0
+0x   d9f21  0)N)
+0x  125ab9  0}0*2o2
+0x  1285d1  0@0v0
+0x  129fd7  0@1D1H1L1
+0x  12544b  0/0Q0
+0x  12486f  0/0z0
+0x  126c61  0/1{1
+0x  128365  0\0u0z0
+0x  127e63  0\2r2>3W3a3{3
+0x  122be5  0&000:0D0S0]0g0q0{0
+0x  12067b  0&010A0V0f0v0
+0x  120817  0&020C0X0\0d0i0w0
+0x  126fb9  0&0v0
+0x  12611d  0#0-070A0d0n0x0
+0x  123895  0#0-070A0K0U0_0i0s0}0
+0x  127c35  0#0@0X0s0~0g3
+0x  12160b  0#020A0F0O0
+0x  1278dd  0#1+1
+0x  121839  0%060E0O0Y0h0m0v0
+0x  1268a9  0`0q1
+0x  1275fd  0`0t0
+0x   a36bd  0^_[]
+0x  12020b  0+0H0[0v0
+0x  12b5c1  0<0D0L0T0\0d0l0x0
+0x  128d95  0=0S0
+0x  12a9bd  0$0,040@0d0l0t0|0
+0x  12bf73  0$0,040<0D0L0T0\0d0l0t0|0
+0x  122a89  0$0.080G0Q0[0e0o0y0
+0x  128f9d  0$0.0A0Q0a0q0
+0x  12b92b  0$0(00040<0@0H0L0T0X0`0d0l0p0x0|0
+0x  129a79  0$000<0H0T0`0l0x0
+0x  121729  0$1.181B1Y1c1m1w1
+0x  1210bb  0$1/1Q1g1
+0x  125a04  00@0
+0x    caa7  0000
+0x   f6758  00000000
+0x   ef040  00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x  12208b  00070O0V0n0
+0x  129f5b  000H0`0x0
+0x  12735d  000n0
+0x  127979  01181
+0x  127081  01191@1G1N1U1\1w1
+0x  128d17  011s1
+0x   eec50  0123456789abcdefghijklmnopqrstuvwxyz
+0x  1209f3  020[0
+0x  12916b  030=0
+0x  127e41  03090C0I0R0X0`0e0y0~0
+0x  12586b  041D1
+0x  1204db  060A0V0b0u0z0
+0x  120ce5  071B1
+0x  12acb9  080@0H0P0\0|0
+0x  123bdb  080C0W0z0
+0x  126715  081f1=2Y2
+0x  126ea9  090O0m0s0|0
+0x  126cfb  0a1{1
+0x  12435b  0A1Q1X1b1
+0x  1257ab  0b0r0
+0x  12493d  0B0R0
+0x  125947  0c0s0
+0x  121e43  0C0T0c0h0
+0x   ee860  0e+00
+0x  12796d  0E0J0
+0x  1246f1  0E1)3;3
+0x  125231  0F1=2f2|2|3
+0x  120c43  0F1X1
+0x  126791  0g0t0
+0x  1221d9  0i0y0
+0x  122747  0I1[1
+0x  128ad1  0I1W1i1t1
+0x  124af5  0I1Y1
+0x  120d5f  0k1y1
+0x  126a7f  0L1P1
+0x  1289a5  0m0x0~0
+0x    efda  0p+0
+0x   5d680  0Pj(
+0x  12193b  0Q0k0g1l1
+0x  123beb  0R1_1
+0x  128177  0T1b1{1
+0x  122473  0V1c1H2
+0x   fca20  0vB-
+0x  12266f  0W0\0o0
+0x  123547  0W1q1
+0x   cd3f9  0WW 
+0x  123647  0X1\1`1d1h1l1p1t1x1|1
+0x  124e95  0x1i2y2<3
+0x  121a71  0Y0i0
+0x  129aa3  1 1,181D1P1\1h1t1
+0x  129d97  1 1(10181@1H1P1X1`1h1p1x1
+0x  12b37d  1 1(10181@1H1T1t1|1
+0x  12b5ef  1 1(10181<1@1H1\1d1l1t1x1
+0x  122ab5  1 1*141>1H1R1\1f1p1
+0x  12b97f  1 1$1,10181<1D1H1P1T1\1`1h1l1t1x1
+0x  129925  1 1$1(1,1014181<1@1D1H1L1P1T1X1\1`1d1h1l1p1t1x1|1
+0x  129f6f  1 181p8t8x8
+0x  121a87  1,161E1J1
+0x  1213a3  1,1C1p1z1
+0x   36787  1;5P
+0x  1203d9  1!1'1,1F1V1f1v1
+0x  127a95  1!1*151C1
+0x  124233  1!1+151?1I1S1]1g1q1{1
+0x  12409f  1!1+151?1I1S1]1l1v1
+0x  122e17  1!1+151?1I1X1b1l1v1
+0x  120839  1!161C1H1R1a1q1
+0x  124f65  1.2:2L2z2
+0x  124cc9  1.2=2
+0x  1238c9  1'111;1E1O1Y1c1m1w1
+0x  127703  1"1:1r1~1
+0x  124887  1"1'161G1O1W1
+0x  125ef9  1"1*111i1s1}1
+0x  12a48b  1(1,10181<1D1\1l1|1
+0x  12a1e1  1(1,1D1H1`1d1|1
+0x  12736d  1(1?1r1
+0x  128a31  1(111
+0x  12acd9  1(141<1\1d1l1
+0x  125ccb  1(1B1J1Q1
+0x  129ff7  1(2,20242d2h2l2p2
+0x  124cb7  1)1:1
+0x  120505  1)1.141?1E1\1a1g1r1x1
+0x  127b85  1]1f1
+0x  122301  1@1J1T1h1r1|1
+0x  126fc1  1*11181?1F1M1U1
+0x  126681  1*1N1
+0x  121be5  1*1W1
+0x  124895  1*242:2A2d2j2u2
+0x  1278e5  1*262
+0x  12022f  1/1F1V1f1x1
+0x  1228dd  1&101:1D1N1X1b1l1{1
+0x  12069b  1&161F1V1f1v1
+0x  1257b5  1&1m1}1
+0x  120a4b  1&2N2
+0x  12836f  1&2Z2e2o2~2
+0x  1281cb  1#1'1+1/1G1/23272;2?2C2G2K2O2S2w2
+0x  1221e9  1#1(1]1z1k2p2
+0x  1220a7  1#1i1y1
+0x   ed7b0  1#IND
+0x   ed798  1#INF
+0x   ed7a0  1#QNAN
+0x   ed7a8  1#SNAN
+0x  127ce7  1%1,11171=1B1P1]1o1~1
+0x  1271b3  1%1@1G1
+0x  123d81  1%1/1>1H1R1\1f1p1z1
+0x  126149  1%1+1[1e1o1y1
+0x  122c11  1%1a1k1u1
+0x  126eb7  1+1D1t1
+0x  1277eb  1=1k1
+0x  12278b  1>2x2
+0x   d2858  1>y'
+0x  12c379  1$1,141<1D1L1T1\1d1l1t1|1
+0x  123ec3  1$1.181B1L1V1`1j1t1~1
+0x  121277  1$1.181B1L1V1`1t1~1
+0x  121cd9  1$1[1
+0x  12a597  1$101P1\1|1
+0x  12a7fd  1$101P1X1d1
+0x  12816c  10@0
+0x  12bf07  101P1p1
+0x  1210b0  10F0U0
+0x  128fc1  111A1Q1a1q1
+0x  121ce3  11262k2
+0x  124c37  122F2o2
+0x  127529  141C1V1
+0x  12436d  152>2v2
+0x  125877  162J2
+0x   cc402  17 w
+0x  1225eb  181j1
+0x  125a1b  182H2
+0x  12bf13  182t2
+0x  124c31  191K1
+0x  128ae1  192G2Y2d2
+0x  1249ef  192K2
+0x  121859  192L2c2
+0x  12347b  1A2[2
+0x   3f548  1amu
+0x  123473  1B1l1
+0x   3fb3f  1bru
+0x  1282a9  1C1J1
+0x   3f540  1dhut.
+0x   3f52e  1dquwgtX
+0x   3f59d  1dsut
+0x   3fb7b  1dsuu 
+0x  125953  1e1u1
+0x  1235e3  1e243<3X3
+0x  129183  1G1Q1[1r1|1
+0x  1289b9  1H1c1
+0x  12668d  1I3T3
+0x  12320b  1j2{2
+0x  125a11  1l1v1
+0x   3fa43  1ldu
+0x  128c15  1M2t2
+0x   d625f  1N6@
+0x  125097  1P1^1
+0x  12b779  1P2T2d2h2
+0x   3f538  1pdutC
+0x   5d6f1  1Pj)
+0x   3fba3  1rsuu 
+0x   3f5a5  1rsuu;
+0x  1263b9  1S1]1g1q1{1
+0x   3fab1  1sbut)
+0x   e4098  1T8xBO
+0x   e635a  1w-!O?
+0x   ca5e2  1w`;l
+0x  121e5b  1Y2a2
+0x  126c69  1Z2!3
+0x  12a817  2 2,2L2T2`2
+0x  12b9d5  2 2(2,24282@2D2L2P2X2\2d2h2p2t2|2
+0x  129dd7  2 2(20282@2H2P2X2`2h2p2x2
+0x  124265  2 2*242>2H2R2\2f2p2z2
+0x  122e49  2 2*242C2M2W2a2k2u2
+0x  129ef9  2 2$2(2,2024282<2@2D2H2L2
+0x  1299a1  2 2$2(2,2024282<2@2D2H2L2P2T2X2
+0x  127edf  2 3+4
+0x  1233d7  2 3x3
+0x  126921  2,2\2
+0x  12709f  2,2024282<2@2D2H2L2i2{2
+0x  12b615  2,202P2p2
+0x  12aa19  2,242@2`2h2p2x2
+0x  1225ff  2,3^3
+0x  128e55  2;3d3
+0x  125883  2;3K3
+0x  127459  2:2?2m2
+0x  124d9d  2!2'2.2H2j2
+0x  1213bb  2!2&2/2a2{2w3|3
+0x  120861  2!2&202F2v2
+0x  128fdf  2!212A2Q2f2r2
+0x  12595d  2!2g2{2
+0x  120bd1  2!2Y2 3$3(3,3
+0x  120929  2!7-7c7w7
+0x  1257cb  2?3O3
+0x  12893f  2.5h7m7
+0x  122ae7  2'202
+0x  123c03  2'212@2J2T2^2m2w2
+0x  123eed  2'2A2H2Q2W2\2d2l2t2|2
+0x  1269fd  2'3/3
+0x  125f1d  2"2,262?2U2]2d2
+0x  127613  2"2'2G2a2f2
+0x  1232a1  2"212;2E2O2Y2c2m2w2
+0x  123dcd  2"303N3p3{3
+0x  129acf  2(242@2L2X2h2t2
+0x  12a4bb  2(282H2L2P2T2\2t2
+0x  128a3f  2(2d2
+0x  120873  2(3h3
+0x  121d9d  2)2?2l2}2
+0x  122c39  2)232=2G2Q2`2j2t2~2
+0x  128c1d  2)3q3
+0x  123037  2[2o2
+0x  125b8b  2*2<2[2v2{2
+0x  12509f  2*333Y3`3e3x3
+0x  1224cd  2*3k4
+0x  127717  2/2N2e2
+0x  1284a1  2\2y2
+0x  124745  2&202:2D2N2X2b2l2v2
+0x  1203fb  2&262F2Q2a2v2
+0x  120531  2&262F2V2f2v2
+0x  123175  2&2T2d2l2t2|2
+0x  12174d  2#2-2<2A2J2|2
+0x  126173  2#2-272A2K2n2x2
+0x  125cef  2#2-272A2P2Z2d2n2x2
+0x  121f49  2#2(2]2z2o3t3
+0x  126d6d  2#2+2
+0x  1212a1  2%2/292C2M2W2a2p2u2
+0x  1263e1  2%242>2H2R2\2f2p2
+0x  1214df  2`2x2
+0x  12659b  2+2;2@2K2W2i2q2
+0x  125467  2+2H2Y2j2
+0x  1257c1  2+2r2
+0x  126fd3  2<2C2J2
+0x  12b0db  2<2D2L2T2d2l2t2|2
+0x  12b3a1  2<2D2P2p2x2
+0x  128d27  2=304T4t4
+0x  1240d1  2>2H2R2\2f2p2z2
+0x  12bff3  2$2,242<2D2L2T2\2d2l2t2|2
+0x  12ad01  2$2,242<2D2L2T2\2d2p2
+0x  123dad  2$2.282D2N2X2b2l2v2
+0x  12a205  2$2(2@2D2\2`2x2|2
+0x  12a5b3  2$2<2D2\2p2
+0x  1220bf  2$2I2S2]2n2x2
+0x  121bef  202:2Q2[2o2y2
+0x  1256c9  202E2R2d2i2x2~2
+0x  1221ff  203:3D3X3b3l3
+0x  1228cc  20V0
+0x  12919d  212A2R2]2
+0x  122af3  21393A3I3
+0x  1225f5  222d2
+0x  122cf3  222t2
+0x  124377  223?3x3
+0x  122f33  223]3g3s3}3
+0x  12091d  232F2]2v2
+0x  1272a9  253<3C3c3y3
+0x  1206bd  262H2[2v2
+0x  1288d7  263l3
+0x  121625  282c2w2
+0x  120ced  282G2
+0x  1234f5  283@3H3
+0x  128193  283P3
+0x   d7ea1  29|8(
+0x  1226f3  293I3
+0x  128af1  293I3[3f3
+0x  12367d  293K3e3
+0x   e6dd5  2a\{
+0x  126799  2A2P2
+0x  124b01  2C3]3
+0x  12511b  2D2B3a3
+0x  128603  2d3j3w3
+0x  128687  2D3V3h3
+0x   3fb23  2dsuwx
+0x  126987  2e2s2|2
+0x  126d0b  2H2i2{2
+0x   d6981  2Hw&
+0x   ccd20  2IHT
+0x  122323  2K2h2Y3^3t3|3
+0x  127985  2M2R2
+0x  120ab5  2N2v2j4J5
+0x    2b6d  2niU
+0x  126d19  2O3t3'4
+0x   5d762  2Pj*
+0x   e4cd7  2qqz
+0x  128c8d  2R2t2
+0x   3fa0b  2sbuw 
+0x    1ef3  2tHM
+0x  12267f  2U3f3
+0x  120b37  2V3d3z3&484Q5f5u5
+0x  126ec3  2X2f2
+0x  1270bb  2X3_3f3
+0x  1271cd  2Y3`3g3
+0x  121ceb  2y3~3
+0x  12753d  2Y3k3
+0x   d244d  2Z^t
+0x  12786d  2Z3j3
+0x  12b62f  3 3(3,3<3`3l3t3
+0x  129e17  3 3(30383@3H3P3X3`3h3p3x3
+0x  12a833  3 3@3L3l3x3
+0x  12392d  3 3*343>3H3R3\3f3p3z3
+0x  12b793  3 3$3
+0x  120d75  3 3$3(3,30343
+0x  129239  3 3$3(3,3034383<3@3D3H3L3P3T3X3\3`3d3h3l3p3t3x3|3
+0x  125319  3 3$3(383<3@3D3H3L3P3l3p3t3x3|3
+0x  12a229  3 3$3<3@3X3\3t3x3
+0x  120e79  3 3$3I3\3
+0x  12ad2b  3 303T3\3d3l3t3|3
+0x  12640d  3 363>3C3H3N3W3_3
+0x  1289cf  3 3d3
+0x  12bf1d  3 3L3x3
+0x  124cdd  3-3y3
+0x   e3378  3-4T
+0x  12a01f  3,3034383`3d3h3l3
+0x  123c2f  3,323b3l3{3
+0x  127b99  3,353R3[3
+0x  1214e5  3,3E3{3
+0x  121e6f  3,4=4N4s4
+0x  125377  3,4044484<4@4\4`4d4h4l4p4t4
+0x  126ed3  3!3=3N3
+0x  120551  3!363A3V3a3v3
+0x  128437  3!4B4
+0x  126c71  3?4F4a4
+0x  123acd  3.3e3
+0x  12772b  3.3f3r3
+0x   e5f02  3']t"
+0x   e4efe  3']t2+1
+0x  12041d  3"3,3:3f3v3
+0x  121955  3"3,363C3M3W3a3k3u3
+0x  125f43  3"3,363E3O3Y3c3m3
+0x  127625  3"3y3
+0x  12799d  3"424:4A4F4
+0x  123f0b  3(3=3q3
+0x  129af9  3(343@3L3X3d3p3,=4=<=D=L=T=\=d=l=t=|=
+0x  12aa47  3(3L3T3\3d3l3t3|3
+0x  12aa6d  3(40484D4d4p4
+0x  124299  3)333=3G3Q3[3e3o3y3
+0x  1212bf  3)4;4\4
+0x  12268d  3[4o4~4
+0x   fcbfc  3{9=
+0x  124777  3*343>3H3R3\3f3p3z3
+0x  127d05  3/3`3
+0x  127af3  3/454G4O4
+0x  1232d3  3&303:3D3N3X3b3l3v3
+0x  128ffd  3&323T3[3`3x3
+0x  120271  3&363F3V3f3v3
+0x  1268b9  3#3,3
+0x  12186f  3#323A3F3O3
+0x  125969  3#3i3y3
+0x  12619f  3%3-343e3o3y3
+0x  122c65  3%3/393C3M3W3a3j3
+0x   1740f  3^_[
+0x  120f7b  3<6L6P6T6X6
+0x  126e0d  3=3q3
+0x  127545  3=4D4K4t4
+0x  12b3bf  3$3,343@3d3l3t3|3
+0x  12c033  3$3,343<3D3L3T3\3d3l3t3|3
+0x  12a5cf  3$3,343<3D3L3T3`3h3
+0x  12ba2b  3$3(30343<3@3H3L3T3X3`3d3l3p3x3|3
+0x  126fdd  3$3+3K3
+0x  120a51  3$3E3c3}3
+0x  128ba9  3$4l4
+0x   cbc65  31:viN<
+0x  1256ed  313<3A3J3S3d3x3
+0x  128e5b  314[4
+0x  12b101  343<3D3L3T3\3d3l3t3|3
+0x  125d1d  343<3H3O3
+0x  1277f3  343c3m3
+0x  1213d1  344T4
+0x  1281f5  353:3?3
+0x  1246f9  364E4h4
+0x  121c0b  3733484R4Z4
+0x  121639  373D4I4b4r4
+0x  1206d3  373R3m3
+0x  128639  384I5
+0x  12176f  394L4c4
+0x   e3ae0  39C:
+0x  128ca3  3A3{3p4
+0x  1265b7  3A3l3
+0x  127873  3A4Q4
+0x  1250b1  3a4w4
+0x  127387  3B3R3y3
+0x  126b41  3C4K4S4[4
+0x  12588f  3C4S4
+0x  127467  3E3T3a3
+0x  127c49  3e4t4
+0x  122e7d  3F3P3Z3d3n3x3
+0x  126c0d  3G3P3
+0x  1291b9  3G3Q3[3r3|3
+0x  12355d  3G4z4
+0x  1287c7  3H4Q4
+0x  1240fd  3I3[3
+0x  1220dd  3I4Y4o4
+0x  1248b7  3I4Y4s4
+0x  123185  3m3w3
+0x  123555  3M3w3
+0x  128877  3m7t8|8
+0x  125a27  3O3_3
+0x   5d7d3  3Pj-
+0x  12738f  3q4x4
+0x   cf4c5  3Sfr(
+0x  1286f3  3U3^3b3h3l3r3v3
+0x  123483  3U3w3
+0x  124f73  3V3^3i3{3
+0x  12247f  3V3h3
+0x  121aa1  3X3b3l3v3
+0x  123c51  4 4-454;4s4}4
+0x  125f6d  4 4(40484@4H4P4X4`4f4
+0x  129e57  4 4(40484@4H4P4X4`4h4p4x4
+0x  12a5f1  4 4@4H4P4\4d4|4
+0x  121ac7  4 4*444>4H4\4f4p4z4
+0x  1242c5  4 4*444>4H4R4\4f4p4
+0x  12ba7f  4 4$4,40484<4D4H4P4T4\4`4h4l4t4x4
+0x  1292b9  4 4$4(4,4044484<4@4D4H4L4P4T4X4\4`4d4h4l4p4t4x4|4
+0x  12a049  4 4$4(4P4T4X4\4X8\8`8d8h8
+0x  121db5  4 464>4
+0x  124f7f  4 4C4J4g4
+0x  12643f  4 4z4
+0x   423ef  4_^[
+0x  1285eb  4_5e5
+0x  127d1f  4-444:4L4V4
+0x  1209fd  4,7Y7l7
+0x  122221  4;4X4I5N5d5l5
+0x  126e15  4;4y4
+0x  126e1b  4;5C5K5e5
+0x  1272b9  4:4K4s4
+0x  1210fd  4:4Q4i4q4
+0x  121507  4!4+454I4X4b4l4v4
+0x  120571  4!464A4V4a4v4
+0x  1279ad  4!5]5
+0x   e5d7d  4?/)
+0x  121983  4'414;4E4O4Y4
+0x  123de1  4'4G4c4h4
+0x  12902d  4'515;5R5\5
+0x  120d0b  4'5H5
+0x  122c8d  4"4,464V4`4j4t4
+0x  122ea9  4"4.484B4M4T4\4l4
+0x  126d7f  4"4>4
+0x  12439d  4"414;4E4O4Y4c4m4w4
+0x  1265cb  4"4C4J4O4f4v4}4
+0x  120881  4(4a4k4
+0x  127879  4(585j5
+0x  121f69  4)4?4t4~4
+0x  126a09  4)4.4
+0x  125241  4)4.484?4X4
+0x  1247a9  4)434=4G4Q4v4
+0x  123f21  4)494
+0x  120bef  4)5;5
+0x  126d25  4)595U5c5
+0x  128daf  4)5s5
+0x  1235ef  4[4}4
+0x  125b09  4]4&5
+0x   fa2aa  4{#s
+0x   ca9e5  4*?r^
+0x  124b17  4*444A4
+0x   e4339  4*REm
+0x   e16bd  4*REmv
+0x  120437  4&464F4V4f4v4
+0x  12773d  4#4?4H4_4
+0x  123305  4%4/494C4M4W4a4k4u4
+0x  12296d  4%40454R4[4
+0x  125975  4%4k4{4
+0x   e63c4  4`P?
+0x  126a8f  4+414B465E5_6G7
+0x  125d43  4+454?4I4S4s4}4
+0x  1206e9  4+4c4s4z4
+0x  1254f5  4+4R4
+0x  1261c9  4<4F4P4Z4d4n4z4
+0x  126ee7  4>4\4
+0x  12b3e9  4$4,444@4d4l4t4|4
+0x  129ccf  4$4,444<4D4H>P>X>`>h>p>x>
+0x  12c073  4$4,444<4D4L4T4\4d4l4t4|4
+0x  124db3  4$4.454R4
+0x  123961  4$4.484B4L4W4^4c4i4
+0x  129017  4$4.4C4R4p4v4
+0x  127e7b  4$4^4g4n4t4z4
+0x  12a24d  4$444D4T4d4t4
+0x  12233f  4$5.585B5L5V5`5t5~5
+0x  126c7d  405:5F5P5\5l5q5
+0x  1271dd  414G4
+0x  120897  415;5Q5h5
+0x  123f27  415B5P5
+0x   ca1d0  433333333333333
+0x  12a84f  444<4H4h4p4|4
+0x  12571b  454T4X4\4`4
+0x  120ae9  464H4&585&949S9
+0x  1254fd  466C6
+0x  125479  474e4
+0x  12bf29  484h4
+0x  12b653  484X4x4
+0x  1250bb  485E5V5g5
+0x  12410b  485v5
+0x  124dbf  495L5m5z5
+0x  126d87  4A5]5w5
+0x  12692d  4A5J5T5a5
+0x  1257d3  4b4r4
+0x  128c2d  4C5y5
+0x   cc470  4ClR
+0x  12a083  4D5H5L5P5T5X5\5l5p5t5x5|5
+0x  127b03  4E5l5
+0x  1282c9  4F5Q5
+0x  127555  4H5a5h5o5
+0x  120ee7  4i4{4
+0x  1249ff  4I5[5
+0x  1224d3  4K5&656p7H8
+0x   f9f69  4lkQg
+0x  1270cd  4m4t4{4
+0x  120d01  4o4{4
+0x  12348f  4O4u4
+0x   5d844  4Pj.
+0x  12649b  4Q5|5K6v6E7p7?8j899d93:^:-;X;'<R<!=L=
+0x  125131  4Q5j5
+0x  126733  4S4s4
+0x  122f51  4V4d4j4
+0x  125a33  4X4e4
+0x  1267a3  4Y4i4
+0x  1212c9  4Y5l5
+0x  1268c1  4Y5n5
+0x  12bad5  5 5(5,54585@5D5L5P5X5\5d5h5p5t5|5
+0x  129e97  5 5(50585@5H5P5X5`5z?~?
+0x  129339  5 5$5(5,5054585<5@5D5H5L5P5T5X5\5`5d5h5l5p5t5x5|5
+0x  125a3f  5 525
+0x  128e69  5 5J5g5q5
+0x  1248d9  5-555G5l5w5
+0x  123dfb  5-5H5M5^5d5j5
+0x  121531  5,5;5E5O5Y5c5m5w5
+0x  12298f  5,646<6D6v6
+0x  128e81  5,666@6R6\6h6p6
+0x  121b1d  5,6I6:7B7N7\7
+0x  128b09  5!5M5U5x5
+0x  122edf  5!6p6
+0x   ca260  5!j9
+0x  121889  5?5c5
+0x  125d69  5?5F5v5
+0x  128109  5.5@5G5}5
+0x  1272c3  5.5E5x5
+0x  125553  5'5@5i5r5
+0x  125981  5'5m5}5
+0x  125481  5"5/5R5
+0x  1219ad  5(525<5F5P5_5d5m5
+0x  121af3  5(525<5F5P5Z5d5u5
+0x  12304b  5(525<5F5U5_5i5s5}5
+0x  121f8d  5(525Z5d5n5x5
+0x  1206f7  5(5K5f5
+0x  121c1f  5(5P5d5x5}5
+0x  1270e3  5(6/666V6l6
+0x  120e25  5(646
+0x  122d09  5(6g6
+0x  124b39  5)5/5;5@5J5T5^5d5k5q5x5
+0x  1242f9  5)535=5G5Q5\5c5k5{5
+0x  1220f5  5)535=5N5X5b5q5v5
+0x  122ed1  5)545?5Z5|5
+0x  125f9b  5)585B5L5V5`5j5t5
+0x  123697  5)636=6G6Q6[6e6o6y6
+0x  12097d  5@6\6
+0x  1265f5  5*505
+0x  123497  5*5i5x5
+0x  127753  5*5L5[5r5
+0x  123333  5&505:5D5N5X5b5l5{5
+0x  1243cf  5&505:5D5N5X5b5l5v5
+0x  120591  5&515F5V5f5v5
+0x  1261ed  5&555?5K5U5a5k5
+0x  1202b1  5&565F5V5f5v5
+0x  124113  5&6=6N6
+0x  1284bb  5&6>6c6
+0x  122f79  5&6Y6
+0x  125bb5  5#5(5
+0x  124d01  5#52595G5k5
+0x  121785  5#525A5F5O5
+0x  1231b3  5#566H6
+0x  12673d  5#5A5H5h5
+0x  124951  5#5V5
+0x  1212db  5#626C6R6a6f6o6
+0x  1247d5  5%5/595C5M5W5a5k5u5
+0x  12397f  5%505;5F5Q5
+0x  1257d9  5%5K5
+0x  127561  5`6g6n6
+0x  12589d  5+5W5g5
+0x  128baf  5+6T6
+0x  12c0b3  5$5,545<5D5L5T5\5d5l5t5|5
+0x  12a86f  5$5,585X5`5l5
+0x  12b413  5$505P5X5`5h5t5
+0x  12a26d  5$545D5T5d5t5
+0x  12164b  5$585b5x5
+0x  12aa8f  5$5D5L5T5\5h5
+0x  123c95  5$62686t6~6
+0x  12b79f  50;h;p;
+0x  1287b4  50%1Z1
+0x  128713  505}5
+0x  126ba7  505=5I5
+0x  12a613  50585@5L5l5t5
+0x  12763b  506B6J6j6
+0x   d9fc9  50N9
+0x  12548d  536:6S6d6i6o6
+0x  1264e7  545]5
+0x  122f63  545@5I5b5i5o5|5
+0x  128b15  556A6a6q6}6
+0x  127d31  565=5J5O5U5a5h5n5x5
+0x  12297f  575F5t5|5
+0x  12350b  576h6
+0x  123c79  585B5L5V5b5l5v5
+0x  120457  585K5h5{5
+0x  12b663  585X5x5
+0x  124eb5  596K6g6t6y6
+0x  12188f  596L6c6
+0x  127ab3  5C5I5
+0x  124561  5D5i5s5
+0x   fd091  5DKB
+0x  122b15  5F7X7
+0x  127903  5G506
+0x  122611  5I6[6
+0x  120bf7  5i6{6y7
+0x  1287d5  5i6b7
+0x  121d11  5I6Y6o6
+0x   9b21a  5ineI
+0x  121dc5  5K5h5T6^6f6n6
+0x  120a63  5K5S5`5n5v5
+0x  126ef9  5L5u5{5
+0x  1272cd  5L6S6Z6
+0x  1257e3  5M6]6
+0x  12674b  5n6}6
+0x  124d13  5N6g6
+0x   9b225  5ntel
+0x  1273a1  5o6v6}6
+0x  1253db  5p5t5x5|5
+0x   5d8b5  5Pj/
+0x  121117  5r6~6
+0x   fa671  5SmT4
+0x  126b5d  5U6c6i6z697K7
+0x  128389  5V:\:n:y:
+0x  120fdd  5V8g8
+0x  12b677  6 6,6\6`6
+0x  12a88b  6 6,6L6X6x6
+0x  120ef3  6 6'6-626@6
+0x  12456f  6 6'6;6@6F6N6Y6g6q6z6
+0x  12a633  6 6(646T6\6h6
+0x  129f29  6 6$6
+0x  1293b9  6 6$6(6,6064686<6@6D6H6L6P6T6X6\6`6d6h6l6p6t6x6|6
+0x  12a297  6 6$64686H6L6\6`6p6t6
+0x   fb3ea  6 d!
+0x  127a1f  6-6:6F6d6
+0x  125731  6-6E6
+0x  1247ff  6,6<6r6
+0x  123077  6,666@6J6T6^6j6t6~6
+0x  1266a9  6,7G7v7
+0x  127807  6;7S7`7x7
+0x   d5922  6:m&+
+0x  127d5d  6!6*656<6O6]6c6i6o6u6{6
+0x  12620f  6!606:6D6S6]6g6v6
+0x  120471  6!616A6Q6f6q6
+0x  1258ad  6!6B6n6~6
+0x  125567  6!6G6R6u6
+0x  124ec7  6'7M7
+0x  120993  6'7S7Z7
+0x  128719  6"6(6-6u6
+0x  125d87  6"6*616V6b6n6
+0x  122f81  6"7-7\7f7r7|7
+0x  126f17  6"7)707P7\7e7|7
+0x  122369  6(626<6F6P6Z6d6u6
+0x  123aef  6(636G6j6|6
+0x  1250c9  6(6c6
+0x  1258bd  6(787
+0x  12598d  6)6=6z6
+0x  128117  6)626p6
+0x  12251f  6)7;7
+0x  1219cd  6)7<7S7
+0x  122111  6)797O7
+0x  125257  6@6`6
+0x  125619  6@6m6
+0x  125fc7  6*646>6H6R6\6f6o6
+0x  1269a1  6*6I6w6,7I7W7`7
+0x  125bbf  6/6<6[6e6o6~6
+0x  126bb5  6/7]7
+0x  1208a9  6&666<6F6R6^6j6v6
+0x  1205b1  6&666A6V6f6v6
+0x  1202d1  6&666F6V6f6v6
+0x  1271f7  6&6l6
+0x  127887  6&777H7f7s7
+0x  120709  6#6>6Y6t6
+0x  1213dd  6#6d6s6}6
+0x  1251b1  6#6H6
+0x   df6e1  6#x%
+0x  124401  6%6/696C6M6t6~6
+0x  123365  6%6/696D6K6S6c6{6
+0x  126f09  6%6E6Q6Z6q6
+0x  1208c3  6%7O7h7
+0x  123997  6+656?6I6X6b6l6v6
+0x  1229a5  6+7F7p7
+0x   2c864  6<[ugF
+0x  12b1b5  6$6,646@6d6l6t6|6
+0x  12c0f3  6$6,646<6D6L6T6\6d6l6t6|6
+0x  12b437  6$6,686\6d6l6t6|6
+0x  12806d  6$6;6^6s6
+0x  123f4b  6$6.686B6L6V6`6j6t6~6
+0x  12bb2b  6$6(60646<6@6H6L6T6X6`6d6l6p6x6|6
+0x  122235  6$686`6t6
+0x  124b6b  6$6R6W6`6f6r6|6
+0x  127881  6$6V6
+0x  127e9d  60656<7M7r9
+0x  1286a5  607q7
+0x  12522c  60v0
+0x  1254a1  617>7
+0x  127769  626N6W6n6
+0x  120ad4  62H2q2
+0x  123e17  636?6
+0x  1264f3  636\6
+0x  128647  647;7B7I7V7
+0x  121faf  656&7+7B7J7
+0x  1265ff  657A7H7
+0x  127007  657R7Y7`7
+0x  123607  687n7x7
+0x  12431d  696K6
+0x  126755  697@7
+0x  126937  698N8
+0x  121dd7  6A7F7{7
+0x  127a2f  6A7G7
+0x  12844f  6A7v7
+0x  1282d5  6b6f6n6z6
+0x  1253f7  6c6p6
+0x  123515  6d7n7
+0x  12321f  6g6w6~6
+0x  128cb7  6G6y6
+0x  127773  6I7[7z7
+0x  126e27  6i7{7
+0x   3d972  6j P
+0x   39112  6j(P
+0x   ac8df  6j@W
+0x  12904f  6J6T6^6q6|6
+0x   3ca12  6j8P
+0x   ac8f9  6jUQ
+0x   aca27  6jUW
+0x  1251b9  6k7u7
+0x  120d17  6K7z7M:W:a:k:u:
+0x  12356d  6L7P7T7X7\7`7d7h7z7
+0x  124f93  6O768E8
+0x  12aab5  6P6t6|6
+0x   5d926  6Pj0
+0x   2b0c1  6SVQRQ
+0x  1227a1  6T6^6h6r6|6
+0x  125a4b  6U6e6
+0x  1226a9  6U7]7f7
+0x  121e8d  6Y6l6
+0x  1272df  6Y7n7
+0x  1266a3  6Z6g6
+0x  121401  7 7*747H7R7\7f7s7}7
+0x  12338b  7 7+767Y7k7
+0x  129717  7 7$7
+0x  12bb7f  7 7$7,70787<7D7H7P7T7\7`7h7l7t7x7
+0x  129439  7 7$7(7,7074787<7@7D7H7L7P7T7X7\7`7d7h7l7p7t7x7|7
+0x  125575  7 7I7r7
+0x  128095  7 8+9E9h9
+0x  128081  7-767
+0x  12442f  7-777A7K7U7_7i7s7}7
+0x   e43d8  7!,$
+0x  1227c7  7!7+757?7I7l7v7
+0x  124b85  7.757@7y7
+0x  1230a1  7.787B7L7V7e7o7y7
+0x  125bf9  7.8b8
+0x  121133  7'7-7C7J7O7Z7`7
+0x  126455  7'7X:]:c:z:
+0x  120a83  7'9=9P9Y9|9
+0x  12412b  7"7,767@7J7Y7c7m7w7
+0x  125be3  7"7/7<7O7T7j7v7
+0x  124c57  7"7F7
+0x  125a5f  7"828V8u8}8
+0x  1231d1  7"8z8
+0x  122b21  7(:0:t:|:
+0x  121e9d  7(7-767h7
+0x  125b0f  7(7[7L8R8c8x8
+0x  127d97  7(717W7e7k7q7w7}7
+0x  123f7d  7(727<7F7P7Z7d7n7x7
+0x  123cbd  7(777A7K7U7_7i7
+0x  1218a7  7(777A7R7a7k7z7
+0x  12a2cd  7(787<7@7X7\7`7t7
+0x  1212f5  7)8<8S8
+0x  1268d9  7[7i7r7
+0x  120f07  7[8b8g8s8
+0x  1289e7  7/757B:
+0x  1239c1  7&7.757q7{7
+0x  120491  7&767F7V7f7v7
+0x  12675b  7&878$:K:
+0x  120933  7&929x:
+0x  124325  7&959S9Z9t9
+0x  1236c9  7#7-777A7K7U7_7i7s7}7
+0x  1267bb  7#7T7X7\7`7d7h7
+0x  124abf  7#8<8
+0x  127b23  7%7,7C7M7W7e7j7
+0x  1282ef  7%7C7\7a7
+0x  124ecf  7`8i8
+0x  127571  7+7?7
+0x  125dab  7+757?7I7X7b7l7v7
+0x  12a657  7<7D7L7X7|7
+0x  12b68f  7<7H7
+0x  12b1e5  7<7H7h7t7
+0x   83de2  7=rtnAw
+0x  128dbd  7>8y8
+0x  12c133  7$7,747<7D7L7T7\7d7l7t7|7
+0x  12aad3  7$7,747<7D7L7T7\7d7p7
+0x  12a8a7  7$7,787X7d7
+0x  125625  7$7*7_7u7
+0x  12b461  7$707P7X7`7h7t7
+0x  12764d  7$727Q7y7
+0x  1229b9  708I8U8_8g8o8
+0x  1283cb  717;7b7l7
+0x  128bb9  717a7
+0x  12071d  717L7g7
+0x  12459b  727i7y7
+0x  12179f  737`7t7
+0x  128e9f  737=7
+0x  124d23  737Z7e7w7
+0x  123581  74898_8
+0x   caeb9  74NY
+0x  123b07  757B7h7s7
+0x  122705  767K7`7u7
+0x  123e1d  768H8
+0x  1264ff  777^7
+0x  1231c3  777G7
+0x  12757f  778>8E8e8y8
+0x  122cb9  779g9
+0x  125261  7A7h7
+0x  125fe9  7A7K7U7d7n7x7
+0x  128953  7a8m8
+0x   d0651  7Am"
+0x  1270f7  7D7J7S7o7
+0x  124c63  7E8s8
+0x   501fa  7F;u
+0x  128a77  7F7R7
+0x  1272e9  7f8m8t8
+0x  121559  7G7Q7]7g7s7}7
+0x  126237  7H7R7\7f7p7z7
+0x  128d39  7I7"8Y8
+0x  1233e9  7i8{8
+0x   116e7  7j0P
+0x  129071  7J7T7^7q7
+0x   ac9b7  7jUV
+0x  125a57  7l7|7
+0x   ce438  7m89
+0x  12599b  7n7w7
+0x  12821d  7P7W7
+0x  128a81  7P9`9l9x9
+0x   5d997  7Pj1
+0x  1257ef  7R7b7
+0x  128cc1  7R7t7
+0x  1266b1  7S8{8
+0x   4a6df  7SPV
+0x  126e33  7T8[8b8
+0x  1279c3  7Y7i7
+0x  121665  7Y7l7
+0x  120bff  7Y8k8
+0x   fb371  7Z8>
+0x  126a21  7Z8I9[9
+0x  12b47d  8 8,8L8T8\8d8l8t8|8
+0x  12bbd5  8 8(8,84888@8D8L8P8X8\8d8h8p8t8|8
+0x  12a8bd  8 8(80888@8H8T8t8
+0x  12b69d  8 8@8`8
+0x  122fa5  8 8&8V8b8n8z8
+0x  1294b9  8 8$8(8,8084888<8@8D8H8L8P8T8X8\8`8d8h8l8p8t8x8|8
+0x  12a2fb  8 808@8P8T8d8h8x8|8
+0x  121fc3  8 848\8p8
+0x  120f99  8 9'9
+0x  1258db  8 9K9[9|9
+0x   1758d  8_^[
+0x   b57d8  8_^]
+0x  126877  8_8}:
+0x   66e8f  8-u#
+0x   53038  8-ug3
+0x  1288e9  8,8<8
+0x  12445d  8,838K8R8j8
+0x  12072f  8,8J8e8
+0x  125dd3  8:8D8N8]8g8q8}8
+0x  121d31  8!9&9[9x9i:n:
+0x  128733  8.848=8R8_8f8o8
+0x  127a37  8.8q8|8
+0x  1236fd  8'818;8E8O8Y8c8m8w8
+0x  12212f  8'818;8E8V8`8j8t8
+0x  1219e7  8'818B8Q8[8j8o8x8
+0x  123b1d  8'8J8\8u8
+0x  128ecf  8'919;9R9\9
+0x  123fad  8"8,868@8J8T8^8h8r8|8
+0x  123ce5  8"8)8/888?8t8
+0x  128cd5  8"9[9
+0x  123cf7  8"9}9
+0x  125ad3  8"9d9
+0x  12116b  8(8.848?8E8K8V8\8b8m8s8
+0x  1230cb  8(80888H8S8g8
+0x  12157b  8(848P8\8e8
+0x  127817  8(9F9p9
+0x  120e47  8);<;
+0x  126c9d  8)8@9":@:
+0x   2c877  8]uyj2
+0x  12142f  8@8O8Y8c8m8w8
+0x  125277  8*8:8C8I8N8Y8g8u8
+0x  126bbb  8*8I8a8
+0x  124979  8*9G9
+0x   d87c9  8&;/
+0x  12415d  8&808:8D8N8X8g8q8{8
+0x  120311  8&818F8V8f8v8
+0x  1267d1  8&858N8Y8]8c8g8m8q8w8{8
+0x  1226bf  8&9U9
+0x  122391  8#8+8b8
+0x  1273b9  8#8a8
+0x  12167b  8#8H8W8a8r8
+0x  127013  8%8,8S8
+0x  1239e9  8%848>8H8R8\8f8
+0x  1267f5  8%949c9
+0x   a2bd4  8^8tb9^4~]
+0x  128661  8+9Y9
+0x   a28d9  8<6u
+0x  1272f7  8>9E9L9l9
+0x  12c171  8$8,848<8D8L8T8\8d8l8t8|8
+0x  12b209  8$8,848<8D8L8T8\8d8l8x8
+0x  126261  8$8.888B8L8V8`8j8t8
+0x  12693d  8$9.9O9
+0x  12bf4f  8$9d9
+0x   aff38  80t=
+0x  128eb7  828<8g8q8{8
+0x  127dd3  829P9
+0x  120e8b  829R9 ;$;(;,;0;4;8;<;@;l;p;t;x;
+0x  121d23  848;8A8N8
+0x  12a67f  848@8`8l8
+0x  128bc5  848T8
+0x  1217b3  8682979R9Z9Q:
+0x  12650b  878`8
+0x  1226b5  888V8g8
+0x  1258cd  898I8j8
+0x  12827f  899[:
+0x   cac93  89fi
+0x  12710b  8A8G8P8l8
+0x  128ccb  8A8Q8
+0x  120db5  8a9k9u9
+0x   eee1b  8b->
+0x  12102d  8b8l8
+0x  1205d7  8B8x8
+0x  1245a9  8B9O9y9
+0x  120daf  8C8J8
+0x  12908d  8C8M8
+0x  127c61  8C9o9{9
+0x   9eb26  8csm
+0x  120e3b  8D8H8L8P8y8
+0x  128d41  8D9!<l<
+0x   9711a  8dtrRt
+0x   ac1e1  8f;9
+0x  1284db  8F8M8V8g8s8x8}8
+0x  1227f1  8G8Q8[8e8o8y8
+0x  128b35  8G8v9~9
+0x  1229cb  8G9b9q9
+0x  124dd7  8h8v8
+0x  12224f  8I8[8}8
+0x  1208cb  8I8Y8
+0x  126dab  8i9y9
+0x  1259af  8I9Y9
+0x  12099f  8l8p8t8x8|8
+0x  121c51  8M8j8[9`9v9~9
+0x  1234b5  8N9X9
+0x   5da08  8Pj2
+0x  12600f  8S8]8g8q8
+0x    e553  8SVW
+0x  126f31  8t8{8
+0x   afe96  8U t"
+0x  1257fb  8W8g8
+0x  125581  8X8]8c8|8
+0x   e4878  8xBO
+0x  12766b  8Y9k9
+0x  12574d  9 :-:8:T:
+0x  124909  9 :/:::e:
+0x  123a13  9 9'9c9m9w9
+0x  12b6ad  9 9@9`9
+0x  12a69d  9 9@9L9l9t9|9
+0x  12559b  9 9&9?9Y9t9x9|9
+0x  129539  9 9$9(9,9094989<9@9D9H9L9P9T9X9\9`9d9h9l9p9t9x9|9
+0x  120b73  9 9$9(9Z9
+0x  121c69  9,:6:G:Q:b:l:
+0x   cc7ca  9;/f
+0x   991db  9;t>
+0x  125295  9:9A9^9i9
+0x  127ea9  9.;D;
+0x  120757  9.:[:
+0x  120743  9.9@9R9d9v9
+0x  1268e3  9'909
+0x  1290a1  9"9-9\9f9p9
+0x  12628d  9"9,969@9J9T9^9j9t9~9
+0x  126031  9"9,969B9L9V9`9j9o9
+0x  123b33  9"9H9S9g9
+0x  12281b  9(929<9F9P9Z9d9n9
+0x  1223b1  9(929<9X9b9l9v9
+0x  125413  9(9t9
+0x  1254b1  9):;:
+0x  124987  9):o:
+0x  12850d  9)9.939C9H9M9]9b9g9w9|9
+0x  126aa7  9]9p9
+0x  122ef5  9*:5:F:
+0x  128961  9*929O9_9k9z9
+0x  122fc5  9*969R9^9g9
+0x  121051  9*9C9
+0x  123fdf  9&909:9D9N9X9b9l9v9
+0x  122d2b  9&909:9I9S9]9g9q9{9
+0x  120331  9&969C9H9R9a9v9
+0x  127b47  9#:3:?:
+0x  1208d9  9#:6:M:s:
+0x  126e3f  9#9X9
+0x  1279df  9%:@:I:
+0x  12702b  9%:<:C:J:
+0x  127dd9  9%:2:S:X:q:v:
+0x  12447d  9%9/999C9M9\9f9p9z9
+0x  120dd9  9`:d:h:l:p:t:x:|:
+0x   b5835  9^`u
+0x   a17a1  9^4t
+0x  1209b3  9+979
+0x  121eb5  9<9M9^9
+0x  12130b  9<9V9R:W:r:z:
+0x  12711f  9>9D9M9i9
+0x   d8290  9|8(
+0x   3890d  9~Pu
+0x  1273c7  9$9-9D9x9
+0x  12c1b1  9$9,949<9D9L9T9\9d9l9t9|9
+0x  124189  9$9.989B9L9V9`9j9t9~9
+0x  12bc2b  9$9(90949<9@9H9L9T9X9`9d9l9p9x9|9
+0x  125c19  9$9<9E9L9
+0x  12a8e3  9$909P9X9`9h9p9x9
+0x  12b4a1  9$9D9L9X9x9
+0x  123020  90@0z0
+0x  12a32f  909@9P9T9X9l9p9
+0x  12b237  90989H9l9t9|9
+0x  124ed7  909i9
+0x  128210  90A0x0
+0x  126dfc  90K0
+0x  1286e8  92[2
+0x  125745  929C9
+0x  12790b  93:Q:c:y:
+0x  120afb  96:D:c:
+0x  121fdd  96:G:f:
+0x  124ddd  969?9K9W9u9
+0x  126c23  969d9
+0x  1246d9  969T;{;
+0x  124a13  979H9i9y9
+0x  12ab23  989@9L9l9t9|9
+0x  1230e1  989C9W9z9
+0x  12145d  989R9T:^:j:p:
+0x  128b3d  99:E:U:a:~:
+0x  12214f  99:I:_:
+0x  1233f1  99:I:}:$;t;
+0x  1255ab  99:L:j:
+0x  126517  999b9
+0x   d8769  99S3
+0x   b5aa9  9C\t
+0x   b5a94  9C`t
+0x   b5af6  9C`u99C\t4
+0x  1287e1  9C9X9n9
+0x  125807  9d9t9
+0x   b1971  9E WW
+0x   b0d60  9E(j
+0x   99f7f  9F(t
+0x  125153  9G9{9W:\:
+0x  12a903  9H:h:p:|:
+0x   e4e00  9hR'
+0x  1224a3  9I:[:M;l;9<K<
+0x  128049  9n:S<B=
+0x  120b7f  9O;o;
+0x   9e7f7  9p u"
+0x  125a6f  9P9`9
+0x   5da79  9Pj6
+0x   a2861  9Q(u
+0x  121ded  9q9v9
+0x  122eeb  9W9_9
+0x   b36d4  9wLt
+0x   3f947  9x u
+0x  127a43  9X9n9z9
+0x    81ab  9xPu
+0x  126bcd  9Y:i:
+0x   e6a7b  9Y>)F$
+0x   a280a  A-<Fu
+0x    b569  A,)0
+0x   cea38  A,#~
+0x   e2c81  a.Q0
+0x   fcd3d  A]?VJ
+0x   a027a  A<Au
+0x   a291d  A<lt'<tt
+0x    b489  A0)0
+0x  120ca8  A0|1
+0x  122464  A0n0
+0x   dfba8  a3lm
+0x   cfa7c  a9>7
+0x   cfcbe  a9>7QL
+0x  108569  abcdefghijklmnopqrstuvwxyz
+0x  108589  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+0x   f6f58  abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 
+0x   f66c0  ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+0x    1ff7  abNM
+0x    20ab  acHM
+0x   ea85c  acos
+0x  1075f6  AcquireSRWLockExclusive
+0x   3f3d4  acsut
+0x   c9af8  address family not supported
+0x   c9b18  address in use
+0x   c9b28  address not available
+0x   f749c  AdjustCameraField
+0x   ab5f8  Af;:u
+0x  108750  AgentCount.txt
+0x   f7cc0  AgentTag( {:d}, {:d} ): agentBase = {:08X} | agent = {:08X}
+0x   f6ed4  Aggressive
+0x   f8a68  AGILITY
+0x   f8a70  Agility:
+0x  107124  AllocConsole
+0x   f85ac  ALLYCOLOUR
+0x   c9b40  already connected
+0x   f8294  Always
+0x   f7764  ANGLE
+0x   5ddbe  APj>
+0x    1e67  apNM
+0x   ea618  AppPolicyGetProcessTerminationMethod
+0x   ea644  AppPolicyGetThreadInitializationType
+0x   f6300  Apps
+0x   e9d08  April
+0x    2173  apsM
+0x   3d328  apsut
+0x   d04d8  aQ49
+0x   33195  AQPR
+0x   f6ee8  Aqua
+0x   f6e60  Area
+0x  10756a  AreFileApisANSI
+0x   c9b54  argument list too long
+0x   ee868  Argument not found.
+0x   c9b6c  argument out of domain
+0x  11b2f8  ARMOR_DIVINE
+0x  11b2b0  ARMOR_FORT
+0x  11b2e0  ARMOR_HERO
+0x  11b298  ARMOR_LARGE
+0x  11b280  ARMOR_MEDIUM
+0x  11b310  ARMOR_NONE
+0x  11b2c8  ARMOR_NORMAL
+0x  11b268  ARMOR_SMALL
+0x  11b3b8  ARMORTIP_DIVINE
+0x  11b370  ARMORTIP_FORT
+0x  11b3a0  ARMORTIP_HERO
+0x  11b358  ARMORTIP_LARGE
+0x  11b340  ARMORTIP_MEDIUM
+0x  11b3d0  ARMORTIP_NONE
+0x  11b388  ARMORTIP_NORMAL
+0x  11b328  ARMORTIP_SMALL
+0x   f89fc  ARMOUR
+0x   f8a04  Armour:
+0x   a9845  ARPRQh
+0x   3aaa8  arua
+0x   f9dc0  asin
+0x   f87b0  ASPECTRATIOID
+0x   3f5c8  AT_^]
+0x   ea864  atan
+0x   f9d41  atan2
+0x   d0538  atQl3
+0x  1070d8  AttachConsole
+0x   f8988  Attack Reload:
+0x   f8954  ATTACK_RELOAD
+0x   f85fc  ATTACKCOLOUR
+0x   e9d20  August
+0x   f82ac  AUTOCAST
+0x   f8438  AUTOCASTMOUSEDELAY
+0x   3f439  AX_^]
+0x   e59b8  AyIv
+0x   e0370  B)K\
+0x   e6ca5  B}T|
+0x   78c1b  B|=P
+0x   50004  B0;B4t 
+0x  128c74  B0Q0[0}0
+0x    1c23  B3w+
+0x   d50d7  B9[N
+0x   cedc8  b9>7
+0x   f62d4  Back
+0x   c9b84  bad address
+0x   ca144  bad allocation
+0x   f6258  Bad any_cast
+0x   f2f94  bad array new length
+0x   ee270  bad cast
+0x   e76b0  bad exception
+0x   c9b90  bad file descriptor
+0x   ee27c  bad locale name
+0x   c9ba4  bad message
+0x   381ad  baIA
+0x    1fcf  baNM
+0x   f6f2c  Battle.net
+0x   f8674  BATTLE.NET
+0x   edbfb  BC .=
+0x    1dc7  bcIM
+0x  11b1a7  BDAMAGE_NORMAL
+0x    1ceb  bewM
+0x   4287d  bfdu
+0x   f7218  Bitmap{
+0x  107338  BlockInput
+0x   f7780  BLPLIMITREMOVAL
+0x   f6ea8  Blue
+0x    21e2  bM-B
+0x    1e2b  bmEM
+0x   e6b95  bnMG
+0x   f6fec  boolean
+0x   f7078  boolean array
+0x   f8668  BORDERLESS
+0x    1d9f  bpIM
+0x   5ddec  BPj?
+0x   d1cd1  bpV'
+0x    1fbb  brfM
+0x    2279  brfR
+0x   c9bb0  broken pipe
+0x   f6ee0  Brown
+0x    1def  bsIM
+0x   d0cdf  Bsx*
+0x   d0a55  Bsxr
+0x    1edf  btHM
+0x   f8ec0  BuffUI
+0x   f885c  BUFFUI
+0x   f8038  Build
+0x   3cfe0  butu
+0x   3d35f  butuu'
+0x   9df3d  BVj(j
+0x   cbe74  BW6H;
+0x   ca401  BWG/
+0x   ded70  BXwx
+0x   dc3ae  BXwxZH+
+0x   e01c0  bY't&
+0x   e70b5  bzo<
+0x   b4253  C PjPW
+0x   b42e5  C-PjWW
+0x   b42ce  C,PjVW
+0x   ff264  C:\Files\Programming\Warcraft\My Projects\All\Release\Modules\WFE\WFEDll.pdb
+0x   dd000  C.aX
+0x   b42f9  C.PjRW
+0x   b427b  C(Pj
+0x   b4292  C)Pj
+0x   b434c  C@Pj
+0x   b42a6  C*PjTW
+0x   b430d  C/PjSW
+0x   b42ba  C+PjUW
+0x   b4338  C<Pj
+0x   b4267  C$PjQW
+0x  128b94  c0k0{0
+0x  127a78  c0l0t0y0
+0x   b45f3  C0Pj
+0x  125edc  C0Q0W0
+0x   3fa28  c1au
+0x   3fa5b  c1aut,
+0x   3f475  c1aut.
+0x   3fa15  c2aut
+0x   d34e7  C3"I
+0x   b460a  C4Pj
+0x   b4321  C8Pj
+0x   f7cfc  CAbility: {:08X}
+0x   f80c4  Call to Arms
+0x   f5bf0  CAMERA
+0x   f75f4  CAMERADISTANCE
+0x   f7614  CAMERAHEIGHT
+0x   f752c  CAMERAMODIFIABLE
+0x   f82d8  CAMERAMOVECONTROL
+0x   f82ec  CAMERAMOVETIMEOUT
+0x   f7814  CAMERAOVERRRIDE
+0x   f78d4  CAMERARESTORE
+0x   f75c4  CAMERAROTATION
+0x   f7548  CameraSetupApply
+0x   f7574  CameraSetupApplyForceDuration
+0x   f7594  CameraSetupApplyForceDurationWithZ
+0x   f755c  CameraSetupApplyWithZ
+0x   f75e8  CAMERATILT
+0x   ee794  Can not switch from automatic to manual indexing
+0x   ee358  Can not switch from manual to automatic indexing
+0x   f62e4  CapsLock
+0x   f9f02  cb~q
+0x   f5c48  CBackdropFrame
+0x   f5e98  CBuffIndicator
+0x   f5c64  CButtonFrame
+0x   f5ebc  CCargoGrid
+0x   f5c7c  CChatEditBar
+0x   f5ec8  CCommandBar
+0x   f5ed4  CCommandButton
+0x   f8040  CCommandButton->{:08X} | object->{:08X}
+0x   f5c58  CControl
+0x   3f243  ccou
+0x   f5cac  CCursorFrame
+0x    1d4f  cdIM
+0x   b4360  CDPj
+0x    1d3b  cdUM
+0x   f5cbc  CEditBox
+0x   ea888  ceil
+0x   3f18a  cfdu
+0x   f5c74  CFrame
+0x   f7d4c  CFunction: {:08X}
+0x   f5cc8  CGameChatroom
+0x   f5ce4  CGameUI
+0x   f5e70  CGlueMgr
+0x   f5b84  cheatengine-i386.exe
+0x   f5bb4  cheatengine-x86_64-SSE4-AVX2.exe
+0x   f5b9c  cheatengine-x86_64.exe
+0x   f7c70  checkaxis
+0x   f5f08  CHeroBar
+0x   f5f14  CHeroBarButton
+0x   f5f30  CHeroLevelBar
+0x   f5cec  CHighlightFrame
+0x   b4374  CHPjPW
+0x   f5f40  CIconCover
+0x   e3db0  cie?
+0x   f5f4c  CInfoBar
+0x   f5f58  CInfoPanel
+0x   f5f64  CInfoPanelBuildingDetail
+0x   f5f80  CInfoPanelCargoDetail
+0x   f5f98  CInfoPanelDestructableDetail
+0x   f5fb8  CInfoPanelGroup
+0x   f5fc8  CInfoPanelIcon
+0x   f5fd8  CInfoPanelIconAlly
+0x   f5fec  CInfoPanelIconArmor
+0x   f6000  CInfoPanelIconDamage
+0x   f6018  CInfoPanelIconFood
+0x   f602c  CInfoPanelIconGold
+0x   f6040  CInfoPanelIconHero
+0x   f6054  CInfoPanelIconRank
+0x   f6068  CInfoPanelItemDetail
+0x   f6080  CInfoPanelUnitDetail
+0x    1cff  ciNM
+0x   f5c10  CLayer
+0x   f5c18  CLayoutFrame
+0x   f5cfc  CLeaderboard
+0x   f70a4  CLEANSTACK
+0x  1074ca  ClipCursor
+0x   f5d70  CListBoxItemWar3
+0x   f5d84  CListBoxWar3
+0x  106ff4  CloseHandle
+0x   b438b  CLPjQW
+0x   f5d94  CMessageFrame
+0x   f5da4  CMinimap
+0x   f5c3c  CModelFrame
+0x   f5db0  CMultiboard
+0x   f6098  COccupUI
+0x   f7020  code
+0x   f710c  CODE
+0x   f8df4  COLON_ARMOR
+0x   f8c34  COLON_DAMAGE
+0x   f8e00  COLON_DAMAGE_REDUCTION
+0x   f8dbc  COLON_MOVE_SPEED
+0x   f8cec  COLON_RANGE
+0x   f8c50  COLON_SPEED
+0x   f8d1c  COLON_UPGRADE
+0x   f8518  COLOUR
+0x   f8f20  CommandButtonCooldown
+0x   f8be0  CommandButtonNumberOverlay
+0x   f7930  COMMANDS
+0x   f67f0  common.j
+0x   ea4e0  CompareStringEx
+0x   f6818  CONIN$
+0x   c9bbc  connection aborted
+0x   c9bd0  connection already in progress
+0x   c9bf0  connection refused
+0x   c9c04  connection reset
+0x   f6824  CONOUT$
+0x   f70c4  CONSTANT
+0x   f7a44  converthandle
+0x   f6e68  Cool
+0x   f89a8  COOLDOWN
+0x   f89e8  Cooldown:
+0x   f8f38  CooldownUI
+0x   f72e0  COOLDOWNUI
+0x   f793c  copy
+0x   f7c44  copyitems
+0x   e84f8  CorExitProcess
+0x   ea844  cosh
+0x   f6e80  Cost
+0x   f60a4  CPeonBar
+0x   3f1de  cphu
+0x   5de1a  CPj@
+0x   f5dbc  CPortraitButton
+0x   f5ea8  CProgressIndicator
+0x   f7b88  create
+0x  1071e8  CreateFileMappingA
+0x  10752c  CreateFileW
+0x  1071d8  CreateThread
+0x   f60c4  CResourceBar
+0x   f60d4  CResourceCover
+0x   c9c18  cross device link
+0x   f5dcc  CScreenFrame
+0x   f5ef4  CShrinkingButton
+0x   f5ee4  CSimpleButton
+0x   f60e4  CSimpleConsole
+0x   f60f4  CSimpleFadeTimer
+0x   f61dc  CSimpleFontString
+0x   f5e88  CSimpleFrame
+0x   f6188  CSimpleGlueFrame
+0x   f5e7c  CSimpleGrid
+0x   f611c  CSimpleMessageFrame
+0x   f61b4  CSimpleRegion
+0x   f60b0  CSimpleStatusBar
+0x   f6204  CSimpleTexture
+0x   f5ddc  CSimpleTop
+0x   f5c8c  CSlashChatBox
+0x   ad1a2  CSPj
+0x   f5c9c  CSpriteFrame
+0x   3f441  cssu
+0x   7636d  cssuQ
+0x   f5f24  CStatBar
+0x   f5dfc  CStatusBar
+0x   f5e08  CTextArea
+0x   f5e24  CTextFrame
+0x   f5e30  CTimeCover
+0x   f5e3c  CTimeOfDayIndicator
+0x   f5e50  CTimerDialog
+0x   f6130  CToolTipWar3
+0x   f647c  CTRL
+0x   f6140  CUberToolTipWar3
+0x   f616c  CUnitTip
+0x   f6178  CUpperButtonBar
+0x   f8520  CUSTOM_HEALTH
+0x   f84bc  CUSTOM_HEALTH_MANA
+0x   f853c  CUSTOM_MANA
+0x   f844c  CUSTOMATTACKTIP
+0x   f8530  CUSTOMBARS
+0x   f83d8  CUSTOMDEFENSETIP
+0x    2228  cvNR
+0x   f5e60  CWorldFrameWar3
+0x   f6ea0  Cyan
+0x   fbe16  d? cf>
+0x   fb141  D<xZu
+0x   ded98  d=.h$
+0x   f96d6  D>q=
+0x   39baf  D$ ;
+0x   65904  D$ P
+0x   39961  D$,V
+0x     56b  D$( 
+0x   89ab2  D$(+
+0x   43b81  D$(SVW
+0x   8a88d  D$@+
+0x   657e9  D$@<
+0x   894db  D$@f
+0x   65807  D$\f
+0x   894c9  D$<3
+0x   8817a  D$$o
+0x   8803e  D$0+
+0x    2f58  D$4Df
+0x   835d8  D$4P
+0x   6590f  D$8P
+0x   dec49  D$C+
+0x   6580d  D$df
+0x   894a6  D$HQ
+0x   65813  D$lf
+0x   657ff  D$LPVf
+0x   65819  D$tf
+0x   df2bf  D0=|
+0x   e22e1  D0=0
+0x  128840  D0X0
+0x  1291e0  d2p2t2x2|2
+0x   f5bf8  d3d8.dll
+0x  11c80c  d3d8to9.dll
+0x   f5c04  d3d9.dll
+0x   60959  d3w+
+0x   60559  d3w+t
+0x   cb7c8  D4/LN
+0x  129f1c  d5h5
+0x   ae305  D8(Ht'
+0x   ae5ec  D8(Ht5F
+0x   ae487  D8(HtU
+0x   e8628  d8L2
+0x   f8a38  DAMAGE
+0x  11b220  DAMAGE_CHAOS
+0x  11b238  DAMAGE_HERO
+0x  11b208  DAMAGE_MAGIC
+0x  11b1c0  DAMAGE_MELEE
+0x  11b1d8  DAMAGE_PIERCE
+0x  11b1f0  DAMAGE_SIEGE
+0x  11b250  DAMAGE_UNKNOWN
+0x   f8a40  Damage:
+0x   f7724  DAMAGEDRAW
+0x   f69e4  DAMAGETIP_CHAOS
+0x   f69d4  DAMAGETIP_HERO
+0x   f69f4  DAMAGETIP_MAGIC
+0x   f69ac  DAMAGETIP_MELEE
+0x   f69bc  DAMAGETIP_NORMAL
+0x   f6998  DAMAGETIP_PIERCE
+0x   f6988  DAMAGETIP_SIEGE
+0x   e5008  daZ+ 
+0x   e9d68  dddd, MMMM dd, yyyy
+0x   40762  ddIAt
+0x   407a0  ddIAu)
+0x   f8110  Debug Mode:
+0x   e9d48  December
+0x  1076f6  DecodePointer
+0x  11b0d8  Default String
+0x   f7c64  defbounds
+0x   f6a20  DefenseArmor
+0x  1074a6  DefWindowProcA
+0x   f76c8  DELAY
+0x   f6320  Delete
+0x  1076ce  DeleteCriticalSection
+0x   f7924  DESCRIPTION
+0x   f8090  dest = {:08X}
+0x   c9c2c  destination address required
+0x   f6490  Detour::Install #%d (%08X)->(%08X)
+0x   f6500  Detour::Install aborted, function already detoured!
+0x   f658c  Detour::Install failure, invalid pointer to detour!
+0x   f64b4  Detour::Install failure!
+0x   f65f4  Detour::Uninstall aborted, function was not detoured!
+0x   f662c  Detour::Uninstall function #%d (%08X)->(%08X)
+0x   f6538  DetourAttach failed with error: %d.
+0x   f665c  DetourDetach failed with error: %d.
+0x   f64d0  DetourTransactionBegin failed with error: %d.
+0x   f65c4  DetourTransactionCommit failed with error: %d.
+0x   f6560  DetourUpdateThread failed with error: %d.
+0x   c9c4c  device or resource busy
+0x   f77d8  Direct3DCreate8
+0x   c9c64  directory not empty
+0x  10725a  DisableThreadLibraryCalls
+0x   84071  disAt
+0x   61456  disAw t
+0x   f72d0  DISPLAYMINUTES
+0x   f88ac  DISPLAYTIME
+0x   f73fc  DISTANCE
+0x   f7408  DISTANCE_MAX
+0x   f7418  DISTANCE_MIN
+0x   f7604  DISTANCESTEP
+0x   3f2f4  disuu^
+0x    8c2d  dnia
+0x    8cfb  dniaP
+0x    99f9  dnih
+0x    9ace  dnihP
+0x   5de48  DPjA
+0x   afd4a  dr'j
+0x   f85cc  DRAWATTACK
+0x   f860c  DRAWATTACKONHOVER
+0x   f85dc  DRAWSIGHTRADIUS
+0x   f829c  DRAWSPELLAOE
+0x   f85b8  DRAWSPELLAOEONHOVER
+0x   3f39c  dreut
+0x   3f1ca  drfut$
+0x   f7c38  dropitems
+0x   dc3c5  dSp^z
+0x   de741  dSp^z0h
+0x   dc963  dSp^z0hS 6
+0x   9e26f  dSVW
+0x   96598  dtrR
+0x   f7710  DURATION
+0x   f8a24  Duration:
+0x   84079  dusAt
+0x   d340e  DwZh
+0x   d30dc  DwZhN"
+0x   f6a04  DyingRevealRadius
+0x   b6e3b  E ^PQQQQ
+0x   b82b9  E H;
+0x   fd1b1  e-CS
+0x   cbef8  e,<O7tC
+0x   d23c1  E"T:
+0x   dc890  E\vi(
+0x    5c1b  e+00
+0x   ea718  e+000
+0x   d9a70  E$E?(
+0x   dd7d9  E6m!
+0x   d38f0  E7RK(
+0x   e6f3f  eax~Z
+0x   36231  ebus
+0x   36222  ebust
+0x   3599b  ebusu
+0x   d9ba8  EDBH$
+0x   9e215  EE,P
+0x   9e5e3  EE$P
+0x   cbdfb  EhW#
+0x   e6fa5  ekhHD
+0x   d96b1  El}5
+0x   d65be  eLK(
+0x   e872b  eLK(w
+0x   f790c  EMPTY
+0x   f82c4  ENABLE
+0x   f8814  ENABLEFADE
+0x  1076e6  EncodePointer
+0x   f704c  ENDFUNCTION
+0x   f7088  ENDPROGRAM
+0x   f85a0  ENEMYCOLOUR
+0x   f8428  ENFORCEHOTKEYS
+0x   4a7c2  ENONw$t6
+0x   f6484  Enter
+0x  107680  EnterCriticalSection
+0x   f80dc  enteredFrame = {:08X} | FrameType = {:d}
+0x   ea4f8  EnumSystemLocalesEx
+0x  1079c8  EnumSystemLocalesW
+0x   5de76  EPjB
+0x   f7170  EQUAL
+0x    2c2a  eraa
+0x    2083  erfM
+0x   f8398  Error loading config: %s
+0x   f835c  Error loading profile: %s
+0x   f833c  Error parsing profile: %s%s
+0x   f7de0  ERROR!
+0x   f62dc  Escape
+0x   bb4a1  etPj
+0x   ab26c  eVhd
+0x   d2510  eVt{!
+0x   d1e88  EwZhN"
+0x   c9c78  executable format error
+0x   f7a34  executefuncex
+0x  1078b6  ExitProcess
+0x  107892  ExitThread
+0x   f83ec  EXTENDEDATTACKTIP
+0x   f8414  EXTENDEDDEFENSETIP
+0x   f70e4  EXTENDS
+0x   e6f0d  EydU
+0x   d499f  EZ%4
+0x   abf55  F _^[
+0x   be267  f- 8f=
+0x   a30d5  F-<at
+0x   a31d9  F-<gt
+0x   bdfd7  f-00f=
+0x   ca8b3  F;/A
+0x   aad5a  f;1u
+0x   fcb2e  F?cf
+0x   fcf31  f*"!
+0x   d4389  f*|;
+0x   fd57e  F=J4
+0x   df298  f>):
+0x   dc7fe  f>):oB"
+0x   a1acb  F0^[
+0x   a181e  F0^[]
+0x  122780  f0x0
+0x   d3e91  f18(
+0x   4980f  F49N t
+0x   b3a3f  f9:t!V
+0x   b3a5f  f9:u
+0x   a80c8  f9<H_}
+0x   b0c26  f9<H}
+0x   b14cf  f90t
+0x   b4b49  f91t
+0x   b122e  f94H
+0x   ab7fa  f97t
+0x   b5f29  f98t
+0x   d5a71  FAau
+0x   f308c  fabs
+0x   ee28c  false
+0x   f7450  FARZ
+0x   f8644  FASTMENU
+0x    201f  fbCM
+0x    200b  fbNM
+0x   e0948  Fd"U
+0x   da2f8  fe?,7
+0x   e9cf4  February
+0x   e8798  FEMh
+0x    1cc3  feNM
+0x   1d36d  ff&>3
+0x   ee960  ffffff
+0x   d32a6  ffkM_
+0x   d2f74  ffkM=
+0x   9c637  FGIu
+0x   f83d0  FILE
+0x   c9c90  file exists
+0x   c9c9c  file too large
+0x   c9cac  filename too long
+0x  10753a  FindClose
+0x  107546  FindFirstFileExW
+0x  10755a  FindNextFileW
+0x  10738c  FindWindowA
+0x   b4525  FjPV
+0x   ea890  floor
+0x   e8100  FlsAlloc
+0x   e8114  FlsFree
+0x   e8124  FlsGetValue
+0x   e8138  FlsSetValue
+0x   421e8  FLTB
+0x  107934  FlushFileBuffers
+0x  1072c0  FlushInstructionCache
+0x   ab07d  FLY;
+0x   ea8b8  fmod
+0x    1f2f  fobM
+0x    226b  fobR
+0x   f81f4  FogEnable
+0x   f8264  FogMaskEnable
+0x   f7458  FOGZ
+0x   f8fbc  FontHeights
+0x   f6214  Fonts\FRIZQT__.TTF
+0x   f8ad4  FOOD
+0x   f8adc  Food:
+0x   ee768  Format specifier requires numeric argument.
+0x   ee57c  Format specifier requires numeric or pointer argument.
+0x  107504  FormatMessageA
+0x   f84d0  FPSADVANCEDINFO
+0x   f8310  FPSLIMIT
+0x   f8300  FPSREFRESHRATE
+0x   f84a0  FPSTYPE
+0x  107a52  FreeEnvironmentStringsW
+0x  1072f6  FreeLibrary
+0x  1071b4  FreeLibraryAndExitThread
+0x   ea8c0  frexp
+0x   e9ca8  Friday
+0x   fadf1  fSOs
+0x   9e821  ft&9q
+0x   45499  FT^[
+0x   f7040  FUNCTION
+0x   c9cc0  function not supported
+0x   f76e4  FUNCTIONS
+0x    1e7b  fxpM
+0x   fcbd9  g\>{
+0x   3f203  G|_^]
+0x   505de  G0;G4t
+0x   cce87  g2Q}
+0x   33f1b  G4Pj
+0x   f95fd  Ga={
+0x   f81b4  Game {} {} | WFE {} {}
+0x   f2ff0  Game.dll
+0x   f7c20  gamebase
+0x   f76bc  GAMESTART
+0x   f7c7c  gametype
+0x   cafaa  gb^L
+0x   ff2c8  GCTL
+0x   f2fc0  generic
+0x   9b213  Genu
+0x   f7a60  getability
+0x  1079fe  GetACP
+0x  10741c  GetActiveWindow
+0x   f7114  GETARRAY
+0x  107496  GetClientRect
+0x  107a14  GetCommandLineA
+0x  107a26  GetCommandLineW
+0x  10795e  GetConsoleMode
+0x  107948  GetConsoleOutputCP
+0x  1070b0  GetConsoleWindow
+0x  10775e  GetCPInfo
+0x  10704e  GetCurrentProcess
+0x  1070f8  GetCurrentProcessId
+0x  107086  GetCurrentThread
+0x  107276  GetCurrentThreadId
+0x  1073fc  GetCursorPos
+0x   ea514  GetDateFormatEx
+0x  107a38  GetEnvironmentStringsW
+0x  1075c8  GetExitCodeThread
+0x   f72c4  GetFileSize
+0x  107910  GetFileSizeEx
+0x  107902  GetFileType
+0x  106fc2  GetFileVersionInfoA
+0x  106f96  GetFileVersionInfoSizeA
+0x  10720e  GetFinalPathNameByHandleA
+0x  10742e  GetForegroundWindow
+0x   f7a54  getfromhash
+0x   f79a4  getfuncname
+0x   f79b0  getfunction
+0x   f7950  gethandles
+0x  1073b2  GetKeyState
+0x  106fe4  GetLastError
+0x  10759e  GetLocaleInfoEx
+0x  107990  GetLocaleInfoW
+0x  107176  GetLocalTime
+0x   f79fc  getmodel
+0x   f7998  getmodelex
+0x  10709a  GetModuleFileNameA
+0x  1078c4  GetModuleFileNameW
+0x  10701c  GetModuleHandleA
+0x  1078a0  GetModuleHandleExW
+0x  107304  GetModuleHandleW
+0x  107444  GetMonitorInfoA
+0x  107a08  GetOEMCP
+0x  10703c  GetProcAddress
+0x  107a6c  GetProcessHeap
+0x  1077e8  GetStartupInfoW
+0x  1078f2  GetStdHandle
+0x  10774c  GetStringTypeW
+0x  107732  GetSystemTimeAsFileTime
+0x   e759c  GetSystemTimePreciseAsFileTime
+0x   e7354  GetTempPath2W
+0x  107072  GetThreadContext
+0x  107164  GetTickCount64
+0x   ea544  GetTimeFormatEx
+0x   f6fa8  GetUjAPIFlags
+0x  1079b2  GetUserDefaultLCID
+0x   ea55c  GetUserDefaultLocaleName
+0x   f70bc  GETVAR
+0x   f79bc  getvariable
+0x  1074d8  GetWindowInfo
+0x  107368  GetWindowLongA
+0x  107480  GetWindowPlacement
+0x  107358  GetWindowRect
+0x  107346  GetWindowTextA
+0x   53e59  gfff
+0x   c6b42  gfff+
+0x   eedf8  gffffff
+0x   d1d20  gfkM=
+0x   3f1a3  Gl_^]
+0x   f7060  GLOBAL
+0x   f8a48  GOLD
+0x   f8af8  Gold Income Rate:
+0x   f8ae4  GOLD_INCOME_RATE
+0x   f8a50  Gold:
+0x   3f172  Gp_^]
+0x   5ded2  GPjD
+0x   f7654  GRAPHICS
+0x   f7190  GREATER
+0x   f714c  GREATEREQUAL
+0x   f6ec4  Green
+0x   3f1b8  Gt_^]
+0x   af8d2  H_^[
+0x   cdd0d  H#@A
+0x   cde8f  H#@Ow&
+0x   fafc2  H|As
+0x   e87a6  h0'D
+0x   50174  H0+H,
+0x   d0050  Hahx'
+0x   f6fb8  handle
+0x   f7ca0  handle = {:d} | agent = {:08X}
+0x   f7068  handle array
+0x   f9050  Handle Count: 
+0x   f907c  Handle Index: 
+0x   ee6e8  Handle Index: {:d} {}
+0x  108738  HandleCount.txt
+0x   f7d28  handlecounter
+0x   ee4d8  Hash/sign modifier requires an arithmetic presentation type
+0x   f7bbc  hashbreaker
+0x   ca4f4  Haz[~i
+0x   9c9b4  hcsm
+0x   9795c  HD;M
+0x    1caf  hdNM
+0x   f7bd8  heal
+0x   f8b38  HEALTH
+0x   f8b40  Health:
+0x   f850c  HEALTHBAR
+0x  1078e6  HeapAlloc
+0x  1078da  HeapFree
+0x  1079de  HeapReAlloc
+0x  107a8e  HeapSize
+0x   f7448  HEIGHT
+0x   f7428  HEIGHT_MAX
+0x   f7434  HEIGHT_MIN
+0x   f75b8  HEIGHTSTEP
+0x   f82cc  HEROBINDS
+0x   f6e70  HeroDur
+0x   e0a5f  hFr?m
+0x   e6c9d  hGT.
+0x   3c7f2  hgw+tl
+0x   e9d7c  HH:mm:ss
+0x   3f3dc  hhsuui
+0x   f7c50  hidemap
+0x   e0931  hl@)
+0x   f6f38  HLIGHT
+0x   e5f5e  hLZ1
+0x   615de  hmanw
+0x   d0d78  hmjpP
+0x   f6334  Home
+0x   c9cd8  host unreachable
+0x   f7540  HOTKEYS
+0x   b5f0e  HPhX
+0x   5df00  HPjE
+0x   e58c9  hPMX
+0x     107  hRich
+0x    2123  hsEM
+0x    225d  hsfR
+0x    214b  hsOM
+0x   b8acf  hSSS
+0x   b8e98  HSVW
+0x   d26a6  hsy{
+0x   dfd6f  HVkN
+0x   3f251  hvmuwKt=
+0x   3f6d0  hvnIA3
+0x   3f1d2  hyfu
+0x  1254e0  I0[0
+0x   cf285  I28>
+0x   44824  i3w+
+0x   eddfc  i9+=
+0x    21fe  iAfB
+0x   613ed  iamA
+0x   84059  iamAt,
+0x   da2c7  iBU.
+0x   fa062  ibzP
+0x   c9cec  identifier removed
+0x   40f07  iesA
+0x   84047  iesAw
+0x   b359a  IH;A
+0x   cb899  II]':j
+0x   c9d00  illegal byte sequence
+0x    21af  iM-B
+0x   f7220  Image
+0x   c9518  ImagehlpApiVersionEx
+0x   e649b  IMbP?i
+0x    220c  iMfB
+0x   c9d18  inappropriate io control operation
+0x   e9054  IND)ind)
+0x   f8998  INDEX
+0x   f8980  INDEX:
+0x   f8164  indicator = {:08X} | buff = {:08X}
+0x   f8578  INDICATORS
+0x   f8f60  IndicatorUI
+0x   f903c  InfoPanelTextFont
+0x  107846  InitializeCriticalSectionAndSpinCount
+0x  1076b0  InitializeCriticalSectionEx
+0x  1077fa  InitializeSListHead
+0x   e9034  inity
+0x   e902c  INITY
+0x   f6328  Insert
+0x   f7790  INSTANTRMC
+0x   f7028  integer
+0x   f6ff4  integer array
+0x   ee894  integral cannot be stored in char
+0x   f8a7c  INTELLIGENCE
+0x   f8a8c  Intelligence:
+0x   f865c  INTERFACE
+0x  10781c  InterlockedFlushSList
+0x   c9d3c  interrupted
+0x   c9d48  invalid argument
+0x   ee730  Invalid fill (too long).
+0x   ee38c  invalid fill character '{'
+0x   ee304  Invalid format string.
+0x   f6684  invalid hash bucket count
+0x   f6834  invalid map<K, T> key
+0x   ee3e8  Invalid presentation type for bool
+0x   ee40c  Invalid presentation type for char
+0x   ee458  Invalid presentation type for floating-point
+0x   ee430  Invalid presentation type for integer
+0x   ee4b0  Invalid presentation type for pointer
+0x   ee488  Invalid presentation type for string
+0x   ee3c4  Invalid presentation type specifier
+0x   c9d5c  invalid seek
+0x   f726c  invalid stof argument
+0x   f6a34  invalid stoi argument
+0x   f6708  invalid stoll argument
+0x   ee7c8  invalid string position
+0x   ee3a8  Invalid type specification.
+0x   ee74c  invalid vector subscript
+0x   f7bc8  invul
+0x   f8de4  INVULNERABLE
+0x   c9d6c  io error
+0x    1e8f  iopM
+0x   ee29c  ios_base::badbit set
+0x   ee2cc  ios_base::eofbit set
+0x   ee2b4  ios_base::failbit set
+0x   ee264  iostream
+0x   f2f6c  iostream stream error
+0x   d6298  Ip!\
+0x   5df2e  IPjF
+0x   e632a  Iq|o
+0x   cea19  IRe0
+0x   3f2e4  irput(
+0x   c9d78  is a directory
+0x   f869c  ISABILITYBAR
+0x   f76a4  ISALLY
+0x   f86c8  ISALLYABILITYBAR
+0x   f8794  ISATTACHTOOLTIP
+0x   f87c0  ISAUTOASPECTRATIO
+0x   f7644  ISAUTOUPDATE
+0x   f870c  ISBLACKBARS
+0x   f84fc  ISCOLOURENABLED
+0x   f8734  ISCONSOLE
+0x   f8634  ISCUSTOMUIDRAW
+0x  1077d4  IsDebuggerPresent
+0x   f8490  ISDIGITTRUNCATE
+0x   f77b8  ISDIRECTX9
+0x   f8864  ISDRAWAURADURATION
+0x   f8878  ISDRAWBUFFDURATION
+0x   f7730  ISENABLED
+0x   f76ac  ISENEMY
+0x   f84f0  ISEXTENDED
+0x   f84a8  ISFPSACTIVEINLOBBY
+0x   f8788  ISHEROBAR
+0x   f7698  ISHEROONLY
+0x   f86dc  ISHEROOVERHEADTIP
+0x   f8700  ISINFOBAR
+0x   f874c  ISINVENTORYCOVER
+0x   f86ac  ISITEMBAR
+0x   f8778  ISLEADERBOARD
+0x   f8808  ISMINIMAP
+0x   f87f4  ISMINIMAPBUTTONS
+0x   f8724  ISMULTIBOARD
+0x   f76b4  ISMY
+0x   f8718  ISPEONBAR
+0x   f8478  ISPERCENT
+0x   f84e0  ISPLAYERCOLOUR
+0x   f8740  ISPORTRAIT
+0x  1077b8  IsProcessorFeaturePresent
+0x   f86b8  ISREPLAYPANEL
+0x   f87e4  ISRESOURCEBAR
+0x   f8470  ISSHORT
+0x   f86f0  ISSLIMCURSOR
+0x   3d330  issuuV
+0x   f8760  ISTIMEOFDAYINDICATOR
+0x   f87a4  ISTOOLTIP
+0x   f8848  ISUPGRADEDBUFFBAR
+0x   f87d4  ISUPPERMENUBAR
+0x  1079ec  IsValidCodePage
+0x  1079a2  IsValidLocale
+0x   ea588  IsValidLocaleName
+0x   f77c4  ISVSYNC
+0x  10737a  IsWindowVisible
+0x   d1270  isy{
+0x   f7fb8  item = {:08X}
+0x   e895c  iu+-,
+0x   aa828  j _;
+0x   b7104  j _=
+0x   a9e98  j X+
+0x   aa7c2  j Y+
+0x   e4951  J_7`3
+0x   b9ab6  j-Yf
+0x   7abf7  j,h,
+0x   995f2  j,VW
+0x   cb6fa  J;{B
+0x   ac0f0  j;Xf9
+0x   a87d1  j:Xf;
+0x    35b0  j?hX
+0x   ab8d2  j.Xf;
+0x   ab854  j.Yf;
+0x   b1392  j"_VSSSS
+0x   b0623  j"[VWWWW
+0x   b10bb  j"[WVVVV
+0x    45c0  j"h`
+0x   de030  j)\l
+0x   db861  J)>}
+0x   d9607  J)>M
+0x   11a6c  j{PW
+0x   11a80  j}SW
+0x   b5ff1  j@Sh
+0x   b5689  j@Sj
+0x   b5639  j@Wh
+0x   a5bc3  j@Y+
+0x   609bd  j*hT
+0x   d6066  j+"M
+0x   d634c  j+"Mw^
+0x   d7738  j+"Mw^r
+0x   b4679  J<;u
+0x   9b301  j$X9E
+0x   afb6d  j0Xu
+0x   afc16  j0Yf
+0x   afd8a  j0Yj
+0x  120f50  J1X1\1`1d1
+0x   a992e  j2[;
+0x   a3093  j4Yt
+0x   d4ccf  jA+cT
+0x   e9cec  January
+0x   f7100  JASSCALL
+0x   afd4f  jdVS
+0x   4ec12  jJPj
+0x   cb8c4  JKvP[
+0x   d18f6  jky"
+0x   5df5c  JPjG
+0x   d2d1f  Jqt@1
+0x   dbef0  jS6/1
+0x   e7196  Jufm
+0x   e9d18  July
+0x   f71a4  JUMP
+0x   f7094  JUMP_DEPRECATED
+0x   f71c8  JUMPIFFALSE
+0x   f71bc  JUMPIFTRUE
+0x   e9d10  June
+0x   fc85c  jVa?
+0x   f7d60  jVariable: var {:08X} | {} {} = {}
+0x   d5d20  k_Hv5
+0x   e7027  k*do^
+0x   e700f  k/V(
+0x   d0759  K`A8
+0x   e8d3f  k=yI
+0x   cb5a8  K3 sK
+0x  107244  K32EmptyWorkingSet
+0x  10722a  K32GetModuleInformation
+0x  107002  K32GetProcessMemoryInfo
+0x    1f1b  kbfM
+0x   f5be0  Kernel32.dll
+0x  107328  KERNEL32.dll
+0x   f88ec  KEY_
+0x   f8894  KEYBINDS
+0x   f7bec  kill
+0x  10739a  KillTimer
+0x   d0275  KjY5
+0x   d0628  kky"
+0x   384d1  kmaA
+0x   5df8a  KPjH
+0x   e49f9  kqu]h
+0x   36d52  ktaAw
+0x   cb9c5  Kw4;
+0x   d70c1  L,O)
+0x   cbbd1  l,uo
+0x   cb763  l!!3
+0x   cfa66  l!?P
+0x   e62d3  L'knN
+0x   e11b9  L{6P
+0x   de407  L{6T
+0x   d1a5c  L&-\
+0x   d1d46  L&-\jA
+0x   cac13  l%mDX=XG^
+0x   10e80  L=@B
+0x   83dd2  L=scUAu9
+0x   65856  L$ +
+0x   7dc77  L$ Q
+0x   9edea  L$,3
+0x   43da3  L$(3
+0x   835ca  L$(v
+0x   4c32b  L$<3
+0x   65945  L$|_^3
+0x   7dd11  L$$_^[3
+0x   8ac17  L$$;
+0x   3ceed  L$$3
+0x   8a913  L$$9
+0x   4c31c  L$03
+0x   39adb  L$0Q
+0x   cb61a  l$2n
+0x   884d6  L$3VW
+0x   43dc2  L$4_^[3
+0x   39ceb  L$4_^3
+0x   4c2b2  L$PQ
+0x   6592e  L$t3
+0x  126918  L0x0
+0x   ad6b2  L2.;
+0x   ddfa8  L8]q
+0x    2295  lA-B
+0x   f71b4  LABEL
+0x   ced2d  labM
+0x   f6440  LAlt
+0x   f8690  LAUNCHER
+0x   3f34e  lawu
+0x   f62a0  LButton
+0x   ea5bc  LCIDToLocaleName
+0x  107706  LCMapStringEx
+0x  107980  LCMapStringW
+0x    2033  lcOM
+0x   f6430  LCtrl
+0x   ea8a0  ldexp
+0x   4fe45  ldm.
+0x   3d0df  ldmu
+0x   f776c  LeaderboardDisplay
+0x   f7ad8  learn
+0x  107698  LeaveCriticalSection
+0x   40f17  lesA
+0x   84069  lesAt
+0x   f715c  LESSER
+0x   f7140  LESSEREQUAL
+0x    1e3f  lfmM
+0x    1d27  lfNM
+0x   8aa94  lga+
+0x   8400a  lga+u
+0x    2c8f  liba
+0x   f6ef0  Light Blue
+0x   f6eb0  Light Gray
+0x   6138f  limA
+0x   f70b0  LITERAL
+0x    21f0  lM-B
+0x   f76d0  LOADINGNOTIFICATION
+0x  1071a4  LoadLibraryA
+0x  107318  LoadLibraryExW
+0x   f7058  LOCAL
+0x   f6efc  Local Game
+0x   ea5d8  LocaleNameToLCID
+0x  107592  LocalFree
+0x   f7914  LOCALISATION
+0x   f8b10  Localisation.ini
+0x   f7c00  location
+0x   3f17a  locut)
+0x   ed7d0  log10
+0x   5dfb8  LPjI
+0x    2187  lpsM
+0x   e2b19  lR=,
+0x   f6424  LShift
+0x   f8a58  LUMBER
+0x   f8ab0  Lumber Income Rate:
+0x   f8a9c  LUMBER_INCOME_RATE
+0x   f8a60  Lumber:
+0x   f62f0  LWin
+0x   ed924  lzZ?
+0x   afaa7  M,j"^QRRRRR
+0x   e5a11  m:<7
+0x   cebd0  m!?P
+0x   d0a18  M&-\
+0x   afe72  M$j"^QRRRRR
+0x   fd54b  m0_$@
+0x   f8964  Magic Resist:
+0x   f89d8  MAGIC_RESIST
+0x   f7700  MAGICALCOLOUR
+0x   f774c  MAGICALOFFSET
+0x   f8b48  MANA
+0x   f8b50  Mana:
+0x   f8584  MANABAR
+0x   3cfa0  manuw0t&
+0x   3d3ce  manwu
+0x   ee568  map/set too long
+0x  1071fe  MapViewOfFile
+0x  1074b8  MapVirtualKeyA
+0x   e9d00  March
+0x   f7638  MasterFont
+0x   f6f98  MaxUnitSpeed
+0x   f928c  MbP?
+0x   e65bc  MbP?{
+0x   e6554  MbP?}F
+0x   e683c  MbP?^
+0x   e6724  MbP?8
+0x   e68d4  MbP?w
+0x   e6974  MbP?z
+0x   e67ac  MbP?Z
+0x   f62a8  MButton
+0x   c9d88  message size
+0x   3c704  meti
+0x   382c0  meti_
+0x   f8e74  MinUnitSpeed
+0x   f6a18  Misc
+0x   ee338  Missing '}' in format string.
+0x   ee800  Missing precision specifier.
+0x   e5e3a  mk}d
+0x    1d13  mlNM
+0x   e9d5c  MM/dd/yy
+0x   f8598  MODE
+0x   f7f62  ModelName: {}
+0x   ea898  modf
+0x   f77cc  Modules\
+0x   f717c  MODULO
+0x   e9c80  Monday
+0x  107456  MonitorFromWindow
+0x   f8288  MOUSELOCK
+0x   f8900  MOVECAMERA_
+0x   5dfe6  MPjJ
+0x   fd17c  Mpm<
+0x   e6c53  mr"iR
+0x   cee09  MSe"
+0x   3f115  mtdu
+0x    1fe3  mtNM
+0x  10757c  MultiByteToWideChar
+0x   f8278  mute
+0x    1c87  mvdM
+0x   cc399  Mw,b
+0x   dd079  mZk+
+0x   fce99  n}in
+0x   f9fb2  n@4`
+0x   bc1b8  N+D$
+0x   ca2a6  N=`s%
+0x  120d58  N0\0
+0x   4fad0  N0+N,
+0x   dff40  N0$,
+0x  120ec0  N0U0
+0x  125300  N2S2
+0x   cba79  n4k1
+0x   ee7e4  nan(ind)
+0x   ea70c  NAN(IND)
+0x   ee7f4  nan(snan)
+0x   ea700  NAN(SNAN)
+0x    2c60  nara
+0x   f70f8  NATIVE
+0x   eee20  Nc{-
+0x    2bf4  ndca
+0x   f7184  NEGATE
+0x   ee944  Negative precision.
+0x   ee914  Negative width.
+0x   c9d98  network down
+0x   c9da8  network reset
+0x   c9db8  network unreachable
+0x   f6f18  Neutral
+0x   f8548  NEUTRALAGGRESSIVECOLOUR
+0x   f8560  NEUTRALPASSIVECOLOUR
+0x   36201  nims
+0x   3f2da  nisuw`tR
+0x   361db  nknu
+0x   36184  nknuW
+0x   d9156  Nl!C
+0x   db2d8  Nl!C5
+0x   e631e  Nl9?
+0x   3f141  nmau
+0x   c9dcc  no buffer space
+0x   c9ddc  no child process
+0x   c9df0  no link
+0x   c9df8  no lock available
+0x   c9e24  no message
+0x   c9e0c  no message available
+0x   c9e30  no protocol option
+0x   c9e44  no space on device
+0x   c9e58  no stream resources
+0x   c9e88  no such device
+0x   c9e6c  no such device or address
+0x   c9e98  no such file or directory
+0x   c9eb4  no such process
+0x   f8a30  NO_MANA
+0x   f7c58  nobounds
+0x   f7c10  nocd
+0x   c9ec4  not a directory
+0x   c9ed4  not a socket
+0x   c9ee4  not a stream
+0x   c9ef4  not connected
+0x   f89b4  Not enough mana!
+0x   c9f04  not enough memory
+0x   f6f20  Not in Game
+0x   c9f18  not supported
+0x   f7134  NOTEQUAL
+0x   f6fd4  nothing
+0x   e9d3c  November
+0x   4a7ee  NPCT
+0x   5e014  NPjK
+0x   e7313  nQ:B
+0x   e5129  nqq+
+0x    210f  nseM
+0x   fd2a5  Nu?-HF
+0x   f6fe4  null
+0x   ee5b4  Number is too big
+0x   ee8e4  Number is too big.
+0x   f63c8  NumPad-
+0x   f63e4  NumPad.
+0x   f63d0  NumPad*
+0x   f63d8  NumPad/
+0x   f63c0  NumPad+
+0x   f6378  NumPad0
+0x   f6370  NumPad1
+0x   f6388  NumPad2
+0x   f6380  NumPad3
+0x   f6398  NumPad4
+0x   f6390  NumPad5
+0x   f63a8  NumPad6
+0x   f63a0  NumPad7
+0x   f63b8  NumPad8
+0x   f63b0  NumPad9
+0x   3f2ec  nurut
+0x   edb49  Nv$^
+0x   b5156  NX9^`t1
+0x   b5253  NXf9
+0x   d1148  Ny~G
+0x   cbf60  O-h7
+0x   fcbde  O?>>
+0x   fa54a  o]2'
+0x   9c560  o^0f
+0x   9c587  o~pf
+0x   fc6e8  o3fW
+0x   e6b8d  O8Mr
+0x   384f4  obPA
+0x   e89cd  obwQ4
+0x   3cfb2  ocii
+0x   3d0d7  ociut
+0x   e9d34  October
+0x    20fb  ocuM
+0x   9c27a  oF f
+0x   9c578  of@f
+0x   9c57d  onPf
+0x   36d78  ooootf
+0x   f302c  opctbl
+0x   c9f28  operation canceled
+0x   c9f3c  operation in progress
+0x   c9f54  operation not permitted
+0x   c9f6c  operation not supported
+0x   c9f84  operation would block
+0x   e7b28  operator
+0x   e7f88  operator "" 
+0x   e7f98  operator co_await
+0x   e7fac  operator<=>
+0x   5e042  OPjL
+0x    1eb7  opsM
+0x   f6ecc  Orange
+0x    205b  orfM
+0x   cc2e0  OTru
+0x   9c55b  oV f
+0x   9c582  ov`f
+0x   f88b8  OVERRIDEINDICATOR
+0x   e87f8  owM&
+0x   c9f9c  owner dead
+0x   ae4e1  OXf9E
+0x   dae80  OzFS
+0x    9a54  P +P
+0x   e3b29  P?tb(
+0x   e72c5  P/};
+0x   ca9a0  P%Kc
+0x  12bebc  P<p<
+0x   9bbea  p$^]
+0x   d9d41  P199
+0x  12a06c  p1t1x1|1
+0x   e4b48  P3gy
+0x  12a0a8  P3T3X3\3`3d3h3l3p3t3x3|3
+0x   f633c  PageDown
+0x   f6348  PageUp
+0x   f74dc  PanCameraTo
+0x   f74e8  PanCameraToTimed
+0x   f7474  PanCameraToTimedWithZ
+0x   f7460  PanCameraToWithZ
+0x   f7b60  panim
+0x   f3094  pause
+0x   f6310  Pause
+0x   f811c  pButton = {:08X} | unit = {:08X}
+0x    1c4b  pbw+
+0x   e6ee6  pc1g
+0x   c9fa8  permission denied
+0x   3f139  pgaut
+0x   e6e45  pH_q
+0x   a3ac4  Ph+E
+0x   2c949  Ph|x
+0x   986da  PhHQ
+0x   2b23c  PhHx
+0x   3427b  PhLx
+0x   98e59  PhpQ
+0x   98df9  PhxQ
+0x   9872a  PhXQ
+0x   f76f0  PHYSICALCOLOUR
+0x   f773c  PHYSICALOFFSET
+0x   3c1fc  PIE+
+0x   f6ebc  Pink
+0x   f7440  PITCH
+0x   f75dc  PITCHSTEP
+0x   3cfd8  pitut
+0x   3d31e  pituw1t%
+0x   971cb  Pj h
+0x   52515  Pj j
+0x   31d92  Pj V
+0x   b4975  Pj W
+0x   60134  Pj,h
+0x   5ed0a  Pj;h
+0x   618d7  Pj!h
+0x   619c8  Pj!h@
+0x   761e3  Pj.h
+0x   7bfc6  Pj'h
+0x   7cf39  Pj'hL
+0x   5ea01  Pj"h`
+0x   61778  Pj"hl
+0x   61662  Pj(h@
+0x   b48c8  Pj(W
+0x   54003  Pj)h
+0x   b48df  Pj)W
+0x   97382  Pj@h
+0x   6e643  Pj@j
+0x   37d60  Pj@VW
+0x   7c728  Pj*h
+0x   608b5  Pj#h
+0x   61a3c  Pj#hd
+0x    faf4  Pj0V
+0x    f552  Pj0W
+0x   79c5b  Pj2h
+0x   4cc54  PjdWV
+0x   5fe83  PjHhP
+0x   b5447  PjYV
+0x   db361  pL~#
+0x   f6f4c  Player
+0x   f8934  PLAYER_
+0x   f8924  PLAYERCOLOURS
+0x   ab662  pLhT
+0x    1d77  plIM
+0x    21c3  pM-B
+0x   3f20b  pniut
+0x   3f962  pniuw6
+0x   d1d00  po\N"
+0x   d1a16  po`Q
+0x   d1744  po`Q49
+0x   fa422  PO79
+0x   4a7d4  POOL
+0x   f70d0  POPFUNCARG
+0x   f8ff0  PortraitStats
+0x   9a493  PP9E
+0x   b0eb4  PP9E u
+0x   611d2  PPj!h
+0x   5e070  PPjM
+0x   b8d4e  PPPPP
+0x   b9976  PPPPPPPP
+0x   9a3dc  PPPPPWS
+0x   b0dfb  PPPPPWV
+0x   b0e9a  PPPSW
+0x   b8de9  PPPV
+0x   b0ebb  PPSWP
+0x   af54b  PQQQ
+0x   a79fb  PQRV
+0x   9a091  PQSVW
+0x    e4a0  PQVW
+0x   ee924  Precision is not an integer.
+0x   ee820  Precision not allowed for this argument type.
+0x   f795c  printagents
+0x   f7968  printhandles
+0x   f79dc  printstringdata
+0x   f79c8  printterraindata
+0x   f831c  Profiles\
+0x   c9fbc  protocol error
+0x   c9fcc  protocol not supported
+0x   868e1  PRQ3
+0x   4ea5f  PRQj
+0x   a352c  PRRRRR
+0x   47841  psAA
+0x   3fa4f  psauwZtI
+0x   abafb  PSPt
+0x   a7ae4  PSRW
+0x   50840  PSVW
+0x   a9422  PSWS
+0x   3f342  ptsu
+0x   f6e98  Purple
+0x   f70ec  PUSH
+0x   ab8bd  PVj@W
+0x   b151f  PVSRj
+0x   b14e9  PVSRSQV
+0x   b3a94  PVSS
+0x   cc026  pvuM
+0x   aa278  PVVS
+0x   b1636  PVVVj
+0x   b1140  PVVVVV
+0x   a5ad1  PVWS
+0x   b5217  PWjUR
+0x   a3bbb  PWWWWW
+0x   3f3a4  pxmu
+0x   97928  Q@+U
+0x   e5159  q$'"
+0x   3f46b  q1auwUtC
+0x   8c8f2  Q8=3
+0x   f95cd  Q8=o
+0x   3f131  qcaut,
+0x   e13f8  QD<"
+0x   986c2  Qh@Q
+0x   98750  Qh`Q
+0x   6e674  Qh0o
+0x   98e42  QhhQ
+0x   7d368  Qhmanw
+0x   98712  QhPQ
+0x    1f93  qilM
+0x   109a9  Qj0V
+0x   dedf9  qk_/
+0x   e3191  qm%!
+0x   cea01  qni8
+0x   d0748  qo`Q49
+0x   5e09e  QPjN
+0x   12161  QQPV
+0x   b0e36  QQQP
+0x   3a12c  QQR3
+0x   bd7bb  QQSV
+0x   b6057  QQSVj8j@
+0x   b54eb  QQSVW
+0x   9bb2a  QQSVWd
+0x   9930a  QQSWj
+0x   99e10  QQVP
+0x   a8f3b  QQVW
+0x   b6859  QSVW
+0x   e51f0  qu]h
+0x   e716c  quAt
+0x  10762e  QueryPerformanceCounter
+0x  107648  QueryPerformanceFrequency
+0x   f6fc4  Queue
+0x   f78b4  QUICKCHAT
+0x   35df6  QVRP
+0x   a3a3c  QVWj
+0x   b0191  QWPV
+0x   d57c6  R-Np
+0x   d6c58  R-Np/
+0x   cf854  R:\2
+0x   cfa96  R:\2"
+0x   a88f8  r*f;u
+0x   e6c67  R#N(
+0x   a88a4  r~f;u
+0x   a8726  r$f;
+0x   3fa21  r1au
+0x   3f4c8  r1autD
+0x   9638b  r1j@h
+0x   9e879  r49z
+0x   d5e87  R5qhi5
+0x   a8714  r6f;u
+0x   a88ea  r8f;u
+0x    2287  rA-B
+0x   e6aa3  raB3G
+0x  107834  RaiseException
+0x   f6454  RAlt
+0x   a88c0  rbf;u
+0x   f62b0  RButton
+0x    20d3  rcOM
+0x   f6448  RCtrl
+0x    1c9b  rdNM
+0x   c9fe4  read only file system
+0x  107970  ReadConsoleW
+0x  107030  ReadFile
+0x   f89c8  READY
+0x   f89a0  Ready!
+0x   f7030  real
+0x   f7004  real array
+0x   f79ec  refreshmemory
+0x   f883c  REFRESHTIME
+0x   36d60  reHAt~
+0x   84051  reHAt4
+0x  1075dc  ReleaseSRWLockExclusive
+0x   f7904  remove
+0x   f845c  REMOVEMAPSIZELIMIT
+0x   f74fc  ResetToGameCamera
+0x   c9ffc  resource deadlock would occur
+0x   ca01c  resource unavailable try again
+0x   f7be0  restore
+0x   e7af4  restrict(
+0x   ca03c  result out of range
+0x  10729c  ResumeThread
+0x   f71ac  RETURN
+0x   e2457  rF!>
+0x   e5a61  rF!Ff
+0x   a88dc  rFf;u
+0x   e5d92  rH6v>
+0x   e2eee  rH6v6u
+0x   a8702  rHf;u
+0x   b9245  rHSPV
+0x    1d63  rifM
+0x    1e53  rimM
+0x   e708c  RJqn
+0x   a86de  rlf;u
+0x   d02ef  rlXe
+0x   f779c  RMCCLICK
+0x    1f43  rocM
+0x   ea5f0  RoInitialize
+0x   3d0c5  ropuwNtA
+0x   ea604  RoUninitialize
+0x   a88b2  rpf;u
+0x   67fb7  RPh<
+0x   3f1c0  rphuwCt8
+0x   5e0cc  RPjO
+0x   3f9a8  rpmuvG
+0x   3d357  rptut
+0x   82763  RQPW
+0x   7939d  RQV3
+0x   20d67  RQVSQ
+0x   a2851  RRRRR
+0x   ff24c  RSDS
+0x   f7c8c  rsgcamera
+0x   f6438  RShift
+0x   407d1  rsIAu
+0x   4076a  rsIAuv
+0x   b9228  RSPQ
+0x   a88ce  rTf;u
+0x  107810  RtlUnwind
+0x   cc454  Rv87e
+0x   9ea1f  RVWS
+0x   f6308  RWin
+0x   b05d6  RWPQj
+0x   dd930  RX1e
+0x   3f392  rxmuw:t,
+0x   a86f0  rZf;u
+0x   cec00  S:\2
+0x   e1648  s]A}
+0x   fca71  s{c|H
+0x   e6e95  s\ax}?
+0x  128ac4  S0e0
+0x   4fa0e  S0W;
+0x   97159  s4kU
+0x   f9215  s5>ff>>
+0x   3f213  samu
+0x    1ea3  sapM
+0x   e9cb0  Saturday
+0x    1c73  sbaM
+0x    1f57  sbcM
+0x   3f127  sbcuwKt@
+0x   613dd  sbSAt
+0x   f8bd4  ScaleFactor
+0x    20bf  scHM
+0x    1ddb  scIM
+0x    2c96  scma
+0x    2246  scNR
+0x    20e7  scOM
+0x   f67dc  Scripts\common.j
+0x   f6318  Scroll
+0x    2137  scUM
+0x   37ca5  scVj@
+0x    1c5f  sdUM
+0x   3cfaa  sedit
+0x   f83c4  SELECTED
+0x   f8bc4  SelectionCircle
+0x   f82b8  SELFCAST
+0x   f8030  Sell
+0x  1073f0  SendInput
+0x  1074e8  SendMessageA
+0x   f78a8  SENDTOALL
+0x   e9d28  September
+0x   f7a08  setabilitylevel
+0x   f7af4  setacd
+0x   f7a90  setacquirerange
+0x   f7a2c  setagi
+0x   f7b04  setarmour
+0x   f7128  SETARRAY
+0x   f7afc  setas
+0x   f7a84  setattack
+0x   f748c  SetCameraField
+0x   f74b0  SetCameraPosition
+0x   f74c4  SetCameraQuickPosition
+0x   f7510  SetCameraTargetController
+0x   f7ba4  setcharges
+0x  1070e8  SetConsoleCP
+0x  10710e  SetConsoleOutputCP
+0x  1070c4  SetConsoleTitleA
+0x  10740c  SetCursorPos
+0x  107aaa  SetEndOfFile
+0x  107920  SetFilePointerEx
+0x   f7b70  setfood
+0x   f7ab4  sethp
+0x   f7a6c  sethpreg
+0x   f7aa0  setint
+0x   f7b1c  setitemslots
+0x  107154  SetLastError
+0x   f7a18  setlevel
+0x   f7b2c  setmodel
+0x   f7b10  setmovetype
+0x   f7abc  setmp
+0x   f7a78  setmpreg
+0x   f7b68  setms
+0x   f7acc  setowner
+0x   f7e00  SetPlayerAlliance
+0x   f7b38  setportrait
+0x   f7ae8  setrange
+0x   f7b44  setscale
+0x   f7aa8  setstats
+0x  107a7e  SetStdHandle
+0x   f7a24  setstr
+0x  1072ac  SetThreadContext
+0x   f7b90  settimedlifestate
+0x  1073a6  SetTimer
+0x   f7b50  settimescale
+0x   f7ac4  settoid
+0x  107786  SetUnhandledExceptionFilter
+0x   f7120  SETVAR
+0x   f798c  setwfedebug
+0x  1073c0  SetWindowLongA
+0x  10746a  SetWindowPlacement
+0x  1073d2  SetWindowPos
+0x   22d05  sf98t
+0x   e6312  SgQY
+0x   f88cc  SHADOWCOLOUR
+0x   f7b78  share
+0x   f645c  SHIFT
+0x   f8820  SHOWINDICATOR
+0x   f77a8  ShowInterface
+0x   f7c98  showmap
+0x   f8484  SHOWREGEN
+0x  1073e2  ShowWindow
+0x   f8620  SIGHTRADIUSCOLOUR
+0x    1fa7  silM
+0x   3f103  simu
+0x   f6f08  Single Player
+0x   f8378  SINGLEPLAYERPAUSE
+0x   ea83c  sinh
+0x   f771c  SIZE
+0x   cdaa1  SL}-
+0x  1071d0  Sleep
+0x  107664  SleepConditionVariableSRW
+0x    1d8b  slIM
+0x    adc7  sLWj
+0x    21d4  sM-B
+0x   f88a0  SMARTCAST
+0x    221a  sMfB
+0x   e904c  snan)
+0x   e9044  SNAN)
+0x    1cd7  sneM
+0x    2047  sopM
+0x   ded88  Sp^z0h
+0x   f62f8  Space
+0x   f775c  SPEED
+0x   f8944  Speed Bonus:
+0x   f8974  SPEED_BONUS
+0x   f85ec  SPELLAOECOLOUR
+0x    1db3  spIM
+0x   5e0fa  SPjP
+0x   adc81  SPPP
+0x    215f  spsM
+0x    d2b0  SPSWNQ
+0x    d280  SPSWQN
+0x   fd530  sqrt
+0x    1f7f  srfM
+0x   33312  SRQV
+0x   ad5e3  SS@j
+0x    206f  ssfM
+0x    1e03  ssIM
+0x    1ecb  sssM
+0x   b2ea0  SSSQ
+0x   b3a8e  SSSS
+0x   b2b17  SSSSj
+0x   b8b3f  SSSSS
+0x   f682c  stand
+0x   ca050  state not recoverable
+0x   f7284  stof argument out of range
+0x   f6a4c  stoi argument out of range
+0x   f6720  stoll argument out of range
+0x   f680c  Storm.dll
+0x    2236  stpM
+0x   ca068  stream timeout
+0x   f8a0c  STRENGTH
+0x   f8a18  Strength:
+0x   f7038  string
+0x   f7dcc  String #{:d}: {}
+0x   f7010  string array
+0x   ee87c  String pointer is null.
+0x   f2f84  string too long
+0x   f7dbc  StringData.txt
+0x   f7bb0  stringhash
+0x   f7ed0  StringHash
+0x   e71bd  STv.N
+0x   c9af0  success
+0x   e9c78  Sunday
+0x  10728c  SuspendThread
+0x   b7556  sv*R
+0x   b73cc  sv+3
+0x   a5cc6  SV8A
+0x   3f9a0  svmuwO
+0x   a3de1  SVPQ
+0x   b9bb1  SVRQ
+0x   41070  SVW2
+0x   b668a  SVW3
+0x   b4dab  SVWf9
+0x   a01fc  SVWj
+0x   2c736  SVWj1
+0x   ad385  SVWP
+0x   94400  SVWt
+0x   a9b16  SWt?
+0x   ab72b  SWt@jU
+0x   c9584  SymFromName
+0x   c9570  SymGetModuleInfo64
+0x   c9550  SymGetOptions
+0x   c9530  SymInitialize
+0x   c9560  SymLoadModule64
+0x   c9540  SymSetOptions
+0x   f2fc8  system
+0x    2097  szfM
+0x   9dec9  t VP
+0x   a0015  t,9E
+0x   b0324  t,9F
+0x   ab0b8  t!VP
+0x   78ffa  t'QP
+0x   e4151  t(y2
+0x   6eb7f  t*Qh@;
+0x   a9258  t&:a
+0x   9b25c  t#=`
+0x   6ece8  t#Qh04
+0x   e6c97  T%L9
+0x    a824  t%QPR
+0x   e492f  t^6>
+0x   3a2ab  t^S3
+0x   443b0  t^W3
+0x   1305c  t+<st'
+0x   e4108  t<{i$
+0x   f9116  T<B`e<
+0x   323d5  t<G;
+0x   e58ea  t<W]
+0x   7f65b  t>;p
+0x   9acb9  t>+}
+0x   13272  t><ct:<?t:
+0x   e3868  t>UY
+0x   313e8  t>Vh\|
+0x   89c08  t$ j
+0x   8810a  t$,j
+0x   43cd7  T$,R3
+0x   39a42  T$(R3
+0x    ac10  T$$+
+0x   8818e  t$$j
+0x   4e8d0  T$$Q
+0x   554c1  T$4t
+0x   97167  t$kM
+0x   88560  t$L=
+0x   9ebdc  t0QW
+0x   66b79  t1;C
+0x   8e688  t1;p
+0x   9be24  t2VW
+0x   e57e9  T3K'
+0x   810e1  t48E
+0x   b6004  t4j@
+0x   b172f  t4SV
+0x   4a6ce  t4VP
+0x   37d6d  t4VSW
+0x   5828c  t4W3
+0x   15167  t5Sf
+0x   9b066  t5SW
+0x   a3f95  t8 S
+0x   a1860  t8I3
+0x   b5db9  t9;u
+0x   b5c3f  t9Wj
+0x   ab1c4  tahd
+0x   ea84c  tanh
+0x   a2f27  tb9^4~]
+0x   3aad5  tbAA
+0x   8fc78  tc;x
+0x   e6f03  tC7Ddw
+0x   4472d  tDV3
+0x   f7bf4  teleport
+0x   4a7cc  TENBt
+0x  1077a4  TerminateProcess
+0x   f81a0  TerrainMemory.txt
+0x   f7d38  TestCommands.ini
+0x   f7228  TEXS
+0x   ca078  text file busy
+0x   f88dc  TEXTCOLOUR
+0x   f8830  TEXTSIZE
+0x   f7230  Textures
+0x   f7f29  Textures:
+0x   f9024  Textures\Black32.blp
+0x   ab313  tfhd
+0x   686cf  tfhD
+0x   ce750  Tfr(
+0x   78f0c  tg-d3w+t
+0x   22c84  tg=reHA
+0x   e644b  tHbP?
+0x   e9c9c  Thursday
+0x   311dd  tHVh8{
+0x   d82ff  TiE;
+0x   da229  TiEK
+0x    1e17  tilM
+0x   f8ac4  TIME
+0x   f8acc  Time:
+0x   ca088  timed out
+0x   84061  tipA
+0x   36dcb  tipAt
+0x   58277  tIR3
+0x   b5ed9  tjf9
+0x   b566b  tjj_S
+0x   ca366  Tjwb
+0x   b2842  tL-c
+0x   b3d1f  tl=@
+0x   6ab74  tlh0
+0x  10786e  TlsAlloc
+0x  107888  TlsFree
+0x  107146  TlsGetValue
+0x  10787a  TlsSetValue
+0x   ca0b4  too many files open
+0x   ca094  too many files open in system
+0x   ca0c8  too many links
+0x   ca0d8  too many symbolic link levels
+0x   f7fe3  Total Size: [{:d} bytes : {}]
+0x   ee684  Total: {} | {}
+0x   3f182  tpcut
+0x   5e128  TPjT
+0x   f7984  trigger
+0x   ee294  true
+0x   313b4  trVh`{
+0x  107610  TryAcquireSRWLockExclusive
+0x   31453  tS#=
+0x    219b  tsNM
+0x   e9c88  Tuesday
+0x   ca2e8  tuH:
+0x   4ea14  tUh\
+0x   b5fdd  tVWjU
+0x    9839  tW;z
+0x   3d0cf  twaut,
+0x   66c57  tY;z
+0x   e0490  tYfe
+0x   f70dc  TYPE
+0x   93aa8  tZ;x
+0x   4987c  u Qh@
+0x   9e705  u Qj
+0x   9e57e  u QW
+0x   afffe  u RP3
+0x   9e1fc  u SW
+0x   a2c08  u,9]
+0x   a2f58  u,9E
+0x   ab9d4  u,f9F
+0x   443bc  U;{l
+0x   3cedc  u!;p
+0x   d3f99  U"J0
+0x   b0798  u(!E
+0x   afe06  u(RPW
+0x   99d8b  u(VV
+0x   d145f  u]gE
+0x   b5072  u{9^\t/
+0x   ca384  u*/6(
+0x   ab923  u/j,Xf;
+0x   fcef2  U&X>
+0x   b4b91  u#9M
+0x   a0ded  u#Q3
+0x   9b027  u#SP
+0x   b069a  u#VhP
+0x   a49ff  u+;}
+0x    825f  u++N
+0x   fcdf1  u+E6
+0x   b18b2  u<WW
+0x   f947e  u<X9
+0x   ab90c  u>PVj
+0x   afae4  u$RV
+0x   b0456  u0SP
+0x   b0478  u0St:
+0x   b5bdc  u29K\t-
+0x   b5554  u2Vj@hX
+0x   b5bd3  u2Wj
+0x   3ceb7  u3;p
+0x   603c8  u3w+
+0x   785ad  u3w+u
+0x   31a26  u4;Y
+0x   528aa  uah 
+0x   613b5  ubEAt
+0x   36d8e  ubEAtP
+0x   613bd  ubGA
+0x   36d96  ubGAtH
+0x   36d9e  ubHA
+0x   613ab  ubHAw
+0x   613d0  ubNAt
+0x   36d84  ubNAw
+0x   36da6  ubOAt8
+0x   613a1  ubOAw4t
+0x   19fbf  uBRW
+0x   613e5  ubUAt
+0x   36dae  ubUAt0
+0x    1c37  ubw+
+0x   a0152  uC9u
+0x    2bb8  udha
+0x   5a959  uGSW
+0x   3d0ae  uhsu
+0x   9b053  uHSW
+0x   f7684  UI\war3skins.txt
+0x   f5d3c  UI\widgets\BattleNet\bnet-tooltip-background.blp
+0x   f5d0c  UI\widgets\BattleNet\bnet-tooltip-border.blp
+0x   4cc76  uIPQWV
+0x   9e59b  uj_^[
+0x   f2fd0  UjAPI\Jass\Errors.txt
+0x   f5c28  UjAPICBackdropFrame
+0x   f61c4  UjAPICSimpleFontString
+0x   f6108  UjAPICSimpleFrame
+0x   f619c  UjAPICSimpleGlueFrame
+0x   f61f0  UjAPICSimpleTexture
+0x   f5de8  UjAPICSriteFrame
+0x   f5e14  UjAPICTextFrame
+0x   f6154  UjAPICUberToolTipWar3
+0x   f71fc  UjAPIFloatModifier
+0x   a3e08  uK;U
+0x   f72a0  UMemory_
+0x   e638c  UMP?7
+0x  10776a  UnhandledExceptionFilter
+0x   f7bd0  uninvul
+0x   f8004  unit = {:08X}
+0x   f783c  UNITAUTOSELECTION
+0x   f78c0  UNITCLEARSELECTION
+0x   f8680  UNITMOVECAMERA
+0x   f7824  UNITSAVE
+0x   f7830  UNITSELECT
+0x   f6fdc  unknown
+0x   f6804  UNKNOWN
+0x   f2ffc  unknown error
+0x   f2fac  Unknown exception
+0x   ee31c  Unknown format specifier.
+0x   f7ae0  unlearn
+0x   f8328  UNLOCKFRAMEBUFFER
+0x  107192  UnmapViewOfFile
+0x   ee2e4  Unmatched '}' in format string.
+0x   f8280  unmute
+0x   f66a0  unordered_map/set too long
+0x   f7c30  unpause
+0x   f7b80  unshare
+0x   a3561  unWQ
+0x   f80d4  Upgrade
+0x   f8d04  UPGRADE_TOOLTIP
+0x   f8650  UPGRADEDUI
+0x   9f214  UQPXY]Y[
+0x    c5ac  urj@j
+0x   9edbf  URPQQhP
+0x   f7944  useconsole
+0x   f8200  UseConsole:
+0x  1074f6  USER32.dll
+0x   a9c5a  uSSSSj
+0x   ea72c  UTF-16LEUNICODE
+0x   ea724  UTF-8
+0x   f7880  UTILCLEARCHAT
+0x   f786c  UTILCLEARMESSAGES
+0x   f7804  UTILMOUSELOCK
+0x   f7860  UTILPAUSE
+0x   f7890  UTILSHOWHIDEMULTIBOARD
+0x   f78ec  UTILTOGGLEMULTIBOARD
+0x   f78e4  UTILUI
+0x   f77e8  UTILUPDATE
+0x   f7850  UTILWIDESCREEN
+0x   f77f4  UTILWINDOWMODE
+0x   d6620  uu<Q
+0x   fd490  UUUUUU
+0x  11c780  UUUUUUUU
+0x   9eea0  UVWS
+0x   b8cd2  ux9}
+0x   99ff4  uY;O
+0x   fba60  uZEeu
+0x   fa1b1  V-Ai
+0x   9e56f  v!8E
+0x   b984a  v!WQ
+0x   d33db  V?AgP
+0x   d3725  V?AgPhU
+0x   d3a6f  V?AUE
+0x   2e572  v.h@z
+0x   2e48b  v.h0z
+0x   de799  v]h4
+0x   cb279  V{dfK
+0x   df999  v@M4
+0x   2e370  v*h$z
+0x   e40f1  V*q4
+0x   d7a21  v<L/{
+0x   d6575  v<L/{Q
+0x   dec81  V0EI
+0x   e8c1f  v2!L.2
+0x   ca4c0  v5`a
+0x   ca0f8  value too large
+0x   cbe0b  VB-l
+0x   ee850  vector too long
+0x  106fb0  VerQueryValueA
+0x   f7c18  version
+0x  106fd6  VERSION.dll
+0x   35289  Vh ~
+0x   311a3  Vh`{
+0x   e69e4  vH7B
+0x   e681c  vH7Bf
+0x   e3da7  VHNzu
+0x  1072d8  VirtualAlloc
+0x  1072e8  VirtualFree
+0x  107134  VirtualProtect
+0x  107062  VirtualQuery
+0x   f89f4  VISION
+0x   f89d0  Vision:
+0x   afc9c  Vj0XPW
+0x   dedd1  VJT]
+0x    c161  vLWj
+0x   36d68  vnIA
+0x   36d70  vomAtn
+0x   d33e1  VP*4
+0x   52f86  VPRQ
+0x   ab819  VVVVV
+0x   a02a1  VWSP
+0x   91c9b  w QR
+0x   750b7  w_QR
+0x   823cd  w-QR
+0x    9858  w,;u
+0x   851b3  w,QR
+0x   2d07d  w,QW
+0x   51242  w;QW
+0x   94dd5  w!QR
+0x   1902e  w!WPS
+0x   4d037  w?QR
+0x   80e6c  w.QR
+0x   1aa98  w.tQ-
+0x   7cc77  w"QR
+0x   21e45  w"tG
+0x   7aea1  w(QR
+0x   b8b85  w(t!
+0x   50b5b  w)QR
+0x   24f26  w)t 
+0x   83cc1  w]QR
+0x   2e277  w}QR
+0x   b0118  W@j0P
+0x   84a54  w*QR
+0x   b9531  w/PV
+0x   3297c  w/QR
+0x   e8df5  W&|.
+0x   7625b  w&QR
+0x   85e6b  w#QR
+0x   1a67c  w#SPW
+0x   3d6d5  w%QR
+0x   95b87  w`QR
+0x   5e277  w^QR
+0x   e6154  w+bx
+0x   92ae6  w+QR
+0x   21e6f  w=t1
+0x   b2813  w=ty
+0x   f9766  W>L7
+0x    a6aa  w>QR
+0x   34020  w|QR
+0x   4fc1d  w$VQ
+0x   41f37  w0QR
+0x   8451f  w1QR
+0x   dc251  w33d
+0x   d9e5f  w33H$
+0x   34069  w3QR
+0x   70f5a  w3t*
+0x   2e2c0  w4QR
+0x   6fa42  w4t&
+0x   e6a14  W4vC
+0x   d58a1  W5/6
+0x   7a016  w6QR
+0x   fa0c9  w7H-
+0x   7b53d  w7QR
+0x   70e2b  w7t.
+0x   3adc2  w7t)
+0x   71e10  w8t*
+0x   923a4  w9QR
+0x  1075b0  WaitForSingleObjectEx
+0x  107716  WakeAllConditionVariable
+0x   731a9  waQR
+0x   56fc4  wAQR
+0x   f71ec  Warcraft III
+0x   94a83  wbQR
+0x   5818e  wcQR
+0x    4d8b  wCQR
+0x   1aacd  wctJ
+0x   7d69c  wdQR
+0x   41d1b  wDQR
+0x   240c0  wdtG
+0x   e9c90  Wednesday
+0x   f820c  WFE Console
+0x   f893c  WFE.mpq
+0x   f8ec8  WFEBuffDurationSpriteFrame
+0x   f8e84  WFEBuffDurationTextFrame
+0x  1067ca  WFEDll.dll
+0x   f7624  WFEFonts\Master.ttf
+0x   f8910  WFEGameColours.ini
+0x   f9060  WFEHandleCounterBackDrop
+0x   f908c  WFEHandleCounterTextFrame
+0x   f8fac  WFEHPTextFrame
+0x   f8f00  WFEModels\CooldownUI\Model.mdx
+0x   f8ea0  WFEModels\DurationUI\Model.mdx
+0x   f8fc8  WFEMPTextFrame
+0x   f83b4  WFESettings.ini
+0x   f8bfc  WFEStatBarEx
+0x   f7660  WFETextures\Indicators\AoE_512.blp
+0x   f9014  WFEUIBlackBar
+0x   2a856  wFQR
+0x   b0f64  wFt&
+0x   29db0  wFt3
+0x   23fff  wgQR
+0x   772cf  wGQR
+0x   aa143  wGt>
+0x   f6468  WheelDown
+0x   f6474  WheelUp
+0x   b5ebd  WHPhh
+0x   35ff7  whQR
+0x   78594  wHQR
+0x   3f388  whsuwxtj
+0x  107516  WideCharToMultiByte
+0x   f838c  WIDESCREEN
+0x   ee8f8  Width is not an integer.
+0x   a7e35  wIPS3
+0x   7872f  wIQR
+0x   b6f40  Wj _
+0x   ab979  Wj.Y
+0x   af34d  Wj#Y
+0x   10bac  Wj0V
+0x   48e4d  wjQR
+0x   6797b  wkQR
+0x   72483  wKt=
+0x   27bd4  wktU
+0x   322c3  wlQR
+0x   8311c  wLQR
+0x   5783f  wnQR
+0x   85ab0  wNQR
+0x   32559  wNQV
+0x   19fad  wOQQW
+0x   5bbae  woQR
+0x   57165  wOQR
+0x   299f4  wOt9
+0x   223c5  wpQR
+0x   83a09  wPQR
+0x   1e648  wPt8-
+0x   21edb  wptg
+0x   23614  wptP
+0x   dfaff  wQ(#
+0x   decbf  wqM~
+0x   e1c21  wqMR
+0x   8186a  wqQR
+0x   84236  wQQR
+0x   50697  wqQW
+0x   21094  wQt9
+0x   ba469  WQVS
+0x  107a9a  WriteConsoleW
+0x  107186  WriteFile
+0x   f8400  WRITEMAGICRESIST
+0x   ca108  wrong protocol type
+0x   7e8b0  wrQR
+0x   77bb8  wRQR
+0x   21344  wrtP
+0x   20fc4  wsQR
+0x   85e3b  wSQR
+0x   52c0f  wsQV
+0x   70164  wst[
+0x   1ff86  wstQ
+0x   7917d  wtQR
+0x   5c06e  wTQR
+0x   9f041  Wu%j
+0x   aede2  Wu7j
+0x   cbd59  wunQ
+0x   8516a  wuQR
+0x   2bdcd  wUQR
+0x   201f2  wUt=
+0x   6ea45  wutS-
+0x   260a7  wvQR
+0x   72afa  wVQR
+0x   35cd5  wVQV
+0x   7b688  WVR3
+0x   bbc80  WVS3
+0x   718fd  wvt^
+0x   70468  wVt>
+0x   23114  wvtT
+0x   bc110  WVU3
+0x   b140b  WVVVVV
+0x   cb3e5  wVw0
+0x   92366  wwQR
+0x   91c64  wWQR
+0x   70b29  wwtU
+0x   b4e6b  WWWWW
+0x   79fd4  wxQR
+0x   94d9e  wXQR
+0x   50d14  wXRQ
+0x    e931  wY;G
+0x   d28b5  wy9q
+0x   6d9f7  wyQR
+0x   21db2  wYQR
+0x   95965  wzQR
+0x   84a24  wZQR
+0x   1ac7d  wZtA-%
+0x   a5a87  X_^[
+0x   a099c  X_^]
+0x   37f9a  x-;G<s(k
+0x   d3974  X'[;
+0x   e1e89  X"O!
+0x   e6476  X@(\
+0x   e66ce  X@3T
+0x   e8ca1  X/4B
+0x   eee48  X%Y^
+0x   e4f2e  x`.+eh%
+0x   e5f32  x`.+WV
+0x   e5724  x`.+WV+
+0x   be356  X`Pf
+0x   e4a89  X1fe
+0x   fd1d9  X2CQ
+0x  128870  X3`3
+0x   e6d4f  X4AHx
+0x    465d  X94<
+0x   893aa  X94>
+0x   d8b00  Xb4z
+0x   f62c4  XButton1
+0x   f62b8  XButton2
+0x   e5bed  xDfS
+0x   4fd79  xdm.
+0x   ad308  xE;5X
+0x   ae505  Xf9E
+0x   b6398  xg;5X
+0x   e7217  xg^Jp5|
+0x   be34d  XH f
+0x   b61d0  xi;5X
+0x   af4f9  xK;5X
+0x   d7e98  Xk2G
+0x   d74a7  XpJ,
+0x   e70fe  XqkY
+0x   ce041  Xs+!
+0x   40790  xT;X<sOk
+0x   a29c0  Xt$+
+0x   39d9d  xV;{l}Q
+0x   e3251  Xwa6
+0x   e5d40  xxj81
+0x   3a2ba  xz;_l}u
+0x   9b10e  Y__^[
+0x   b60fc  Y_[^]
+0x   bbb92  Y_^[
+0x   b4b07  Y_^[]
+0x   ab98b  Y_^]
+0x   d32e0  Y'[;
+0x   caca3  Y(=B*
+0x   aa334  Y[^_
+0x   e5a9c  y].(
+0x   cb927  y#FD
+0x   f75d4  YAWSTEP
+0x   f6e90  Yellow
+0x   cc3b8  Yhze
+0x   e723f  yLzw
+0x   f8248  You can't mute yourself!
+0x   f858c  YOURCOLOUR
+0x    1f07  ysNM
+0x   e4d70  ytR>
+0x   fb3e2  yx|o
+0x   bd86e  YY^[
+0x   b856d  YY^[]
+0x   b3ea8  YY^]
+0x   9e101  YYPV
+0x   cc591  Yz45
+0x   ce3b5  Z`>.
+0x   ce567  Z`>X5,
+0x   e6d8f  Z~$|7
+0x   e7267  z~G,
+0x   e33b7  z3\Gc0
+0x   ee518  Zero modifier requires an arithmetic or pointer presentation type
+0x   ce719  ZjF%
+0x   3f408  zlsuw1t&
+0x   cbd30  zo!T7
+0x   e51a1  zq.0
+0x    1f6b  zrfM
+0x   e3cb8  zX:[2
+0x   e5c48  zXP4
+0x   e4466  zXP4;
+0x   fb3f1  ZyrI
+0x   bd1a1  ZYXu

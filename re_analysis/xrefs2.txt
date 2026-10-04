@@ -1,0 +1,2340 @@
+0x10001092  push 0x100f45d0                         ; UjAPI\Jass\Errors.txt
+0x100010B2  call dword ptr [0x100ca00c]             ; KERNEL32.dll!GetModuleHandleA
+0x100010C0  push 0x100f45f0                         ; Game.dll
+0x100010C5  call dword ptr [0x100ca00c]             ; KERNEL32.dll!GetModuleHandleA
+0x10001142  mov dword ptr [esp + 0x14], 0x100f7184 ; cheatengine-i386.exe
+0x10001152  mov dword ptr [esp + 0x1c], 0x100f719c ; cheatengine-x86_64.exe
+0x10001166  mov ah, 0x71                           ; cheatengine-x86_64-SSE4-AVX2.exe
+0x10001190  push 0x100f71f8                         ; d3d8.dll
+0x10001195  call dword ptr [0x100ca00c]             ; KERNEL32.dll!GetModuleHandleA
+0x1000119F  push 0x100f7204                         ; d3d9.dll
+0x100011A5  adc eax, 0x100ca00c                    ; KERNEL32.dll!GetModuleHandleA
+0x10001942  push 0x100f7814                         ; Fonts\FRIZQT__.TTF
+0x10001A15  mov eax, 0x1011d508                    ; .mpq
+0x10001A1C  cmova eax, dword ptr [0x1011d508]        ; .mpq
+0x10001A4D  mov eax, 0x1011d538                    ; .w3x|.w3m
+0x10001A58  cmova eax, dword ptr [0x1011d538]        ; .w3x|.w3m
+0x10001B04  mov eax, 0x1011d520                    ; .w3n
+0x10001B1A  cmova eax, dword ptr [0x1011d520]        ; .w3n
+0x10001BAB  mov eax, 0x1011d4f0                    ; .w3g
+0x10001BC1  cmova eax, dword ptr [0x1011d4f0]        ; .w3g
+0x10001C52  mov eax, 0x1011d550                    ; .mix|.asi|.flt
+0x10001C68  cmova eax, dword ptr [0x1011d550]        ; .mix|.asi|.flt
+0x10001ED2  push 0x100f7828                         ; .tga|.blp|.png|.dds|.jpg
+0x10001F13  push 0x100f45f0                         ; Game.dll
+0x10001F18  call dword ptr [0x100ca00c]             ; KERNEL32.dll!GetModuleHandleA
+0x10001F22  mov ecx, 0x100f45f0                    ; Game.dll
+0x10001F4F  (raw 4-byte) KERNEL32.dll!GetModuleFileNameA
+0x100020A2  push 0x100f7cc0                         ; ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+0x10002120  push 0x100f7e0c                         ; Storm.dll
+0x10002125  call dword ptr [0x100ca00c]             ; KERNEL32.dll!GetModuleHandleA
+0x10003074  push 0x100f7fbc                         ; DAMAGETIP_NORMAL
+0x1000308F  push 0x100f7fac                         ; DAMAGETIP_MELEE
+0x100030C3  cwde                                    ; DAMAGETIP_PIERCE
+0x100030F6  mov byte ptr [edi + 0xf], bh           ; DAMAGETIP_SIEGE
+0x10003129  hlt                                    ; DAMAGETIP_MAGIC
+0x1000315C  in al, 0x7f                           ; DAMAGETIP_CHAOS
+0x1000318E  push 0x100f7fd4                         ; DAMAGETIP_HERO
+0x1000378E  (raw 4-byte) HeroDur
+0x100037D2  push 0x100f8468                         ; Cool
+0x1000380B  push 0x100f8460                         ; Area
+0x10003877  push 0x100f8480                         ; Cost
+0x10003C0A  (raw 4-byte) Blue
+0x10003C27  (raw 4-byte) Cyan
+0x10003C44  (raw 4-byte) Purple
+0x10003C61  (raw 4-byte) Yellow
+0x10003C7E  (raw 4-byte) Orange
+0x10003C9B  (raw 4-byte) Green
+0x10003CB2  (raw 4-byte) Pink
+0x10003CC6  mov al, 0x84                           ; Light Gray
+0x10003CDA  (raw 4-byte) Light Blue
+0x10003CEB  mov dword ptr [ebp - 0x58], 0x100f84e8 ; Aqua
+0x10003D01  mov ah, 0xe0                           ; Brown
+0x10003D12  mov esp, 0xd4c045c7                    ; Aggressive
+0x10003D2A  (raw 4-byte) Neutral
+0x100041B2  push 0x100f8558                         ; abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 
+0x100042E3  (raw 4-byte) nothing
+0x100042FB  mov dword ptr [ebp - 0xc0], 0x100f85dc ; unknown
+0x10004316  mov dword ptr [ebp - 0xb4], 0x100f85e4 ; null
+0x10004331  mov dword ptr [ebp - 0xa8], 0x100f8620 ; code
+0x10004351  jmp ptr [eax]                          ; integer
+0x1000436D  (raw 4-byte) real
+0x10004382  mov dword ptr [ebp - 0x84], 0x100f8638 ; string
+0x10004397  mov dword ptr [ebp - 0x78], 0x100f85b8 ; handle
+0x100043AC  in al, dx                             ; boolean
+0x100043BD  mov al, byte ptr [0x100f85f4]          ; integer array
+0x100043CD  mov dword ptr [ebp - 0x54], 0x100f8604 ; real array
+0x100043DF  mov dword ptr [ebp - 0x48], 0x100f8610 ; string array
+0x100043F3  les ebp, ptr [eax - 0x7a]              ; handle array
+0x10004402  or eax, 0x78d045c7                    ; boolean array
+0x10004545  mov dword ptr [ebp - 0x22c], 0x100f8688 ; ENDPROGRAM
+0x10004560  mov dword ptr [ebp - 0x220], 0x100f8694 ; JUMP_DEPRECATED
+0x1000457B  mov dword ptr [ebp - 0x214], 0x100f8640 ; FUNCTION
+0x1000459C  (raw 4-byte) ENDFUNCTION
+0x100045B7  (raw 4-byte) LOCAL
+0x100045CC  mov dword ptr [ebp - 0x1f0], 0x100f8660 ; GLOBAL
+0x100045E7  mov dword ptr [ebp - 0x1e4], 0x100f86c4 ; CONSTANT
+0x10004602  mov dword ptr [ebp - 0x1d8], 0x100f86d0 ; POPFUNCARG
+0x1000461D  mov dword ptr [ebp - 0x1cc], 0x100f86dc ; TYPE
+0x10004638  mov dword ptr [ebp - 0x1c0], 0x100f86e4 ; EXTENDS
+0x10004653  mov dword ptr [ebp - 0x1b4], 0x100f86a4 ; CLEANSTACK
+0x10004674  (raw 4-byte) LITERAL
+0x100046A4  mov dword ptr [ebp - 0x190], 0x100f86bc ; GETVAR
+0x100046BF  mov dword ptr [ebp - 0x184], 0x100f870c ; CODE
+0x100046DA  mov dword ptr [ebp - 0x178], 0x100f8714 ; GETARRAY
+0x100046F5  mov dword ptr [ebp - 0x16c], 0x100f8720 ; SETVAR
+0x10004710  mov dword ptr [ebp - 0x160], 0x100f8728 ; SETARRAY
+0x1000472B  mov dword ptr [ebp - 0x154], 0x100f86ec ; PUSH
+0x10004767  (raw 4-byte) NATIVE
+0x1000477C  mov dword ptr [ebp - 0x130], 0x100f8700 ; JASSCALL
+0x100047E8  mov dword ptr [ebp - 0x100], 0x100f8770 ; EQUAL
+0x10004803  mov dword ptr [ebp - 0xf4], 0x100f8734 ; NOTEQUAL
+0x1000482C  (raw 4-byte) LESSEREQUAL
+0x1000484A  (raw 4-byte) GREATEREQUAL
+0x1000485F  mov dword ptr [ebp - 0xd0], 0x100f875c ; LESSER
+0x1000487A  mov dword ptr [ebp - 0xc4], 0x100f8790 ; GREATER
+0x10004907  (raw 4-byte) MODULO
+0x10004917  and byte ptr [0x848445c7], 0x87        ; NEGATE
+0x1000493D  mov dword ptr [ebp - 0x64], 0x100f87ac ; RETURN
+0x10004951  test al, 0xb4                           ; LABEL
+0x10004961  mov dword ptr [ebp - 0x4c], 0x100f87bc ; JUMPIFTRUE
+0x10004976  enter 0xf87, 0x10                        ; JUMPIFFALSE
+0x10004988  movsb byte ptr es:[edi], byte ptr [esi]  ; JUMP
+0x10004DC2  push 0x100f8c60                         ; WFETextures\Indicators\AoE_512.blp
+0x10004E24  call dword ptr [0x100ca1fc]             ; USER32.dll!MapVirtualKeyA
+0x10004EB2  push 0x100f8c60                         ; WFETextures\Indicators\AoE_512.blp
+0x10004F62  push 0x100f8c60                         ; WFETextures\Indicators\AoE_512.blp
+0x10004FF2  push 0x100f8c60                         ; WFETextures\Indicators\AoE_512.blp
+0x10005142  push 0x100fa500                         ; WFEModels\CooldownUI\Model.mdx
+0x100051C2  push 0x100f8c60                         ; WFETextures\Indicators\AoE_512.blp
+0x10005AB0  mov eax, 0x100ef864                    ; iostream
+0x10005AD5  push 0x100f456c                         ; iostream stream error
+0x10005B6A  mov dword ptr [ecx + 4], 0x100ef870    ; bad cast
+0x10005F17  push 0x100ef87c                         ; bad locale name
+0x100061D7  mov esi, 0x100ef89c                    ; ios_base::badbit set
+0x100061E2  mov ah, 0xf8                           ; ios_base::failbit set
+0x100061E5  adc byte ptr [eax + 0x100ef8cc], bh    ; ios_base::eofbit set
+0x10006721  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10006729  movzx eax, word ptr [edx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1000675F  mov ax, word ptr [ebx*2 + 0x100f0640]  ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10006782  mov al, byte ptr [ebx*2 + 0x100f0640]  ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10006DA6  mov eax, dword ptr [ecx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10006DD0  mov ax, word ptr [ebx*2 + 0x100f0640]  ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1000863E  mov cl, byte ptr [ecx + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000865A  mov cl, byte ptr [ecx + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x10008687  mov cl, byte ptr [edx + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x100087CF  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x100087E9  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x10008815  test dword ptr [esi - 0x75], 0x50828ac8 ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x10008916  mov ecx, 0x100efde4                    ; nan(ind)
+0x10008936  mov ecx, 0x100efdf4                    ; nan(snan)
+0x10008D25  push 0x100efb5c                         ; {:d}, {:d}
+0x10008D50  push 0x100efb68                         ; map/set too long
+0x10008E75  push 0x100efbc8                         ; {:d}
+0x10008EB6  or eax, 0xefbd468                     ; {:d} ({}{:d})
+0x10009031  push 0x100efbe4                         ;  ({}{})
+0x100092EF  push 0x100efbec                         ; {} | '{}' | {} | {}
+0x100093FB  push 0x100efc04                         ;   CAgentBaseAbs ({:08X}) -> CAgentWar3 ({:08X})
+0x1000949C  push 0x100efc38                         ;   ({:08X}) -> [ {} ]
+0x1000972B  mov ecx, 0x100efbb4                    ; Number is too big
+0x100097E6  mov eax, 0x1010ab50                    ; AgentCount.txt
+0x10009B09  mov edx, 0x100efc50                    ; ========== Agent Count =======
+0x10009B5F  (raw 4-byte)  ({}{:d})
+0x10009BC6  push 0x100efbc8                         ; {:d}
+0x10009DAB  (raw 4-byte)  ({}{})
+0x1000A099  (raw 4-byte) Total: {} | {}
+0x1000A103  mov edx, 0x100efc94                    ; ===============================
+0x1000A596  mov eax, 0x1010ab38                    ; HandleCount.txt
+0x1000A926  mov edx, 0x100efcb8                    ; ========== Handle Count =======
+0x1000A97C  (raw 4-byte)  ({}{:d})
+0x1000A9D9  push 0x100efbc8                         ; {:d}
+0x1000ABC1  (raw 4-byte)  ({}{})
+0x1000AECA  (raw 4-byte) ({}{:d})
+0x1000AF2E  push 0x100efce8                         ; Handle Index: {:d} {}
+0x1000B0C0  push 0x100efc84                         ; Total: {} | {}
+0x1000B12B  mov edx, 0x100efd00                    ; ============================================
+0x1000CFD0  push 0x100efd4c                         ; invalid vector subscript
+0x1000D550  push 0x100efdc8                         ; invalid string position
+0x1000D6EC  (raw 4-byte) 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1000D6F4  movzx eax, word ptr [edx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1000D766  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1000D880  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000D899  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000D8C5  test dword ptr [esi - 0x75], 0x50828ac8 ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000DB4E  adc byte ptr [eax + 2], 0xf            ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000DB6E  adc byte ptr [eax + 2], 0xf            ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000DBD8  mov al, byte ptr [esi + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000DE3E  adc byte ptr [eax + 2], 0xf            ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000DE5E  adc byte ptr [eax + 2], 0xf            ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000DEC8  mov al, byte ptr [esi + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000DFFB  mov eax, 0x100efde4                    ; nan(ind)
+0x1000E01D  mov eax, 0x100efdf4                    ; nan(snan)
+0x1000E0FB  mov eax, 0x100efde4                    ; nan(ind)
+0x1000E11D  mov eax, 0x100efdf4                    ; nan(snan)
+0x1000E200  mov ecx, 0x100efde4                    ; nan(ind)
+0x1000E220  mov ecx, 0x100efdf4                    ; nan(snan)
+0x1000E3B9  mov ecx, 0x100efde4                    ; nan(ind)
+0x1000E3DB  mov ecx, 0x100efdf4                    ; nan(snan)
+0x1000F2CE  push 0x100ef87c                         ; bad locale name
+0x1000F9A6  mov eax, dword ptr [0x100efe60]        ; 0e+00
+0x1000FAEB  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1000FC70  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x10010106  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1001013C  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1001068B  push eax                                ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x100106DE  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x10011040  push 0x100efe50                         ; vector too long
+0x1001117C  pushal                                    ; 0e+00
+0x1001130E  je 0x100112b3                         ;  {}{:.2f} sec|r
+0x10011C7E  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10011C8D  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10011CB7  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10011CC5  mov ax, word ptr [ebx*2 + 0x100f0640]  ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10011DB1  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10011DB9  movzx eax, word ptr [edx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10011DF8  mov ax, word ptr [eax + 0x100f0640]    ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10011E1C  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10011E5B  mov ax, word ptr [eax*2 + 0x100f0640]  ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1001220B  movzx eax, word ptr [edi*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012219  movzx eax, word ptr [edx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012238  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012243  movzx eax, word ptr [edx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1001227F  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1001228E  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x100122B8  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x100122C6  mov ax, word ptr [ebx*2 + 0x100f0640]  ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x100123D8  movzx eax, word ptr [edi*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x100123E8  movzx eax, word ptr [edx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012408  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012411  movzx eax, word ptr [edx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1001246F  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012477  movzx eax, word ptr [edx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x100124AD  mov ax, word ptr [ebx*2 + 0x100f0640]  ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x100124CF  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012524  mov eax, dword ptr [ecx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012548  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x100125C3  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x100125CB  movzx eax, word ptr [edx*2 + 0x100f0640] ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012601  inc eax                                ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x10012619  mov ax, word ptr [ebx*2 + 0x100f0640]  ; 00010203040506070809101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899
+0x1001274A  mov ecx, 0x100ef8e4                    ; Unmatched '}' in format string.
+0x10012A4C  mov ecx, 0x100ef904                    ; Invalid format string.
+0x10012A57  (raw 4-byte) Can not switch from automatic to manual indexing
+0x10012A61  (raw 4-byte) Can not switch from manual to automatic indexing
+0x10012A6B  (raw 4-byte) Unknown format specifier.
+0x10012A75  (raw 4-byte) Missing '}' in format string.
+0x10012C6B  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x10012FB5  mov ecx, 0x100ef88c                    ; false
+0x10012FBC  mov edx, 0x100ef894                    ; true
+0x100131C9  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x10013491  (raw 4-byte) Argument not found.
+0x100137CC  mov ecx, 0x100ef98c                    ; invalid fill character '{'
+0x100137D7  (raw 4-byte) Invalid fill (too long).
+0x100137E1  (raw 4-byte) Format specifier requires numeric or pointer argument.
+0x100137EB  (raw 4-byte) Can not switch from automatic to manual indexing
+0x100137F5  (raw 4-byte) Can not switch from manual to automatic indexing
+0x100137FF  (raw 4-byte) Format specifier requires numeric argument.
+0x10013808  mov ecx, 0x100ef904                    ; Invalid format string.
+0x10013960  mov ecx, 0x100ef9a8                    ; Invalid type specification.
+0x1001396B  (raw 4-byte) Invalid presentation type for bool
+0x10013975  (raw 4-byte) Invalid presentation type for char
+0x1001397F  (raw 4-byte) Invalid presentation type for integer
+0x10013989  (raw 4-byte) Invalid presentation type for floating-point
+0x10013993  (raw 4-byte) Invalid presentation type for string
+0x1001399D  (raw 4-byte) Invalid presentation type for pointer
+0x100139A7  (raw 4-byte) Hash/sign modifier requires an arithmetic presentation type
+0x100139B1  (raw 4-byte) Zero modifier requires an arithmetic or pointer presentation type
+0x100139BB  (raw 4-byte) Invalid presentation type specifier
+0x10013BD2  mov ecx, 0x100efe00                    ; Missing precision specifier.
+0x10013BDD  (raw 4-byte) Can not switch from automatic to manual indexing
+0x10013BE2  ljmp 0xf958:0xb9ffff4d                  ; Can not switch from manual to automatic indexing
+0x10013BF1  (raw 4-byte) Precision not allowed for this argument type.
+0x10013BFB  (raw 4-byte) Invalid format string.
+0x10013DF6  mov esi, 0x100ef894                    ; true
+0x10013DFB  mov eax, 0x100ef88c                    ; false
+0x100141BA  mov ecx, 0x100efde4                    ; nan(ind)
+0x100141DA  mov ecx, 0x100efdf4                    ; nan(snan)
+0x10015DA6  mov ecx, 0x100efe7c                    ; String pointer is null.
+0x100163A4  mov ecx, 0x100efe94                    ; integral cannot be stored in char
+0x10016B19  mov ecx, 0x100efe94                    ; integral cannot be stored in char
+0x10017149  mov ecx, 0x100efe94                    ; integral cannot be stored in char
+0x1001763B  mov ecx, 0x100efe94                    ; integral cannot be stored in char
+0x10017C75  mov ecx, 0x100efe94                    ; integral cannot be stored in char
+0x100189A5  mov eax, dword ptr [0x100ef88c]        ; false
+0x100189CF  mov eax, dword ptr [0x100ef894]        ; true
+0x10018AA7  push 0x100ef87c                         ; bad locale name
+0x1001947E  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x1001954A  mov al, byte ptr [eax + 0x100f0250]    ; 0123456789abcdefghijklmnopqrstuvwxyz
+0x10019861  mov ecx, 0x100eff14                    ; Negative width.
+0x1001986C  (raw 4-byte) Number is too big.
+0x100198F0  mov ecx, 0x100efef8                    ; Width is not an integer.
+0x10019900  mov ecx, 0x100efef8                    ; Width is not an integer.
+0x10019991  mov ecx, 0x100eff44                    ; Negative precision.
+0x1001999C  in al, 0xfe                           ; Number is too big.
+0x10019A20  mov ecx, 0x100eff24                    ; Precision is not an integer.
+0x10019A30  mov ecx, 0x100eff24                    ; Precision is not an integer.
+0x10019AE0  push 0x100f4584                         ; string too long
+0x10019AFA  mov dword ptr [ecx + 4], 0x100f4594    ; bad array new length
+0x10019D33  mov eax, 0x100f45ac                    ; Unknown exception
+0x10019FD0  mov eax, 0x100f45c0                    ; generic
+0x1001A030  mov eax, 0x100f45c8                    ; system
+0x1001A0A8  or eax, 0xf45fc68                     ; unknown error
+0x1001B467  call dword ptr [0x100ca1e4]             ; USER32.dll!GetWindowRect
+0x1001BE3D  push 0x100f7210                         ; CLayer
+0x1001C2A9  push 0x100f7218                         ; CLayoutFrame
+0x1001C457  ror byte ptr [ecx + 0x2868ec45], 0x72  ; UjAPICBackdropFrame
+0x1001C665  push 0x100f723c                         ; CModelFrame
+0x1001C6A0  push 0x100f7248                         ; CBackdropFrame
+0x1001C900  push 0x100f7258                         ; CControl
+0x1001C93B  push 0x100f7264                         ; CButtonFrame
+0x1001CC84  push 0x100f7248                         ; CBackdropFrame
+0x1001CCB2  push 0x100f727c                         ; CChatEditBar
+0x1001CF45  push 0x100f729c                         ; CSpriteFrame
+0x1001CF80  push 0x100f7258                         ; CControl
+0x1001D225  push 0x100f729c                         ; CSpriteFrame
+0x1001D260  push 0x100f72ac                         ; CCursorFrame
+0x1001D433  push 0x100f8538                         ; HLIGHT
+0x1001D8FC  push 0x100f7210                         ; CLayer
+0x1001D937  push 0x100f7274                         ; CFrame
+0x1001DC9A  push 0x100f7274                         ; CFrame
+0x1001DCD5  push 0x100f72c8                         ; CGameChatroom
+0x1001DEBB  fsubr qword ptr [eax + 0x54]             ; UjAPICUberToolTipWar3
+0x1001E25F  push 0x100f72d8                         ; {:d}/{:d}
+0x1001E591  push 0x100f7274                         ; CFrame
+0x1001E5D1  push 0x100f72e4                         ; CGameUI
+0x1001EA60  push 0x100f7274                         ; CFrame
+0x1001EA9B  push 0x100f72ec                         ; CHighlightFrame
+0x1001ED6E  push 0x100f7274                         ; CFrame
+0x1001EDA9  push 0x100f72fc                         ; CLeaderboard
+0x1001F045  push 0x100f7258                         ; CControl
+0x1001F080  push 0x100f7370                         ; CListBoxItemWar3
+0x1001F2E1  push 0x100f7258                         ; CControl
+0x1001F31C  push 0x100f7384                         ; CListBoxWar3
+0x1001F590  push 0x100f7274                         ; CFrame
+0x1001F5CB  push 0x100f7394                         ; CMessageFrame
+0x1001F89E  push 0x100f7274                         ; CFrame
+0x1001F8D9  push 0x100f73a4                         ; CMinimap
+0x1001FB95  push 0x100f7274                         ; CFrame
+0x1001FBD0  push 0x100f723c                         ; CModelFrame
+0x1001FF09  push 0x100f7274                         ; CFrame
+0x1001FF44  push 0x100f73b0                         ; CMultiboard
+0x10020240  push 0x100f7264                         ; CButtonFrame
+0x1002027B  push 0x100f73bc                         ; CPortraitButton
+0x10020545  push 0x100f7274                         ; CFrame
+0x10020580  push 0x100f73dc                         ; CSimpleTop
+0x100207E0  push 0x100f72bc                         ; CEditBox
+0x1002081B  push 0x100f728c                         ; CSlashChatBox
+0x10020C55  push 0x100f7274                         ; CFrame
+0x10020C95  push 0x100f729c                         ; CSpriteFrame
+0x1002106C  push 0x100f729c                         ; CSpriteFrame
+0x100210A7  push 0x100f73fc                         ; CStatusBar
+0x10021345  push 0x100f7258                         ; CControl
+0x10021380  push 0x100f7408                         ; CTextArea
+0x1002153F  (raw 4-byte) UjAPICTextFrame
+0x1002177E  push 0x100f7258                         ; CControl
+0x100217B9  push 0x100f7424                         ; CTextFrame
+0x10021A80  push 0x100f7274                         ; CFrame
+0x10021ABB  push 0x100f7430                         ; CTimeCover
+0x10021D30  push 0x100f729c                         ; CSpriteFrame
+0x10021D6B  push 0x100f743c                         ; CTimeOfDayIndicator
+0x10022015  push 0x100f7274                         ; CFrame
+0x10022050  push 0x100f7450                         ; CTimerDialog
+0x10022563  push 0x100f7274                         ; CFrame
+0x1002259E  push 0x100f7460                         ; CWorldFrameWar3
+0x1002286E  push 0x100f73cc                         ; CScreenFrame
+0x100228A9  push 0x100f7470                         ; CGlueMgr
+0x10022E81  push 0x100f7488                         ; CSimpleFrame
+0x10022EBC  push 0x100f7498                         ; CBuffIndicator
+0x10023149  push 0x100f7488                         ; CSimpleFrame
+0x1002317E  push 0x100f74bc                         ; CCargoGrid
+0x100235F6  push 0x100f747c                         ; CSimpleGrid
+0x1002362B  push 0x100f74c8                         ; CCommandBar
+0x10023B57  push 0x100f74e4                         ; CSimpleButton
+0x10023B8C  push 0x100f74d4                         ; CCommandButton
+0x10023E7D  push 0x100f74e4                         ; CSimpleButton
+0x10023EAB  push 0x100f74f4                         ; CShrinkingButton
+0x100242E1  push 0x100f747c                         ; CSimpleGrid
+0x1002431C  push 0x100f7508                         ; CHeroBar
+0x1002457C  push 0x100f74d4                         ; CCommandButton
+0x100245B7  push 0x100f7514                         ; CHeroBarButton
+0x10024817  push 0x100f7524                         ; CStatBar
+0x1002484C  push 0x100f7530                         ; CHeroLevelBar
+0x10024AC9  push 0x100f7488                         ; CSimpleFrame
+0x10024AFE  push 0x100f7540                         ; CIconCover
+0x10024D79  push 0x100f7488                         ; CSimpleFrame
+0x10024DAE  push 0x100f754c                         ; CInfoBar
+0x10024FBC  push 0x100f7488                         ; CSimpleFrame
+0x10024FF1  push 0x100f7558                         ; CInfoPanel
+0x10025235  push 0x100f7558                         ; CInfoPanel
+0x1002526A  push 0x100f7564                         ; CInfoPanelBuildingDetail
+0x10025485  push 0x100f7558                         ; CInfoPanel
+0x100254BA  push 0x100f7580                         ; CInfoPanelCargoDetail
+0x100256D5  push 0x100f7558                         ; CInfoPanel
+0x1002570A  push 0x100f7598                         ; CInfoPanelDestructableDetail
+0x10025925  push 0x100f7558                         ; CInfoPanel
+0x1002595A  push 0x100f75b8                         ; CInfoPanelGroup
+0x10025B7C  push 0x100f7488                         ; CSimpleFrame
+0x10025BB1  push 0x100f75c8                         ; CInfoPanelIcon
+0x10025DF5  push 0x100f75c8                         ; CInfoPanelIcon
+0x10025E2A  push 0x100f75d8                         ; CInfoPanelIconAlly
+0x10026067  push 0x100f75c8                         ; CInfoPanelIcon
+0x1002609C  push 0x100f75ec                         ; CInfoPanelIconArmor
+0x100262D7  push 0x100f75c8                         ; CInfoPanelIcon
+0x1002630C  push 0x100f7600                         ; CInfoPanelIconDamage
+0x10026515  push 0x100f75c8                         ; CInfoPanelIcon
+0x1002654A  push 0x100f7618                         ; CInfoPanelIconFood
+0x10026745  push 0x100f75c8                         ; CInfoPanelIcon
+0x1002677A  push 0x100f762c                         ; CInfoPanelIconGold
+0x10026975  push 0x100f75c8                         ; CInfoPanelIcon
+0x100269AA  push 0x100f7640                         ; CInfoPanelIconHero
+0x10026BA5  push 0x100f75c8                         ; CInfoPanelIcon
+0x10026BDA  push 0x100f7654                         ; CInfoPanelIconRank
+0x10026DD5  push 0x100f7558                         ; CInfoPanel
+0x10026E0A  push 0x100f7668                         ; CInfoPanelItemDetail
+0x10027067  push 0x100f7558                         ; CInfoPanel
+0x1002709C  push 0x100f7680                         ; CInfoPanelUnitDetail
+0x10027497  push 0x100f7488                         ; CSimpleFrame
+0x100274CC  push 0x100f7698                         ; COccupUI
+0x1002772C  push 0x100f7488                         ; CSimpleFrame
+0x10027767  push 0x100f76a4                         ; CPeonBar
+0x100279A7  push 0x100f76b0                         ; CSimpleStatusBar
+0x100279DC  push 0x100f74a8                         ; CProgressIndicator
+0x10027C17  push 0x100f7488                         ; CSimpleFrame
+0x10027C4C  push 0x100f76c4                         ; CResourceBar
+0x10027E87  push 0x100f7488                         ; CSimpleFrame
+0x10027EBC  push 0x100f76d4                         ; CResourceCover
+0x10028227  push 0x100f7488                         ; CSimpleFrame
+0x1002825C  push 0x100f74e4                         ; CSimpleButton
+0x100285E2  push 0x100f7488                         ; CSimpleFrame
+0x10028617  push 0x100f76e4                         ; CSimpleConsole
+0x10028888  push 0x100f7488                         ; CSimpleFrame
+0x100288C3  push 0x100f76f4                         ; CSimpleFadeTimer
+0x10028A65  push 0x100f7708                         ; UjAPICSimpleFrame
+0x10028E92  push 0x100f7218                         ; CLayoutFrame
+0x10028EC7  push 0x100f7488                         ; CSimpleFrame
+0x10029295  push 0x100f7488                         ; CSimpleFrame
+0x100292CA  push 0x100f747c                         ; CSimpleGrid
+0x10029575  push 0x100f7488                         ; CSimpleFrame
+0x100295AA  push 0x100f771c                         ; CSimpleMessageFrame
+0x10029887  push 0x100f7488                         ; CSimpleFrame
+0x100298BC  push 0x100f76b0                         ; CSimpleStatusBar
+0x10029C0A  push 0x100f76b0                         ; CSimpleStatusBar
+0x10029C3F  push 0x100f7524                         ; CStatBar
+0x10029EB7  push 0x100f7488                         ; CSimpleFrame
+0x10029EEC  push 0x100f7730                         ; CToolTipWar3
+0x1002A127  push 0x100f7730                         ; CToolTipWar3
+0x1002A15C  push 0x100f7740                         ; CUberToolTipWar3
+0x1002A405  push 0x100f7488                         ; CSimpleFrame
+0x1002A43A  push 0x100f776c                         ; CUnitTip
+0x1002A68C  push 0x100f7488                         ; CSimpleFrame
+0x1002A6C7  push 0x100f7778                         ; CUpperButtonBar
+0x1002A87C  push 0x100f779c                         ; UjAPICSimpleGlueFrame
+0x1002AA37  push 0x100f7488                         ; CSimpleFrame
+0x1002AA6C  push 0x100f7788                         ; CSimpleGlueFrame
+0x1002AC25  push 0x100f77c4                         ; UjAPICSimpleFontString
+0x1002AF36  push 0x100f77b4                         ; CSimpleRegion
+0x1002AF6B  push 0x100f77dc                         ; CSimpleFontString
+0x1002B215  push 0x100f7218                         ; CLayoutFrame
+0x1002B24A  push 0x100f77b4                         ; CSimpleRegion
+0x1002B3E5  push 0x100f77f0                         ; UjAPICSimpleTexture
+0x1002B6C4  push 0x100f77b4                         ; CSimpleRegion
+0x1002B6F9  push 0x100f7804                         ; CSimpleTexture
+0x1002BE01  call dword ptr [0x100ca25c]             ; VERSION.dll!GetFileVersionInfoSizeA
+0x1002BE1D  call dword ptr [0x100ca258]             ; VERSION.dll!GetFileVersionInfoA
+0x1002BE43  call dword ptr [0x100ca254]             ; VERSION.dll!VerQueryValueA
+0x1002BE97  call dword ptr [0x100ca00c]             ; KERNEL32.dll!GetModuleHandleA
+0x1002BEC7  (raw 4-byte) KERNEL32.dll!GetModuleFileNameA
+0x1002BF03  push 0x100f45f0                         ; Game.dll
+0x1002BF08  call dword ptr [0x100ca00c]             ; KERNEL32.dll!GetModuleHandleA
+0x1002BF12  mov ecx, 0x100f45f0                    ; Game.dll
+0x1002BF2E  (raw 4-byte) KERNEL32.dll!GetModuleFileNameA
+0x1002BF57  (raw 4-byte) KERNEL32.dll!GetModuleFileNameA
+0x1002BFBF  dec esp                                ; %d.%d.%d.%d
+0x1002C040  mov eax, 0x100f7858                    ; Bad any_cast
+0x1002C08A  mov dword ptr [ecx + 4], 0x100ef870    ; bad cast
+0x1002E1AB  push 0x100ef894                         ; true
+0x1002E35B  add byte ptr [ebx - 0x7734502], cl     ; false
+0x1002EDC9  push 0x100f7a5c                         ; SHIFT
+0x1002EE0C  push 0x100f7a54                         ; RAlt
+0x1002EF44  mov esi, dword ptr [0x100ca23c]        ; USER32.dll!GetKeyState
+0x1002EF72  push 0x100f7a24                         ; LShift
+0x1002EF9C  push 0x100f7a38                         ; RShift
+0x1002F08D  push 0x100f7a30                         ; LCtrl
+0x1002F0BB  push 0x100f7a48                         ; RCtrl
+0x1002F174  push 0x100f7a40                         ; LAlt
+0x1002F1A2  push 0x100f7a54                         ; RAlt
+0x1002F2E1  push 0x100f78a0                         ; LButton
+0x1002F356  push 0x100f78b0                         ; RButton
+0x1002F3CB  push 0x100f78a8                         ; MButton
+0x1002F440  push 0x100f78c4                         ; XButton1
+0x1002F4B5  push 0x100f78b8                         ; XButton2
+0x1002F52A  push 0x100f7a74                         ; WheelUp
+0x1002F59F  push 0x100f7a68                         ; WheelDown
+0x1002F614  push 0x100f78d4                         ; Back
+0x1002F6FE  push 0x100f7a84                         ; Enter
+0x1002F773  push 0x100f78e4                         ; CapsLock
+0x1002F7E8  push 0x100f78dc                         ; Escape
+0x1002F85D  push 0x100f78f8                         ; Space
+0x1002F8D2  push 0x100f78f0                         ; LWin
+0x1002F947  push 0x100f7908                         ; RWin
+0x1002F9BC  push 0x100f7900                         ; Apps
+0x1002FA31  push 0x100f7918                         ; Scroll
+0x1002FAA6  push 0x100f7910                         ; Pause
+0x1002FB1B  push 0x100f7928                         ; Insert
+0x1002FB90  push 0x100f7920                         ; Delete
+0x1002FC05  push 0x100f7934                         ; Home
+0x1002FCEF  push 0x100f7948                         ; PageUp
+0x1002FD64  push 0x100f793c                         ; PageDown
+0x10030355  push 0x100f7978                         ; NumPad0
+0x100303CA  push 0x100f7970                         ; NumPad1
+0x1003043F  push 0x100f7988                         ; NumPad2
+0x100304B4  push 0x100f7980                         ; NumPad3
+0x10030529  push 0x100f7998                         ; NumPad4
+0x1003059E  push 0x100f7990                         ; NumPad5
+0x10030613  push 0x100f79a8                         ; NumPad6
+0x10030688  push 0x100f79a0                         ; NumPad7
+0x100306FD  push 0x100f79b8                         ; NumPad8
+0x10030772  push 0x100f79b0                         ; NumPad9
+0x100307E7  push 0x100f79c8                         ; NumPad-
+0x1003085C  push 0x100f79c0                         ; NumPad+
+0x100308D1  push 0x100f79d8                         ; NumPad/
+0x10030946  push 0x100f79d0                         ; NumPad*
+0x100309BB  push 0x100f79e4                         ; NumPad.
+0x100311CD  push 0x100f7a5c                         ; SHIFT
+0x100311FF  push 0x100f7a24                         ; LShift
+0x10031231  push 0x100f7a38                         ; RShift
+0x10031263  push 0x100f7a7c                         ; CTRL
+0x10031295  push 0x100f7a30                         ; LCtrl
+0x100312C7  push 0x100f7a48                         ; RCtrl
+0x1003132B  push 0x100f7a40                         ; LAlt
+0x1003135D  push 0x100f7a54                         ; RAlt
+0x10031CAF  push 0x100f7a90                         ; Detour::Install #%d (%08X)->(%08X)
+0x10031D22  or eax, 0xf7b0068                     ; Detour::Install aborted, function already detoured!
+0x10031D5F  push 0x100f7ad0                         ; DetourTransactionBegin failed with error: %d.
+0x10031D85  adc eax, 0x100ca024                    ; KERNEL32.dll!GetCurrentThread
+0x10031DA4  push 0x100f7b60                         ; DetourUpdateThread failed with error: %d.
+0x10031DE0  push 0x100f7b38                         ; DetourAttach failed with error: %d.
+0x10031E1A  push 0x100f7bc4                         ; DetourTransactionCommit failed with error: %d.
+0x10031E6C  or eax, 0xf7ab468                     ; Detour::Install failure!
+0x10031EC6  push 0x100f7c2c                         ; Detour::Uninstall function #%d (%08X)->(%08X)
+0x10031F4D  or eax, 0xf7bf468                     ; Detour::Uninstall aborted, function was not detoured!
+0x10031F80  push 0x100f7ad0                         ; DetourTransactionBegin failed with error: %d.
+0x10031F9B  call dword ptr [0x100ca024]             ; KERNEL32.dll!GetCurrentThread
+0x10031FB7  push 0x100f7b60                         ; DetourUpdateThread failed with error: %d.
+0x10031FEB  push 0x100f7c5c                         ; DetourDetach failed with error: %d.
+0x1003201B  push 0x100f7bc4                         ; DetourTransactionCommit failed with error: %d.
+0x100320B9  or eax, 0xf7b8c68                     ; Detour::Install failure, invalid pointer to detour!
+0x100324CC  push 0x100f7ca0                         ; unordered_map/set too long
+0x100326D4  push 0x100f7c84                         ; invalid hash bucket count
+0x10032D99  push 0x100f7d58                         ; 00000000
+0x10033195  push 0x100f7d20                         ; stoll argument out of range
+0x1003319E  add byte ptr [eax + 8], ch             ; invalid stoll argument
+0x10033899  jl 0x10033918                         ; {:.0f} {}
+0x100338B4  push 0x100f7d94                         ; {:.2f} {}
+0x10033A46  push 0x100efbc8                         ; {:d}
+0x10033AB8  push 0x100f7d8c                         ; {:.2f}k
+0x10033AEC  push 0x100f7da8                         ; {:.2f}m
+0x10033B15  push 0x100f7da0                         ; {:.2f}b
+0x10033C37  or ebp, dword ptr [eax - 0x48]        ; {:d}:{:02d}
+0x10033C77  push 0x100f7db0                         ; {:.0f}
+0x10033CBC  push 0x100f7dc4                         ; {:.1f}
+0x10034B42  push 0x100f7ddc                         ; Scripts\common.j
+0x10034B9A  push 0x100f7df0                         ; common.j
+0x10034D03  (raw 4-byte) KERNEL32.dll!GetModuleFileNameA
+0x10034E7D  dec esp                                ; %d.%d.%d.%d
+0x10034F38  push 0x100f7dcc                         ; {}: 
+0x10034F9F  push 0x100f7dd4                         ; {}{}
+0x10035BC3  adc eax, 0xa02c15ff                    ; KERNEL32.dll!GetConsoleWindow
+0x10035BCB  call dword ptr [0x100ca22c]             ; USER32.dll!IsWindowVisible
+0x10035D15  mov esi, dword ptr [0x100ca02c]        ; KERNEL32.dll!GetConsoleWindow
+0x10035D3B  call dword ptr [0x100ca24c]             ; USER32.dll!GetWindowTextA
+0x10035D5A  call dword ptr [0x100ca230]             ; USER32.dll!ShowWindow
+0x10035D64  call dword ptr [0x100ca03c]             ; KERNEL32.dll!GetCurrentProcessId
+0x10035D6B  call dword ptr [0x100ca034]             ; KERNEL32.dll!AttachConsole
+0x10035D81  call dword ptr [0x100ca230]             ; USER32.dll!ShowWindow
+0x10035D91  adc eax, 0x100ca000                    ; KERNEL32.dll!GetLastError
+0x10035DA0  call dword ptr [0x100ca044]             ; KERNEL32.dll!AllocConsole
+0x10035DBC  adc eax, 0x100ca030                    ; KERNEL32.dll!SetConsoleTitleA
+0x10035E26  call dword ptr [0x100ca038]             ; KERNEL32.dll!SetConsoleCP
+0x10035E31  call dword ptr [0x100ca040]             ; KERNEL32.dll!SetConsoleOutputCP
+0x10035E4D  push 0x100f7e18                         ; CONIN$
+0x10035E6D  adc byte ptr [eax + 0x24], ch          ; CONOUT$
+0x10035E8E  adc byte ptr [eax + 0x24], ch          ; CONOUT$
+0x1003676F  mov edx, 0x100f7e2c                    ; stand
+0x10038965  call dword ptr [0x100ca048]             ; KERNEL32.dll!VirtualProtect
+0x1003898A  call dword ptr [0x100ca048]             ; KERNEL32.dll!VirtualProtect
+0x1003C853  (raw 4-byte) .?AVCCameraHandle@@
+0x1003C911  push 0x100f7e4c                         ; .?AVCCameraHandle@@
+0x1003C943  (raw 4-byte) .?AVCDataFieldWar3@@
+0x1003C9C1  push 0x100f7e70                         ; .?AVCDataFieldWar3@@
+0x1003C9F3  (raw 4-byte) .?AVCDoodadWar3@@
+0x1003CA61  push 0x100f7e98                         ; .?AVCDoodadWar3@@
+0x1003CA93  (raw 4-byte) .?AVCFrameWar3EventReg@@
+0x1003CB01  push 0x100f7ebc                         ; .?AVCFrameWar3EventReg@@
+0x1003CB33  (raw 4-byte) .?AVCFrameWar3EventData@@
+0x1003CBA1  push 0x100f7eec                         ; .?AVCFrameWar3EventData@@
+0x1003CBD3  (raw 4-byte) .?AVCFrameWar3@@
+0x1003CC41  push 0x100f7ed8                         ; .?AVCFrameWar3@@
+0x1003CC73  (raw 4-byte) .?AVCAgentListWar3@@
+0x1003CCE1  push 0x100f7f38                         ; .?AVCAgentListWar3@@
+0x1003CD13  (raw 4-byte) .?AVCSpriteWar3@@
+0x1003CD81  push 0x100f7f60                         ; .?AVCSpriteWar3@@
+0x1003D821  push 0x100f7ca0                         ; unordered_map/set too long
+0x1003D9BD  push 0x100f7c84                         ; invalid hash bucket count
+0x1003DAFF  push 0x100f7e34                         ; invalid map<K, T> key
+0x1003DB5F  push 0x1011d4d8                         ; Default String
+0x1003E02C  push 0x1011d4d8                         ; Default String
+0x1003E104  push 0x100f7d44                         ; Default String
+0x1003E269  push 0x100f7d44                         ; Default String
+0x1003EAB0  push 0x100f7d44                         ; Default String
+0x1004294D  push 0x100f804c                         ; stoi argument out of range
+0x10042955  add eax, 0x80346800                    ; invalid stoi argument
+0x10043406  mov edx, 0x100f8020                    ; DefenseArmor
+0x10043407  and byte ptr [eax + 0x18b9100f], al    ; Misc
+0x100437DD  add al, 0x80                           ; DyingRevealRadius
+0x100437DF  movups xmm7, xmmword ptr [ecx + 0x100f8018] ; Misc
+0x10048593  (raw 4-byte) .?AVCPlayerMinimapPingEventData@@
+0x10048601  push 0x100f808c                         ; .?AVCCPlayerMinimapPingEventData@@
+0x10048633  (raw 4-byte) .?AVCPlayerProjectileEventData@@
+0x100486A1  push 0x100f80c0                         ; .?AVCPlayerProjectileEventData@@
+0x100486D3  (raw 4-byte) .?AVCPlayerTradeResourceEventData@@
+0x10048741  push 0x100f80f4                         ; .?AVCCPlayerTradeResourceEventData@@
+0x10048773  (raw 4-byte) .?AVCPlayerUnitAbilityLevelChangedEventData@@
+0x100487E1  push 0x100f8150                         ; .?AVCPlayerUnitAbilityLevelChangedEventData@@
+0x10048813  (raw 4-byte) .?AVCPlayerUnitAbsorbItemChargesEventData@@
+0x10048881  push 0x100f8190                         ; .?AVCPlayerUnitAbsorbItemChargesEventData@@
+0x100488B3  (raw 4-byte) .?AVCPlayerUnitAnyItemEventData@@
+0x10048921  push 0x100f81cc                         ; .?AVCPlayerUnitAnyItemEventData@@
+0x10048953  (raw 4-byte) .?AVCPlayerUnitMoveItemSlotEventData@@
+0x100489C1  push 0x100f8200                         ; .?AVCPlayerUnitMoveItemSlotEventData@@
+0x100489F3  (raw 4-byte) .?AVCPlayerUnitSpellOtherEventDataBase@@
+0x10048A61  push 0x100f8238                         ; .?AVCPlayerUnitSpellOtherEventDataBase@@
+0x10048A93  (raw 4-byte) .?AVCProjectileEventData@@
+0x10048B01  push 0x100f8274                         ; .?AVCProjectileEventData@@
+0x10048B33  (raw 4-byte) .?AVCUnitAbilityLevelChangedEventData@@
+0x10048BA1  push 0x100f82a0                         ; .?AVCUnitAbilityLevelChangedEventData@@
+0x10048BD3  (raw 4-byte) .?AVCUnitAbsorbItemChargesEventData@@
+0x10048C41  push 0x100f82d8                         ; .?AVCUnitAbsorbItemChargesEventData@@
+0x10048C73  (raw 4-byte) .?AVCUnitAnyItemEventData@@
+0x10048CE1  push 0x100f8310                         ; .?AVCUnitAnyItemEventData@@
+0x10048D13  (raw 4-byte) .?AVCUnitMoveItemSlotEventData@@
+0x10048D81  push 0x100f833c                         ; .?AVCUnitMoveItemSlotEventData@@
+0x10048DB3  (raw 4-byte) .?AVCUnitSpellOtherEventDataBase@@
+0x10048E21  push 0x100f8370                         ; .?AVCUnitSpellOtherEventDataBase@@
+0x10048E53  (raw 4-byte) .?AVCWidgetDamagedEventData@@
+0x10048ED1  push 0x100f83a4                         ; .?AVCWidgetDamagedEventData@@
+0x10048F03  (raw 4-byte) .?AVCPlayerKeyEventReg@@
+0x10048F71  push 0x100f83f0                         ; .?AVCPlayerKeyEventReg@@
+0x10048FA3  (raw 4-byte) .?AVCPlayerMouseEventReg@@
+0x10049011  push 0x100f83d4                         ; .?AVCPlayerMouseEventReg@@
+0x10049043  (raw 4-byte) .?AVCPlayerVariableSyncEventReg@@
+0x100490B1  push 0x100f842c                         ; .?AVCPlayerVariableSyncEventReg@@
+0x1004A4BC  mov edi, dword ptr [0x100ca048]        ; KERNEL32.dll!VirtualProtect
+0x1004ADA1  call dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x1004B31B  call dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x1004B3D8  mov eax, 0x100f8508                    ; Single Player
+0x1004B3DD  mov edx, 0x100f7e04                    ; UNKNOWN
+0x1004B3E7  sub al, 0x85                           ; Battle.net
+0x1004B3F2  mov eax, 0x100f7e04                    ; UNKNOWN
+0x1004B3F7  mov edx, 0x100f84fc                    ; Local Game
+0x1004B401  (raw 4-byte) Not in Game
+0x1004B406  mov eax, 0x100f7e04                    ; UNKNOWN
+0x1004C4F7  call dword ptr [0x100ca228]             ; USER32.dll!SendInput
+0x1004C536  call dword ptr [0x100ca228]             ; USER32.dll!SendInput
+0x1004E14F  call dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x1004E18A  call dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x1004E1EB  call dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x1004E23E  (raw 4-byte) SetPlayerAlliance
+0x1004E275  push 0x100f9400                         ; SetPlayerAlliance
+0x1004F47B  push 0x100f87d4                         ; {:02d}{}{:02d}{}{:02d}
+0x1004F4C1  call dword ptr [0x100ca058]             ; KERNEL32.dll!GetLocalTime
+0x1004F543  push 0x100f87ec                         ; Warcraft III
+0x1004F567  mov edi, dword ptr [0x100ca248]        ; USER32.dll!FindWindowA
+0x1004F60C  call dword ptr [0x100ca208]             ; USER32.dll!GetWindowPlacement
+0x1004F61E  call dword ptr [0x100ca210]             ; USER32.dll!MonitorFromWindow
+0x1004F625  call dword ptr [0x100ca214]             ; USER32.dll!GetMonitorInfoA
+0x1004F639  call dword ptr [0x100ca238]             ; USER32.dll!SetWindowLongA
+0x1004F665  call dword ptr [0x100ca234]             ; USER32.dll!SetWindowPos
+0x1004F682  call dword ptr [0x100ca210]             ; USER32.dll!MonitorFromWindow
+0x1004F689  call dword ptr [0x100ca214]             ; USER32.dll!GetMonitorInfoA
+0x1004F7DC  push 0x100f87fc                         ; UjAPIFloatModifier
+0x1005090A  push 0x100f8828                         ; TEXS
+0x10050935  push 0x100f8830                         ; Textures
+0x10050B53  push 0x100f883c                         ; .tga
+0x10050B7A  push 0x100f8844                         ; .blp
+0x10050B9B  push 0x100f8810                         ; .dds
+0x10050E64  push 0x100f8818                         ; Bitmap{
+0x10050FEC  push 0x100f8820                         ; Image
+0x100517D2  ror byte ptr [ecx + 0x4c68d47d], 0x88  ; (priority)
+0x100529FC  push 0x100f7ca0                         ; unordered_map/set too long
+0x10052BCD  push 0x100f7c84                         ; invalid hash bucket count
+0x10052D67  push 0x100f886c                         ; invalid stof argument
+0x10052D71  push 0x100f8884                         ; stof argument out of range
+0x10052E77  call dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x1005302D  call dword ptr [0x100ca03c]             ; KERNEL32.dll!GetCurrentProcessId
+0x10053079  push 0x100f88a0                         ; UMemory_
+0x100530BF  call dword ptr [0x100ca060]             ; KERNEL32.dll!UnmapViewOfFile
+0x100530D9  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x10053120  call dword ptr [0x100ca074]             ; KERNEL32.dll!CreateFileMappingA
+0x10053134  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1005314F  (raw 4-byte) KERNEL32.dll!MapViewOfFile
+0x10053268  call dword ptr [0x100ca018]             ; KERNEL32.dll!GetCurrentProcess
+0x10053273  call dword ptr [0x100ca080]             ; KERNEL32.dll!K32GetModuleInformation
+0x100532C1  call dword ptr [0x100ca048]             ; KERNEL32.dll!VirtualProtect
+0x100532E2  call dword ptr [0x100ca048]             ; KERNEL32.dll!VirtualProtect
+0x100534E5  push 0x100f88ac                         ; .w3x|.w3m
+0x1005356B  push 0x100f88b8                         ; .w3n|.w3g
+0x10053626  call dword ptr [0x100ca07c]             ; KERNEL32.dll!GetFinalPathNameByHandleA
+0x10053B8A  call dword ptr [0x100ca200]             ; USER32.dll!DefWindowProcA
+0x10054042  (raw 4-byte) DISPLAYMINUTES
+0x10054052  (raw 4-byte) COOLDOWNUI
+0x10054190  (raw 4-byte) {} >> {} | {}
+0x100542D3  or byte ptr [eax + 0x4c], ch          ; {} >> {}
+0x10054481  (raw 4-byte) DISPLAYMINUTES
+0x100544B4  push 0x100f88e0                         ; COOLDOWNUI
+0x10054555  push 0x100f8958                         ; {} >> {} | {} {}
+0x10054735  push 0x100f896c                         ; {} >> {} {:d} - {:d}
+0x10054845  (raw 4-byte) {} >> {} {:.0f}
+0x1005492A  (raw 4-byte) {} >> {} {:d} | {} {:d} | {} {:d}
+0x100549FE  (raw 4-byte) {} {:d}
+0x10054AA2  (raw 4-byte) {} {:d}
+0x10054B00  (raw 4-byte) {} {:d}/{:d}
+0x10054B93  (raw 4-byte) {} {:d}% | {} {:d}%
+0x10054C06  push 0x100f8998                         ; {} >> lvl: {:d} | xp: {:d}/{:d} ({:.2f}%)
+0x10054DB0  push 0x100f89c4                         ; {} >> {} {:d}/{:d} ({:.2f}%)
+0x10054E48  adc byte ptr [eax - 0x1c], ch          ; {} {:02d}:{:02d}
+0x10055AC6  push 0x100f71f0                         ; CAMERA
+0x10055B37  push 0x100f8a50                         ; FARZ
+0x10055BC9  push 0x100f8a58                         ; FOGZ
+0x10055C9E  push 0x100f71f0                         ; CAMERA
+0x10055D53  push 0x100f8a08                         ; DISTANCE_MAX
+0x10055D89  push 0x100f8a18                         ; DISTANCE_MIN
+0x10055E7A  push 0x100f8a28                         ; HEIGHT_MAX
+0x10055EB0  push 0x100f8a34                         ; HEIGHT_MIN
+0x1005620A  push 0x100f8ab0                         ; SetCameraPosition
+0x1005628C  push 0x100f8ac4                         ; SetCameraQuickPosition
+0x1005630E  push 0x100f8adc                         ; PanCameraTo
+0x10056390  push 0x100f8ae8                         ; PanCameraToTimed
+0x10056412  push 0x100f8a60                         ; PanCameraToWithZ
+0x10056494  push 0x100f8a74                         ; PanCameraToTimedWithZ
+0x10056516  push 0x100f8a8c                         ; SetCameraField
+0x10056598  push 0x100f8a9c                         ; AdjustCameraField
+0x1005661A  push 0x100f8b48                         ; CameraSetupApply
+0x1005669C  push 0x100f8b5c                         ; CameraSetupApplyWithZ
+0x1005671E  push 0x100f8b74                         ; CameraSetupApplyForceDuration
+0x100567A0  push 0x100f8b94                         ; CameraSetupApplyForceDurationWithZ
+0x10056822  push 0x100f8afc                         ; ResetToGameCamera
+0x100568A4  push 0x100f8b10                         ; SetCameraTargetController
+0x10056A8A  push 0x100f71f0                         ; CAMERA
+0x10056AFE  push 0x100f8b2c                         ; CAMERAMODIFIABLE
+0x10056B92  push 0x100f8b40                         ; HOTKEYS
+0x10056C06  push 0x100f8be8                         ; CAMERATILT
+0x10056C8E  push 0x100f8bf4                         ; CAMERADISTANCE
+0x10056CB8  mov esi, dword ptr [0x100ca23c]        ; USER32.dll!GetKeyState
+0x10056D2B  push 0x100f8c04                         ; DISTANCESTEP
+0x10056DA5  push 0x100f8c14                         ; CAMERAHEIGHT
+0x10056E2F  push 0x100f8bb8                         ; HEIGHTSTEP
+0x10056E5F  push 0x100f8bc4                         ; CAMERAROTATION
+0x10056EDB  push 0x100f8bd4                         ; YAWSTEP
+0x10056F35  push 0x100f8bdc                         ; PITCHSTEP
+0x100574AA  sar byte ptr [ecx + 0x100f8c84], cl    ; UI\war3skins.txt
+0x100576EB  push 0x100f8c24                         ; WFEFonts\Master.ttf
+0x1005772D  mov edx, 0x100f8c24                    ; WFEFonts\Master.ttf
+0x10057740  (raw 4-byte) MasterFont
+0x10057895  push 0x100f9888                         ; MOUSELOCK
+0x100578CA  push 0x100f8ce4                         ; FUNCTIONS
+0x10057A55  sar byte ptr [ecx + 0x100fa520], cl    ; CommandButtonCooldown
+0x10057B0C  push 0x100f8c44                         ; ISAUTOUPDATE
+0x10057B3A  push 0x100f8c54                         ; GRAPHICS
+0x10057CBC  push 0x100f8cbc                         ; GAMESTART
+0x10057CEA  push 0x100f8cc8                         ; DELAY
+0x10057E6E  call dword ptr [0x100ca21c]             ; USER32.dll!GetActiveWindow
+0x10057E7C  call dword ptr [0x100ca218]             ; USER32.dll!GetForegroundWindow
+0x10057EB7  push 0x100f9894                         ; Always
+0x10057F0F  push 0x100f8cd0                         ; LOADINGNOTIFICATION
+0x10057F3D  push 0x100f8ce4                         ; FUNCTIONS
+0x10058024  call dword ptr [0x100ca21c]             ; USER32.dll!GetActiveWindow
+0x1005802E  call dword ptr [0x100ca218]             ; USER32.dll!GetForegroundWindow
+0x10058043  adc eax, 0x100ca230                    ; USER32.dll!ShowWindow
+0x10058055  mov esi, dword ptr [0x100ca234]        ; USER32.dll!SetWindowPos
+0x10058073  call dword ptr [0x100ca230]             ; USER32.dll!ShowWindow
+0x1005817E  push 0x100f8c98                         ; ISHEROONLY
+0x100582DC  push 0x100f8ca4                         ; ISALLY
+0x10058333  push 0x100f8cac                         ; ISENEMY
+0x10058382  push 0x100f8cb4                         ; ISMY
+0x10058544  push 0x100f8d24                         ; DAMAGEDRAW
+0x100585DF  push 0x100f8d30                         ; ISENABLED
+0x10058872  push 0x100f8d3c                         ; PHYSICALOFFSET
+0x100588A5  push 0x100f8d4c                         ; MAGICALOFFSET
+0x1005898D  push 0x100f8cf0                         ; PHYSICALCOLOUR
+0x100589C0  push 0x100f8d00                         ; MAGICALCOLOUR
+0x10058A9D  (raw 4-byte) DURATION
+0x10058AEF  (raw 4-byte) SIZE
+0x10058B38  (raw 4-byte) SPEED
+0x10058B7A  push 0x100f8d64                         ; ANGLE
+0x10058BB4  push 0x100f8a48                         ; HEIGHT
+0x100594E6  call dword ptr [0x100ca21c]             ; USER32.dll!GetActiveWindow
+0x100594F4  call dword ptr [0x100ca218]             ; USER32.dll!GetForegroundWindow
+0x1005951B  call dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x100595CC  push 0x100f8d6c                         ; LeaderboardDisplay
+0x1005964D  push 0x100f8da8                         ; ShowInterface
+0x100596C4  push 0x100f85a8                         ; GetUjAPIFlags
+0x10059716  mov edi, dword ptr [0x100ca23c]        ; USER32.dll!GetKeyState
+0x10059772  ror byte ptr [ecx - 0x6f9717bb], 0x8d  ; INSTANTRMC
+0x100597B5  push 0x100f8ce4                         ; FUNCTIONS
+0x100598E1  pushfd                                    ; RMCCLICK
+0x10059900  push 0x100f8cc8                         ; DELAY
+0x10059A55  call dword ptr [0x100ca244]             ; USER32.dll!KillTimer
+0x10059B5C  push 0x100f8da8                         ; ShowInterface
+0x10059B93  call dword ptr [0x100ca240]             ; USER32.dll!SetTimer
+0x10059C57  push 0x100f8d30                         ; ISENABLED
+0x10059C85  push 0x100f8c54                         ; GRAPHICS
+0x10059CD6  push 0x100f8d80                         ; BLPLIMITREMOVAL
+0x10059D04  push 0x100f8ce4                         ; FUNCTIONS
+0x10059EFE  push 0x100f8d30                         ; ISENABLED
+0x10059F2C  push 0x100f8c54                         ; GRAPHICS
+0x1005A003  push 0x100f8db8                         ; ISDIRECTX9
+0x1005A031  push 0x100f8c54                         ; GRAPHICS
+0x1005A07E  push 0x100f8dc4                         ; ISVSYNC
+0x1005A0AC  push 0x100f8c54                         ; GRAPHICS
+0x1005A213  mov edi, dword ptr [0x100ca064]        ; KERNEL32.dll!LoadLibraryA
+0x1005A226  mov eax, 0x1011ec0c                    ; d3d8to9.dll
+0x1005A22B  cmova eax, dword ptr [0x1011ec0c]        ; d3d8to9.dll
+0x1005A243  ror byte ptr [ecx - 0x33976fbb], 0x8d  ; Modules\
+0x1005A295  mov eax, 0x1011ec0c                    ; d3d8to9.dll
+0x1005A2A0  cmova eax, dword ptr [0x1011ec0c]        ; d3d8to9.dll
+0x1005A419  push 0x100f71f8                         ; d3d8.dll
+0x1005A42E  (raw 4-byte) Direct3DCreate8
+0x1005A433  call dword ptr [0x100ca014]             ; KERNEL32.dll!GetProcAddress
+0x1005A5BA  (raw 4-byte) ISENABLED
+0x1005A5F7  (raw 4-byte) GRAPHICS
+0x1005A6BF  (raw 4-byte) ISVSYNC
+0x1005A6FC  (raw 4-byte) GRAPHICS
+0x1005A7D4  (raw 4-byte) ISDIRECTX9
+0x1005A811  (raw 4-byte) GRAPHICS
+0x1005AB19  call dword ptr [0x100ca244]             ; USER32.dll!KillTimer
+0x1005AB29  call dword ptr [0x100ca240]             ; USER32.dll!SetTimer
+0x1005ACF0  dec dword ptr [ebx + 0xca24035]        ; USER32.dll!SetTimer
+0x1005B6F8  push 0x100f8ea8                         ; SENDTOALL
+0x1005B726  push 0x100f8eb4                         ; QUICKCHAT
+0x1005B890  push 0x100f8b40                         ; HOTKEYS
+0x1005B92F  push 0x100f8de8                         ; UTILUPDATE
+0x1005B9D5  push 0x100f8df4                         ; UTILWINDOWMODE
+0x1005BA6A  (raw 4-byte) USER32.dll!GetWindowLongA
+0x1005BA8B  (raw 4-byte) USER32.dll!SetWindowLongA
+0x1005BA95  call dword ptr [0x100ca20c]             ; USER32.dll!SetWindowPlacement
+0x1005BAAB  call dword ptr [0x100ca234]             ; USER32.dll!SetWindowPos
+0x1005BAD2  push 0x100f8e04                         ; UTILMOUSELOCK
+0x1005BB75  push 0x100f8e50                         ; UTILWIDESCREEN
+0x1005BC11  push 0x100f8e60                         ; UTILPAUSE
+0x1005BCD0  push 0x100f8e6c                         ; UTILCLEARMESSAGES
+0x1005BD80  push 0x100f8e80                         ; UTILCLEARCHAT
+0x1005BE2D  push 0x100f8e14                         ; CAMERAOVERRRIDE
+0x1005BF05  push 0x100f8e24                         ; UNITSAVE
+0x1005C04C  push 0x100f8e30                         ; UNITSELECT
+0x1005C116  push 0x100f8e3c                         ; UNITAUTOSELECTION
+0x1005C1B2  push 0x100f8ec0                         ; UNITCLEARSELECTION
+0x1005C24B  push 0x100f8ed4                         ; CAMERARESTORE
+0x1005C2D9  push 0x100f8ee4                         ; UTILUI
+0x1005C37A  push 0x100f8eec                         ; UTILTOGGLEMULTIBOARD
+0x1005C466  push 0x100f8e90                         ; UTILSHOWHIDEMULTIBOARD
+0x1005C685  push 0x100f8f0c                         ; EMPTY
+0x1005C74E  push 0x100f8f0c                         ; EMPTY
+0x1005C891  push 0x100f8f78                         ; (null)
+0x1005C8C6  push 0x100f8f78                         ; (null)
+0x1005C8EE  push 0x100f8f78                         ; (null)
+0x1005C916  push 0x100f8f78                         ; (null)
+0x1005CB53  ror byte ptr [ecx + 0x1468b445], 0x8f  ; LOCALISATION
+0x1005CB81  push 0x100f8f24                         ; DESCRIPTION
+0x1005CBB3  push 0x100f8f30                         ; COMMANDS
+0x1005CD6A  push 0x100f8f84                         ; trigger
+0x1005CD95  push 0x100f8f30                         ; COMMANDS
+0x1005CEF4  push 0x100f8f8c                         ; setwfedebug
+0x1005CF65  push 0x100f8f44                         ; useconsole
+0x1005CFD6  push 0x100f8f50                         ; gethandles
+0x1005D047  push 0x100f8f5c                         ; printagents
+0x1005D0B8  push 0x100f8f68                         ; printhandles
+0x1005D129  push 0x100f8fc8                         ; printterraindata
+0x1005D19A  push 0x100f8fdc                         ; printstringdata
+0x1005D20B  push 0x100f8fec                         ; refreshmemory
+0x1005D27C  push 0x100f8ffc                         ; getmodel
+0x1005D2ED  push 0x100f8f98                         ; getmodelex
+0x1005D35E  push 0x100f8fa4                         ; getfuncname
+0x1005D3CF  push 0x100f8fb0                         ; getfunction
+0x1005D440  push 0x100f8fbc                         ; getvariable
+0x1005D4B1  push 0x100f9034                         ; executefuncex
+0x1005D522  push 0x100f9044                         ; converthandle
+0x1005D593  push 0x100f9054                         ; getfromhash
+0x1005D604  push 0x100f9060                         ; getability
+0x1005D675  push 0x100f9008                         ; setabilitylevel
+0x1005D6E6  push 0x100f9018                         ; setlevel
+0x1005D757  push 0x100f9024                         ; setstr
+0x1005D7C8  push 0x100f902c                         ; setagi
+0x1005D839  push 0x100f90a0                         ; setint
+0x1005D8AA  push 0x100f90a8                         ; setstats
+0x1005D91B  push 0x100f90b4                         ; sethp
+0x1005D98C  push 0x100f90bc                         ; setmp
+0x1005D9FD  push 0x100f906c                         ; sethpreg
+0x1005DA6E  push 0x100f9078                         ; setmpreg
+0x1005DADF  push 0x100f9084                         ; setattack
+0x1005DB50  push 0x100f9090                         ; setacquirerange
+0x1005DBC1  push 0x100f90e8                         ; setrange
+0x1005DC32  push 0x100f90f4                         ; setacd
+0x1005DCA3  push 0x100f90fc                         ; setas
+0x1005DD14  push 0x100f9104                         ; setarmour
+0x1005DD85  push 0x100f90c4                         ; settoid
+0x1005DDF6  push 0x100f90cc                         ; setowner
+0x1005DE67  push 0x100f90d8                         ; learn
+0x1005DED8  push 0x100f90e0                         ; unlearn
+0x1005DF49  push 0x100f9144                         ; setscale
+0x1005DFBA  push 0x100f9150                         ; settimescale
+0x1005E02B  push 0x100f9160                         ; panim
+0x1005E09C  push 0x100f9168                         ; setms
+0x1005E10D  push 0x100f9110                         ; setmovetype
+0x1005E17E  push 0x100f911c                         ; setitemslots
+0x1005E1EF  push 0x100f912c                         ; setmodel
+0x1005E260  push 0x100f9138                         ; setportrait
+0x1005E2D1  push 0x100f9190                         ; settimedlifestate
+0x1005E342  push 0x100f91a4                         ; setcharges
+0x1005E3B3  push 0x100f91b0                         ; stringhash
+0x1005E424  push 0x100f91bc                         ; hashbreaker
+0x1005E495  push 0x100f9170                         ; setfood
+0x1005E506  push 0x100f9178                         ; share
+0x1005E577  push 0x100f9180                         ; unshare
+0x1005E5E8  push 0x100f9188                         ; create
+0x1005E6CA  push 0x100f91ec                         ; kill
+0x1005E73B  push 0x100f8f04                         ; remove
+0x1005E7AC  push 0x100f91f4                         ; teleport
+0x1005E81D  push 0x100f9200                         ; location
+0x1005E88E  push 0x100f91c8                         ; invul
+0x1005E8FF  push 0x100f91d0                         ; uninvul
+0x1005E944  push 0x100f91d8                         ; heal
+0x1005E9A9  push 0x100f91e0                         ; restore
+0x1005EA04  jmp ptr [eax - 0x6c]                   ; pause
+0x1005EA32  jmp ptr [eax + 0x30]                   ; unpause
+0x1005EA60  jmp ptr [eax + 0x38]                   ; dropitems
+0x1005EA8B  and dword ptr [edx + 0x4468fffb], esi  ; copyitems
+0x1005EAE7  lds esi, ptr [ecx + 0x3c68fffb]        ; copy
+0x1005EB18  jmp ptr [eax + 0x10]                   ; nocd
+0x1005EB48  (raw 4-byte) version
+0x1005EB71  cmp esi, dword ptr [ecx + 0x2068fffb]  ; gamebase
+0x1005EBA4  jl 0x1005eb38                         ; gametype
+0x1005EBFE  jmp ptr [eax - 0x74]                   ; rsgcamera
+0x1005EC29  xor dword ptr [eax - 0x67970005], 0xffffff92 ; showmap
+0x1005EC5A  jmp ptr [eax + 0x50]                   ; hidemap
+0x1005EC88  jmp ptr [eax + 0x58]                   ; nobounds
+0x1005ECB6  jmp ptr [eax + 0x64]                   ; defbounds
+0x1005ECE4  jmp ptr [eax + 0x70]                   ; checkaxis
+0x1005ED12  jmp ptr [eax + 0x28]                   ; handlecounter
+0x1005EDFD  push 0x100f9338                         ; TestCommands.ini
+0x1005F32A  (raw 4-byte) KERNEL32.dll!TlsGetValue
+0x1005F3DD  (raw 4-byte) CFunction: {:08X}
+0x1005F536  jmp ptr [eax - 0x38]                   ; {:d}
+0x1005F540  mov word ptr [ebp - 0x33970006], gs    ; {:f}
+0x1005F554  jmp ptr [eax + 0x3c]                   ; {:08X}
+0x1005F605  (raw 4-byte) jVariable: var {:08X} | {} {} = {}
+0x1005F663  (raw 4-byte) handle = {:d} | agent = {:08X}
+0x1005F90E  (raw 4-byte) AgentTag( {:d}, {:d} ): agentBase = {:08X} | agent = {:08X}
+0x1005F9E1  (raw 4-byte) {} {:f}
+0x1005FAAC  (raw 4-byte) {} {}
+0x1005FB3E  push 0x100efbc8                         ; {:d}
+0x1005FB74  push 0x100f93e8                         ; {} {}
+0x1005FBA6  (raw 4-byte) {} {:d}
+0x1005FCCA  adc byte ptr [eax - 4], ch             ; CAbility: {:08X}
+0x1005FEF7  (raw 4-byte) [ '{}' | {:d} ] {:d}
+0x1005FF30  push 0x100f93e0                         ; ERROR!
+0x1005FF46  push 0x100f93e8                         ; {} {}
+0x1005FFB4  (raw 4-byte) ERROR!
+0x1005FFE1  (raw 4-byte) {} {:d}
+0x100601F3  (raw 4-byte) {} '{}'
+0x10060341  push 0x100f9384                         ; '{}'
+0x100603B7  push 0x100f93e0                         ; ERROR!
+0x100603CD  push 0x100f93e8                         ; {} {}
+0x100604D9  push 0x100f9384                         ; '{}'
+0x100606E2  add eax, 0xf93e868                     ; {} {}
+0x1006078E  call dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x100607EE  (raw 4-byte) ==============  String Analysis  ==============
+0x1006080D  (raw 4-byte) StringData.txt
+0x10060947  (raw 4-byte) String #{:d}: {}
+0x1006097B  (raw 4-byte) StringData.txt
+0x10060A87  (raw 4-byte) {}Count: {:d} | Total Length: {:d} | Total Memory Occupied: {:d} (bytes)
+0x10060AAF  (raw 4-byte) StringData.txt
+0x10060B81  (raw 4-byte) ===============================================
+0x10060BBB  (raw 4-byte) StringData.txt
+0x10060C81  push 0x100f93bc                         ; StringData.txt
+0x10060C88  push 0x100f93e8                         ; {} {}
+0x10060D38  (raw 4-byte) {}( {} ) = int = {:d} | uint = {:d} | {:08X}
+0x10060D65  (raw 4-byte) {} {:d}
+0x10060E59  (raw 4-byte) {}( {:d} ) {} {}( {:d} )
+0x1006106E  push 0x100f9430                         ; {} [ '{}' | {:d} ]
+0x10061088  push 0x100f9444                         ; {} ERROR!
+0x10061267  push 0x100f950c                         ; "{}" [{:d} bytes : {}]
+0x100615BF  push 0x100f9554                         ; =============
+0x10061622  push 0x100f95b8                         ; item = {:08X}
+0x100616D3  push 0x100f95c8                         ; {} = [ '{}' | {:d} ]
+0x100617CB  push 0x100f9430                         ; {} [ '{}' | {:d} ]
+0x100618BD  push 0x100f9604                         ; unit = {:08X}
+0x1006198F  (raw 4-byte) {} {} = [ '{}' | {:d} ]
+0x100619E5  push 0x100f9580                         ; {} x = {:.2f} | y = {:.2f} | z = {:.2f}
+0x10061ABE  push 0x100f93f0                         ; {} {:f}
+0x10061BDB  (raw 4-byte) [ '{}' | {:d} ]
+0x10061C12  (raw 4-byte) ERROR!
+0x10061C41  push 0x100f93e8                         ; {} {}
+0x10061C9A  push 0x100f9690                         ; dest = {:08X}
+0x10061D60  push 0x100f9618                         ; {} {} = [ '{}' | {:d} ]
+0x10061DAE  push 0x100f96a0                         ; {} x = {:f} | y = {:f} | z = {:f}
+0x10061DD7  (raw 4-byte) {} x = {:f} | y = {:f} | z = {:f}
+0x10061E26  push 0x100f93e8                         ; {} {}
+0x10061FC7  push 0x100f9638                         ; Build
+0x10061FF7  push 0x100f9630                         ; Sell
+0x10062036  (raw 4-byte) Call to Arms
+0x10062075  push 0x100f85c4                         ; Queue
+0x10062146  (raw 4-byte) Upgrade
+0x10062264  sub byte ptr [eax + 0x40], ch          ; CCommandButton->{:08X} | object->{:08X}
+0x1006237C  (raw 4-byte) {}->{} [ '{}'->'{}' | {:d}->{:d} ]
+0x100623EE  push 0x100f9430                         ; {} [ '{}' | {:d} ]
+0x10062428  push 0x100f93e0                         ; ERROR!
+0x1006243E  push 0x100f93e8                         ; {} {}
+0x100624D9  and dword ptr [eax + 0x1c], ebp        ; pButton = {:08X} | unit = {:08X}
+0x100625CC  (raw 4-byte) {} {} [ '{}' | {:d} ] Level: {:d}
+0x10062640  (raw 4-byte) indicator = {:08X} | buff = {:08X}
+0x100626E2  push 0x100f9788                         ; {} {} [ '{}' | {:d} ]
+0x10062741  (raw 4-byte) enteredFrame = {:08X} | FrameType = {:d}
+0x1006281C  (raw 4-byte) Debug Mode:
+0x10062828  add eax, 0xf93e868                     ; {} {}
+0x10062867  (raw 4-byte) UseConsole:
+0x10062873  add eax, 0xf93e868                     ; {} {}
+0x100628BC  push 0x100f980c                         ; WFE Console
+0x100628ED  push 0x100f8930                         ; {} {:d}
+0x1006290E  jmp ptr [eax + 0x18]                   ; AgentCount.txt
+0x10062938  jmp ptr [eax + 0x18]                   ; AgentCount.txt
+0x10062940  push 0x100f93e8                         ; {} {}
+0x10062967  jmp ptr [eax + 0x28]                   ; HandleCount.txt
+0x10062994  add eax, 0xf93e868                     ; {} {}
+0x100629B9  (raw 4-byte) {} {}
+0x100629D4  adc eax, 0x100ca018                    ; KERNEL32.dll!GetCurrentProcess
+0x100629DA  call dword ptr [0x100ca13c]             ; KERNEL32.dll!K32EmptyWorkingSet
+0x10062A43  (raw 4-byte) Game {} {} | WFE {} {}
+0x10062A68  push 0x100f97cc                         ; {} GameDll = {:08X} | StormDll = {:08X}
+0x10062A8D  add eax, 0xf93e868                     ; {} {}
+0x10062AFD  cmp eax, 0x8afc6850                    ; ResetToGameCamera
+0x10062B24  push 0x100f97f4                         ; FogEnable
+0x10062B30  push 0x100f9864                         ; FogMaskEnable
+0x10062B55  push 0x100f97f4                         ; FogEnable
+0x10062BB4  push 0x100f9580                         ; {} x = {:.2f} | y = {:.2f} | z = {:.2f}
+0x10062C11  add eax, 0xf93e868                     ; {} {}
+0x1006328F  push 0x100f8034                         ; invalid stoi argument
+0x10063296  imul eax, dword ptr [ebx], 0x804c6800   ; stoi argument out of range
+0x100632A2  add byte ptr [eax + 0x34], ch          ; invalid stoi argument
+0x100632AA  imul eax, dword ptr [ebx], 0x804c6800   ; stoi argument out of range
+0x10063662  push 0x100f9878                         ; mute
+0x1006366F  push 0x100f9880                         ; unmute
+0x1006390A  or ch, byte ptr [eax + 0x3c]          ; {} is {}d!
+0x10063973  push 0x100f9848                         ; You can't mute yourself!
+0x100639F8  push 0x100f8034                         ; invalid stoi argument
+0x100639FE  ljmp 0x804c:0x68000361                  ; stoi argument out of range
+0x10063D78  adc eax, 0x100ca1e8                    ; USER32.dll!BlockInput
+0x10063E2E  call dword ptr [0x100ca1e8]             ; USER32.dll!BlockInput
+0x10064436  push 0x100f8ea8                         ; SENDTOALL
+0x10064464  push 0x100f8eb4                         ; QUICKCHAT
+0x10064551  push 0x100f8ea8                         ; SENDTOALL
+0x1006457F  push 0x100f8eb4                         ; QUICKCHAT
+0x10064662  call dword ptr [0x100ca244]             ; USER32.dll!KillTimer
+0x10064ED2  (raw 4-byte) StringHash
+0x10064F9B  ror byte ptr [ebp + eax*4 + 0xf], 1    ; Player
+0x10064FDB  loopne 0x10065029                         ; Player
+0x10065CDD  loopne 0x10065d07                         ; HandleCount.txt
+0x10065D9D  loopne 0x10065d3f                         ; TerrainMemory.txt
+0x100663DF  call dword ptr [0x100ca1ec]             ; USER32.dll!GetWindowLongA
+0x10066422  call dword ptr [0x100ca1f4]             ; USER32.dll!GetWindowInfo
+0x10066508  call dword ptr [0x100ca1f8]             ; USER32.dll!ClipCursor
+0x10066513  call dword ptr [0x100ca224]             ; USER32.dll!GetCursorPos
+0x10066525  call dword ptr [0x100ca220]             ; USER32.dll!SetCursorPos
+0x1006653E  call dword ptr [0x100ca1f8]             ; USER32.dll!ClipCursor
+0x10066673  call dword ptr [0x100ca23c]             ; USER32.dll!GetKeyState
+0x100666B9  call dword ptr [0x100ca228]             ; USER32.dll!SendInput
+0x100666C1  call dword ptr [0x100ca23c]             ; USER32.dll!GetKeyState
+0x10066707  call dword ptr [0x100ca228]             ; USER32.dll!SendInput
+0x10066ACD  push 0x100f7a74                         ; WheelUp
+0x10066B52  push 0x100f7a68                         ; WheelDown
+0x10066BCB  call dword ptr [0x100ca23c]             ; USER32.dll!GetKeyState
+0x10066BF3  push 0x100f98c4                         ; ENABLE
+0x10066C34  push 0x100f98cc                         ; HEROBINDS
+0x10066DDB  call dword ptr [0x100ca054]             ; KERNEL32.dll!GetTickCount64
+0x10066E14  push 0x100f98d8                         ; CAMERAMOVECONTROL
+0x10066E42  push 0x100f98cc                         ; HEROBINDS
+0x10066EA1  push 0x100f98ec                         ; CAMERAMOVETIMEOUT
+0x10066ED2  push 0x100f98cc                         ; HEROBINDS
+0x10067081  push 0x100f98d8                         ; CAMERAMOVECONTROL
+0x100670AF  push 0x100f98cc                         ; HEROBINDS
+0x100671F5  push 0x100f989c                         ; DRAWSPELLAOE
+0x10067223  push 0x100f8b40                         ; HOTKEYS
+0x100672D2  push 0x100f98ac                         ; AUTOCAST
+0x10067300  push 0x100f8b40                         ; HOTKEYS
+0x100673A8  mov esi, dword ptr [0x100ca23c]        ; USER32.dll!GetKeyState
+0x100673B6  or byte ptr [ebx + 0xca23c35], cl     ; USER32.dll!GetKeyState
+0x100673CA  (raw 4-byte) SELFCAST
+0x100673FE  push 0x100f8b40                         ; HOTKEYS
+0x100674C3  lodsb al, byte ptr [esi]                 ; AUTOCAST
+0x100674ED  push 0x100f8ce4                         ; FUNCTIONS
+0x10067611  push 0x100f8c98                         ; ISHEROONLY
+0x1006763F  push 0x100f8b40                         ; HOTKEYS
+0x1006793C  (raw 4-byte) USER32.dll!GetKeyState
+0x10067980  call dword ptr [0x100ca228]             ; USER32.dll!SendInput
+0x10067F01  call dword ptr [0x100ca21c]             ; USER32.dll!GetActiveWindow
+0x10067F0B  call dword ptr [0x100ca218]             ; USER32.dll!GetForegroundWindow
+0x10068026  call dword ptr [0x100ca23c]             ; USER32.dll!GetKeyState
+0x10068048  cmp al, 0xa2                           ; USER32.dll!GetKeyState
+0x100680A8  push 0x100f7a74                         ; WheelUp
+0x100680E0  push 0x100f7a68                         ; WheelDown
+0x10068250  call dword ptr [0x100ca1f0]             ; USER32.dll!SendMessageA
+0x1006833A  call dword ptr [0x100ca240]             ; USER32.dll!SetTimer
+0x10068351  mov esi, dword ptr [0x100ca23c]        ; USER32.dll!GetKeyState
+0x10068433  call dword ptr [0x100ca200]             ; USER32.dll!DefWindowProcA
+0x10068644  push 0x100f8c54                         ; GRAPHICS
+0x100686B5  push 0x100f8d30                         ; ISENABLED
+0x10068749  push 0x100f8dc4                         ; ISVSYNC
+0x10068793  push 0x100f9910                         ; FPSLIMIT
+0x100687CC  (raw 4-byte) FPSREFRESHRATE
+0x100688AC  push 0x100f9928                         ; UNLOCKFRAMEBUFFER
+0x10068A37  push 0x100f991c                         ; Profiles\
+0x10068A4F  inc dword ptr [ebx - 0x4b97fb3c]       ; WFESettings.ini
+0x10068AA5  (raw 4-byte) Error loading config: %s
+0x10068AC7  (raw 4-byte) FILE
+0x10068AD9  jmp ptr [eax - 0x3c]                   ; SELECTED
+0x10068B48  pop esp                                ; Error loading profile: %s
+0x10068BB9  push 0x100f993c                         ; Error parsing profile: %s%s
+0x10068BCE  push 0x100f998c                         ; WIDESCREEN
+0x10068BE3  push 0x100f8ce4                         ; FUNCTIONS
+0x10068C2E  jmp ptr [eax - 0x78]                   ; MOUSELOCK
+0x10068C40  (raw 4-byte) FUNCTIONS
+0x10068C8A  jmp ptr [eax + 0x78]                   ; SINGLEPLAYERPAUSE
+0x10068C9C  (raw 4-byte) FUNCTIONS
+0x10068CE6  jmp ptr [eax - 0x80]                   ; BLPLIMITREMOVAL
+0x10068CF8  (raw 4-byte) FUNCTIONS
+0x10068D3D  jmp ptr [eax + 0x38]                   ; AUTOCASTMOUSEDELAY
+0x10068D4F  (raw 4-byte) FUNCTIONS
+0x10068DA3  jmp ptr [eax + 0x28]                   ; ENFORCEHOTKEYS
+0x10068DB5  (raw 4-byte) FUNCTIONS
+0x10068DFF  jmp ptr [eax + 0x5c]                   ; REMOVEMAPSIZELIMIT
+0x10068E11  (raw 4-byte) FUNCTIONS
+0x10068E56  jmp ptr [eax - 0x30]                   ; LOADINGNOTIFICATION
+0x10068E6C  in al, 0x8c                           ; FUNCTIONS
+0x10068EAD  jmp ptr [eax + 0x4c]                   ; CUSTOMATTACKTIP
+0x10068EBF  (raw 4-byte) FUNCTIONS
+0x10068F04  jmp ptr [eax - 0x14]                   ; EXTENDEDATTACKTIP
+0x10068F16  (raw 4-byte) FUNCTIONS
+0x10068F5B  jmp ptr [eax - 0x28]                   ; CUSTOMDEFENSETIP
+0x10068F6D  (raw 4-byte) FUNCTIONS
+0x10068FB2  jmp ptr [eax + 0x14]                   ; EXTENDEDDEFENSETIP
+0x10068FC4  (raw 4-byte) FUNCTIONS
+0x10069009  jmp ptr [eax]                          ; WRITEMAGICRESIST
+0x1006901B  (raw 4-byte) FUNCTIONS
+0x10069060  jmp ptr [eax + 0x30]                   ; ISENABLED
+0x10069072  (raw 4-byte) GRAPHICS
+0x100690BD  jmp ptr [eax - 0x58]                   ; ISFPSACTIVEINLOBBY
+0x100690CF  (raw 4-byte) GRAPHICS
+0x10069116  (raw 4-byte) FPSLIMIT
+0x10069126  (raw 4-byte) GRAPHICS
+0x1006916B  jmp ptr [eax]                          ; FPSREFRESHRATE
+0x1006917D  (raw 4-byte) GRAPHICS
+0x100691C2  jmp ptr [eax - 0x60]                   ; FPSTYPE
+0x100691D4  (raw 4-byte) GRAPHICS
+0x10069219  jmp ptr [eax + 0x28]                   ; UNLOCKFRAMEBUFFER
+0x1006922B  (raw 4-byte) GRAPHICS
+0x10069270  jmp ptr [eax - 0x30]                   ; FPSADVANCEDINFO
+0x10069282  (raw 4-byte) GRAPHICS
+0x100692D2  (raw 4-byte) ISAUTOUPDATE
+0x100692EB  push 0x100f8c54                         ; GRAPHICS
+0x1006933E  push 0x100f8c44                         ; ISAUTOUPDATE
+0x1006934F  (raw 4-byte) GRAPHICS
+0x100693F2  (raw 4-byte) ISDIRECTX9
+0x10069415  (raw 4-byte) GRAPHICS
+0x10069461  push 0x100f8db8                         ; ISDIRECTX9
+0x10069472  (raw 4-byte) GRAPHICS
+0x10069523  jmp ptr [eax - 0x3c]                   ; ISVSYNC
+0x1006954B  (raw 4-byte) GRAPHICS
+0x100695A2  push 0x100f8dc4                         ; ISVSYNC
+0x100695B3  (raw 4-byte) GRAPHICS
+0x1006964D  (raw 4-byte) ISENABLED
+0x1006965D  (raw 4-byte) CUSTOM_HEALTH_MANA
+0x100696A2  jmp ptr [eax + 0x78]                   ; ISPERCENT
+0x100696B4  (raw 4-byte) CUSTOM_HEALTH_MANA
+0x100696F9  jmp ptr [eax + 0x70]                   ; ISSHORT
+0x1006970B  (raw 4-byte) CUSTOM_HEALTH_MANA
+0x10069750  jmp ptr [eax - 0x70]                   ; ISDIGITTRUNCATE
+0x10069762  (raw 4-byte) CUSTOM_HEALTH_MANA
+0x100697A7  jmp ptr [eax - 0x7c]                   ; SHOWREGEN
+0x100697B9  (raw 4-byte) CUSTOM_HEALTH
+0x100697FE  jmp ptr [eax + 0x18]                   ; COLOUR
+0x10069810  (raw 4-byte) CUSTOM_HEALTH
+0x10069855  jmp ptr [eax - 0x7c]                   ; SHOWREGEN
+0x10069867  (raw 4-byte) CUSTOM_MANA
+0x100698AC  jmp ptr [eax + 0x18]                   ; COLOUR
+0x100698BE  (raw 4-byte) CUSTOM_MANA
+0x1006990D  (raw 4-byte) ISENABLED
+0x1006991D  (raw 4-byte) CUSTOMBARS
+0x10069962  jmp ptr [eax - 0x10]                   ; ISEXTENDED
+0x10069974  (raw 4-byte) CUSTOMBARS
+0x100699B9  jmp ptr [eax - 0x20]                   ; ISPLAYERCOLOUR
+0x100699CB  (raw 4-byte) HEALTHBAR
+0x10069A16  jmp ptr [eax - 4]                      ; ISCOLOURENABLED
+0x10069A28  (raw 4-byte) HEALTHBAR
+0x10069A90  push 0x100f9b98                         ; MODE
+0x10069AA1  (raw 4-byte) HEALTHBAR
+0x10069AEF  jmp ptr [eax + 0x30]                   ; ISENABLED
+0x10069B01  (raw 4-byte) HEALTHBAR
+0x10069B46  jmp ptr [eax - 0x68]                   ; ISHEROONLY
+0x10069B58  (raw 4-byte) HEALTHBAR
+0x10069B9D  jmp ptr [eax - 0x74]                   ; YOURCOLOUR
+0x10069BAF  (raw 4-byte) HEALTHBAR
+0x10069BF7  jmp ptr [eax - 0x54]                   ; ALLYCOLOUR
+0x10069C09  (raw 4-byte) HEALTHBAR
+0x10069C51  jmp ptr [eax - 0x60]                   ; ENEMYCOLOUR
+0x10069C63  (raw 4-byte) HEALTHBAR
+0x10069CAB  jmp ptr [eax + 0x60]                   ; NEUTRALPASSIVECOLOUR
+0x10069CBD  (raw 4-byte) HEALTHBAR
+0x10069D05  jmp ptr [eax + 0x48]                   ; NEUTRALAGGRESSIVECOLOUR
+0x10069D17  (raw 4-byte) HEALTHBAR
+0x10069D5F  jmp ptr [eax + 0x48]                   ; HEIGHT
+0x10069D71  (raw 4-byte) HEALTHBAR
+0x10069DBC  jmp ptr [eax + 0x30]                   ; ISENABLED
+0x10069DCE  (raw 4-byte) MANABAR
+0x10069E13  jmp ptr [eax - 0x68]                   ; ISHEROONLY
+0x10069E25  (raw 4-byte) MANABAR
+0x10069E6A  jmp ptr [eax + 0x18]                   ; COLOUR
+0x10069E7C  (raw 4-byte) MANABAR
+0x10069EC4  jmp ptr [eax + 0x48]                   ; HEIGHT
+0x10069ED6  (raw 4-byte) MANABAR
+0x10069F21  jmp ptr [eax - 4]                      ; ISCOLOURENABLED
+0x10069F33  (raw 4-byte) INDICATORS
+0x10069F78  jmp ptr [eax - 4]                      ; ATTACKCOLOUR
+0x10069F8A  (raw 4-byte) INDICATORS
+0x10069FD2  jmp ptr [eax - 0x14]                   ; SPELLAOECOLOUR
+0x10069FE4  (raw 4-byte) INDICATORS
+0x1006A02C  jmp ptr [eax + 0x20]                   ; SIGHTRADIUSCOLOUR
+0x1006A03E  (raw 4-byte) INDICATORS
+0x1006A086  jmp ptr [eax + 0xc]                    ; DRAWATTACKONHOVER
+0x1006A098  (raw 4-byte) HOTKEYS
+0x1006A0DC  jmp ptr [eax - 0x34]                   ; DRAWATTACK
+0x1006A0EE  (raw 4-byte) HOTKEYS
+0x1006A132  jmp ptr [eax - 0x48]                   ; DRAWSPELLAOEONHOVER
+0x1006A144  (raw 4-byte) HOTKEYS
+0x1006A188  jmp ptr [eax - 0x64]                   ; DRAWSPELLAOE
+0x1006A19A  (raw 4-byte) HOTKEYS
+0x1006A1DE  jmp ptr [eax - 0x24]                   ; DRAWSIGHTRADIUS
+0x1006A1F0  (raw 4-byte) HOTKEYS
+0x1006A234  jmp ptr [eax + 0x30]                   ; ISENABLED
+0x1006A248  xchg byte ptr [eax + 0x24], ch          ; DAMAGEDRAW
+0x1006A28B  jmp ptr [eax - 0x68]                   ; ISHEROONLY
+0x1006A29D  (raw 4-byte) DAMAGEDRAW
+0x1006A2E2  jmp ptr [eax - 0x5c]                   ; ISALLY
+0x1006A2F4  (raw 4-byte) DAMAGEDRAW
+0x1006A339  jmp ptr [eax - 0x54]                   ; ISENEMY
+0x1006A34B  (raw 4-byte) DAMAGEDRAW
+0x1006A390  jmp ptr [eax - 0x4c]                   ; ISMY
+0x1006A3A2  (raw 4-byte) DAMAGEDRAW
+0x1006A3E7  jmp ptr [eax - 0x10]                   ; PHYSICALCOLOUR
+0x1006A3F9  (raw 4-byte) DAMAGEDRAW
+0x1006A441  jmp ptr [eax]                          ; MAGICALCOLOUR
+0x1006A453  (raw 4-byte) DAMAGEDRAW
+0x1006A49B  jmp ptr [eax + 0x3c]                   ; PHYSICALOFFSET
+0x1006A4AD  (raw 4-byte) DAMAGEDRAW
+0x1006A4F8  jmp ptr [eax + 0x4c]                   ; MAGICALOFFSET
+0x1006A50A  (raw 4-byte) DAMAGEDRAW
+0x1006A555  jmp ptr [eax + 0x48]                   ; HEIGHT
+0x1006A567  (raw 4-byte) DAMAGEDRAW
+0x1006A5B2  jmp ptr [eax + 0x64]                   ; ANGLE
+0x1006A5C4  (raw 4-byte) DAMAGEDRAW
+0x1006A60F  jmp ptr [eax + 0x5c]                   ; SPEED
+0x1006A621  (raw 4-byte) DAMAGEDRAW
+0x1006A66C  jmp ptr [eax + 0x1c]                   ; SIZE
+0x1006A67E  (raw 4-byte) DAMAGEDRAW
+0x1006A6C9  jmp ptr [eax + 0x10]                   ; DURATION
+0x1006A6DB  (raw 4-byte) DAMAGEDRAW
+0x1006A726  jmp ptr [eax + 0x2c]                   ; CAMERAMODIFIABLE
+0x1006A738  (raw 4-byte) CAMERA
+0x1006A77D  jmp ptr [eax - 4]                      ; DISTANCE
+0x1006A78F  (raw 4-byte) CAMERA
+0x1006A7DA  jmp ptr [eax + 0x18]                   ; DISTANCE_MIN
+0x1006A7EC  (raw 4-byte) CAMERA
+0x1006A837  jmp ptr [eax + 8]                      ; DISTANCE_MAX
+0x1006A849  (raw 4-byte) CAMERA
+0x1006A894  jmp ptr [eax + 0x48]                   ; HEIGHT
+0x1006A8A6  (raw 4-byte) CAMERA
+0x1006A8EC  jmp ptr [eax + 0x34]                   ; HEIGHT_MIN
+0x1006A8FE  (raw 4-byte) CAMERA
+0x1006A949  jmp ptr [eax + 0x28]                   ; HEIGHT_MAX
+0x1006A95B  (raw 4-byte) CAMERA
+0x1006A9B8  (raw 4-byte) CAMERA
+0x1006AA03  jmp ptr [eax + 0x40]                   ; PITCH
+0x1006AA15  (raw 4-byte) CAMERA
+0x1006AA60  jmp ptr [eax + 4]                      ; DISTANCESTEP
+0x1006AA72  (raw 4-byte) CAMERA
+0x1006AABD  jmp ptr [eax - 0x48]                   ; HEIGHTSTEP
+0x1006AACF  (raw 4-byte) CAMERA
+0x1006AB1A  jmp ptr [eax - 0x2c]                   ; YAWSTEP
+0x1006AB2C  (raw 4-byte) CAMERA
+0x1006AB77  jmp ptr [eax - 0x24]                   ; PITCHSTEP
+0x1006AB89  (raw 4-byte) CAMERA
+0x1006ABD4  jmp ptr [eax + 0x50]                   ; FARZ
+0x1006ABE8  mov esp, 0xf71f068                     ; CAMERA
+0x1006AC31  jmp ptr [eax + 0x58]                   ; FOGZ
+0x1006AC43  (raw 4-byte) CAMERA
+0x1006AC95  (raw 4-byte) ISENABLED
+0x1006ACA5  (raw 4-byte) DELAY
+0x1006ACEA  jmp ptr [eax - 0x44]                   ; GAMESTART
+0x1006ACFC  (raw 4-byte) DELAY
+0x1006AD54  (raw 4-byte) DELAY
+0x1006ADB4  push 0x100f9c74                         ; BATTLE.NET
+0x1006ADBD  jmp ptr [eax - 0x38]                   ; DELAY
+0x1006AE03  jmp ptr [eax - 0x64]                   ; RMCCLICK
+0x1006AE15  (raw 4-byte) DELAY
+0x1006AE5A  jmp ptr [eax - 0x70]                   ; INSTANTRMC
+0x1006AE6C  (raw 4-byte) FUNCTIONS
+0x1006AEB1  jmp ptr [eax + 0x68]                   ; BORDERLESS
+0x1006AEC3  (raw 4-byte) LAUNCHER
+0x1006AF08  jmp ptr [eax - 0x58]                   ; SENDTOALL
+0x1006AF1A  (raw 4-byte) QUICKCHAT
+0x1006AF5F  jmp ptr [eax - 0x18]                   ; UTILUPDATE
+0x1006AF71  (raw 4-byte) HOTKEYS
+0x1006AFB5  jmp ptr [eax - 0xc]                    ; UTILWINDOWMODE
+0x1006AFC7  (raw 4-byte) HOTKEYS
+0x1006B00B  jmp ptr [eax + 4]                      ; UTILMOUSELOCK
+0x1006B01D  (raw 4-byte) HOTKEYS
+0x1006B061  jmp ptr [eax + 0x50]                   ; UTILWIDESCREEN
+0x1006B073  (raw 4-byte) HOTKEYS
+0x1006B0B7  jmp ptr [eax + 0x60]                   ; UTILPAUSE
+0x1006B0C9  (raw 4-byte) HOTKEYS
+0x1006B10D  jmp ptr [eax - 0x1c]                   ; UTILUI
+0x1006B11F  (raw 4-byte) HOTKEYS
+0x1006B163  jmp ptr [eax + 0x6c]                   ; UTILCLEARMESSAGES
+0x1006B175  (raw 4-byte) HOTKEYS
+0x1006B1B9  jmp ptr [eax - 0x80]                   ; UTILCLEARCHAT
+0x1006B1CB  (raw 4-byte) HOTKEYS
+0x1006B20F  jmp ptr [eax - 0x14]                   ; UTILTOGGLEMULTIBOARD
+0x1006B221  (raw 4-byte) HOTKEYS
+0x1006B265  jmp ptr [eax - 0x70]                   ; UTILSHOWHIDEMULTIBOARD
+0x1006B27B  (raw 4-byte) HOTKEYS
+0x1006B2BB  jmp ptr [eax + 0x14]                   ; CAMERAOVERRRIDE
+0x1006B2CD  (raw 4-byte) HOTKEYS
+0x1006B311  jmp ptr [eax - 0x2c]                   ; CAMERARESTORE
+0x1006B323  (raw 4-byte) HOTKEYS
+0x1006B367  jmp ptr [eax - 0x18]                   ; CAMERATILT
+0x1006B379  (raw 4-byte) HOTKEYS
+0x1006B3BD  jmp ptr [eax - 0xc]                    ; CAMERADISTANCE
+0x1006B3CF  (raw 4-byte) HOTKEYS
+0x1006B413  jmp ptr [eax + 0x14]                   ; CAMERAHEIGHT
+0x1006B425  (raw 4-byte) HOTKEYS
+0x1006B469  jmp ptr [eax - 0x3c]                   ; CAMERAROTATION
+0x1006B47B  (raw 4-byte) HOTKEYS
+0x1006B4BF  jmp ptr [eax + 0x24]                   ; UNITSAVE
+0x1006B4D1  (raw 4-byte) HOTKEYS
+0x1006B515  jmp ptr [eax + 0x30]                   ; UNITSELECT
+0x1006B527  (raw 4-byte) HOTKEYS
+0x1006B56B  jmp ptr [eax + 0x3c]                   ; UNITAUTOSELECTION
+0x1006B57D  (raw 4-byte) HOTKEYS
+0x1006B5C1  jmp ptr [eax - 0x40]                   ; UNITCLEARSELECTION
+0x1006B5D3  (raw 4-byte) HOTKEYS
+0x1006B629  (raw 4-byte) UNITMOVECAMERA
+0x1006B63C  push 0x100f8b40                         ; HOTKEYS
+0x1006B6B2  jmp ptr [eax + 0x44]                   ; FASTMENU
+0x1006B6C4  (raw 4-byte) FUNCTIONS
+0x1006B709  jmp ptr [eax + 0x34]                   ; ISCUSTOMUIDRAW
+0x1006B71B  (raw 4-byte) INTERFACE
+0x1006B771  adc byte ptr [eax + eax*8 + 0x30686c74], al ; ISENABLED
+0x1006B79A  (raw 4-byte) UPGRADEDUI
+0x1006B7E9  push 0x100f8d30                         ; ISENABLED
+0x1006B7FA  (raw 4-byte) UPGRADEDUI
+0x1006B88F  (raw 4-byte) ISSLIMCURSOR
+0x1006B89F  (raw 4-byte) INTERFACE
+0x1006B8EB  push 0x100f9cdc                         ; ISHEROOVERHEADTIP
+0x1006B8FC  (raw 4-byte) INTERFACE
+0x1006B948  push 0x100f9d0c                         ; ISBLACKBARS
+0x1006B959  (raw 4-byte) INTERFACE
+0x1006B9A5  push 0x100f9d00                         ; ISINFOBAR
+0x1006B9B6  (raw 4-byte) INTERFACE
+0x1006BA02  push 0x100f9cac                         ; ISITEMBAR
+0x1006BA13  (raw 4-byte) INTERFACE
+0x1006BA5F  push 0x100f9c9c                         ; ISABILITYBAR
+0x1006BA70  (raw 4-byte) INTERFACE
+0x1006BABC  push 0x100f9cc8                         ; ISALLYABILITYBAR
+0x1006BACD  (raw 4-byte) INTERFACE
+0x1006BB19  push 0x100f9cb8                         ; ISREPLAYPANEL
+0x1006BB2A  (raw 4-byte) INTERFACE
+0x1006BB76  push 0x100f9d60                         ; ISTIMEOFDAYINDICATOR
+0x1006BB87  (raw 4-byte) INTERFACE
+0x1006BBD3  push 0x100f9d4c                         ; ISINVENTORYCOVER
+0x1006BBE4  (raw 4-byte) INTERFACE
+0x1006BC30  push 0x100f9d88                         ; ISHEROBAR
+0x1006BC41  (raw 4-byte) INTERFACE
+0x1006BC8D  push 0x100f9d78                         ; ISLEADERBOARD
+0x1006BC9E  (raw 4-byte) INTERFACE
+0x1006BCEA  push 0x100f9d24                         ; ISMULTIBOARD
+0x1006BCFB  (raw 4-byte) INTERFACE
+0x1006BD47  push 0x100f9d18                         ; ISPEONBAR
+0x1006BD58  (raw 4-byte) INTERFACE
+0x1006BDA4  push 0x100f9d40                         ; ISPORTRAIT
+0x1006BDB5  (raw 4-byte) INTERFACE
+0x1006BE01  push 0x100f9d34                         ; ISCONSOLE
+0x1006BE12  (raw 4-byte) INTERFACE
+0x1006BE5E  push 0x100f9de4                         ; ISRESOURCEBAR
+0x1006BE6F  (raw 4-byte) INTERFACE
+0x1006BEBB  push 0x100f9dd4                         ; ISUPPERMENUBAR
+0x1006BECC  (raw 4-byte) INTERFACE
+0x1006BF18  push 0x100f9e08                         ; ISMINIMAP
+0x1006BF29  (raw 4-byte) INTERFACE
+0x1006BF75  push 0x100f9df4                         ; ISMINIMAPBUTTONS
+0x1006BF8C  push 0x100f9c5c                         ; INTERFACE
+0x1006BFD2  push 0x100f9da4                         ; ISTOOLTIP
+0x1006BFE3  (raw 4-byte) INTERFACE
+0x1006C02F  push 0x100f9d94                         ; ISATTACHTOOLTIP
+0x1006C040  (raw 4-byte) INTERFACE
+0x1006C08C  push 0x100f9dc0                         ; ISAUTOASPECTRATIO
+0x1006C09D  (raw 4-byte) UPGRADEDUI
+0x1006C103  (raw 4-byte) ASPECTRATIOID
+0x1006C113  (raw 4-byte) UPGRADEDUI
+0x1006C16C  (raw 4-byte) ASPECTRATIOID
+0x1006C174  jmp ptr [eax + 0x50]                   ; UPGRADEDUI
+0x1006C1DA  push 0x100f8d30                         ; ISENABLED
+0x1006C1EB  (raw 4-byte) BUFFUI
+0x1006C237  push 0x100f9e48                         ; ISUPGRADEDBUFFBAR
+0x1006C248  (raw 4-byte) BUFFUI
+0x1006C294  push 0x100f9e78                         ; ISDRAWBUFFDURATION
+0x1006C2A5  (raw 4-byte) BUFFUI
+0x1006C2F1  push 0x100f9e64                         ; ISDRAWAURADURATION
+0x1006C302  (raw 4-byte) BUFFUI
+0x1006C34E  push 0x100f9e20                         ; SHOWINDICATOR
+0x1006C35F  (raw 4-byte) BUFFUI
+0x1006C3AB  push 0x100f9e14                         ; ENABLEFADE
+0x1006C3BC  (raw 4-byte) BUFFUI
+0x1006C408  push 0x100f9e3c                         ; REFRESHTIME
+0x1006C419  (raw 4-byte) BUFFUI
+0x1006C457  push 0x100f9e3c                         ; REFRESHTIME
+0x1006C463  jmp ptr [eax + 0x5c]                   ; BUFFUI
+0x1006C4C4  push 0x100f9e30                         ; TEXTSIZE
+0x1006C4D5  (raw 4-byte) BUFFUI
+0x1006C518  (raw 4-byte) TEXTSIZE
+0x1006C532  (raw 4-byte) BUFFUI
+0x1006C59B  (raw 4-byte) ISENABLED
+0x1006C5AB  (raw 4-byte) COOLDOWNUI
+0x1006C5F7  push 0x100f9eb8                         ; OVERRIDEINDICATOR
+0x1006C608  (raw 4-byte) COOLDOWNUI
+0x1006C654  push 0x100f9e20                         ; SHOWINDICATOR
+0x1006C665  (raw 4-byte) COOLDOWNUI
+0x1006C6B2  (raw 4-byte) DISPLAYTIME
+0x1006C6C2  (raw 4-byte) COOLDOWNUI
+0x1006C70E  push 0x100f88d0                         ; DISPLAYMINUTES
+0x1006C71F  (raw 4-byte) COOLDOWNUI
+0x1006C76B  push 0x100f9e3c                         ; REFRESHTIME
+0x1006C77C  (raw 4-byte) COOLDOWNUI
+0x1006C7B5  (raw 4-byte) REFRESHTIME
+0x1006C7C0  jmp ptr [eax - 0x20]                   ; COOLDOWNUI
+0x1006C821  push 0x100f9e30                         ; TEXTSIZE
+0x1006C832  (raw 4-byte) COOLDOWNUI
+0x1006C875  (raw 4-byte) TEXTSIZE
+0x1006C88F  (raw 4-byte) COOLDOWNUI
+0x1006C8F2  push 0x100f9edc                         ; TEXTCOLOUR
+0x1006C903  (raw 4-byte) COOLDOWNUI
+0x1006C94F  push 0x100f9ecc                         ; SHADOWCOLOUR
+0x1006C960  (raw 4-byte) COOLDOWNUI
+0x1006C9B5  (raw 4-byte) AUTOCAST
+0x1006C9C5  (raw 4-byte) FUNCTIONS
+0x1006CA11  push 0x100f98b8                         ; SELFCAST
+0x1006CA22  (raw 4-byte) HOTKEYS
+0x1006CA6D  push 0x100f98ac                         ; AUTOCAST
+0x1006CA7E  (raw 4-byte) HOTKEYS
+0x1006CAC9  push 0x100f8c98                         ; ISHEROONLY
+0x1006CAE5  jmp ptr [eax + 0x40]                   ; HOTKEYS
+0x1006CC21  push 0x100f9ea0                         ; SMARTCAST
+0x1006CC7E  push 0x100f9e94                         ; KEYBINDS
+0x1006CD30  push 0x100f9ea0                         ; SMARTCAST
+0x1006CD8D  push 0x100f9e94                         ; KEYBINDS
+0x1006CE39  push 0x100f9ea0                         ; SMARTCAST
+0x1006CE96  push 0x100f9e94                         ; KEYBINDS
+0x1006D22A  (raw 4-byte) SMARTCAST
+0x1006D2AC  push 0x100f9e94                         ; KEYBINDS
+0x1006D417  (raw 4-byte) SMARTCAST
+0x1006D4A0  (raw 4-byte) KEYBINDS
+0x1006D573  jmp ptr [eax - 0x60]                   ; SMARTCAST
+0x1006D5B4  (raw 4-byte) KEYBINDS
+0x1006D76B  (raw 4-byte) ENABLE
+0x1006D7A8  (raw 4-byte) HEROBINDS
+0x1006D8BD  push 0x100f9f00                         ; MOVECAMERA_
+0x1006D922  (raw 4-byte) HEROBINDS
+0x1006D9DE  push 0x100f9eec                         ; KEY_
+0x1006DA40  (raw 4-byte) HEROBINDS
+0x1006DCD4  (raw 4-byte) CAMERAMOVETIMEOUT
+0x1006DD0A  push 0x100f98cc                         ; HEROBINDS
+0x1006DDDD  (raw 4-byte) CAMERAMOVECONTROL
+0x1006DE13  push 0x100f98cc                         ; HEROBINDS
+0x1006DFF1  (raw 4-byte) QUICKCHAT
+0x1006E23F  (raw 4-byte) QUICKCHAT
+0x1006EC3E  (raw 4-byte) CAMERAMODIFIABLE
+0x1006EC7B  (raw 4-byte) CAMERA
+0x1006ED4F  push 0x100f8d30                         ; ISENABLED
+0x1006ED80  push 0x100f8cc8                         ; DELAY
+0x1006EDC2  push 0x100f9c74                         ; BATTLE.NET
+0x1006EDED  push 0x100f8cc8                         ; DELAY
+0x1006EE71  push 0x100f8cc8                         ; DELAY
+0x1006F0B4  push 0x100f998c                         ; WIDESCREEN
+0x1006F0E8  push 0x100f8ce4                         ; FUNCTIONS
+0x1006F1B0  call dword ptr [0x100ca244]             ; USER32.dll!KillTimer
+0x1006F1C0  call dword ptr [0x100ca240]             ; USER32.dll!SetTimer
+0x1006F23A  mov edi, dword ptr [0x100ca048]        ; KERNEL32.dll!VirtualProtect
+0x1006F2B3  push 0x100f9ad0                         ; FPSADVANCEDINFO
+0x1006F2E7  push 0x100f8c54                         ; GRAPHICS
+0x1006F3A5  push 0x100f9ad0                         ; FPSADVANCEDINFO
+0x1006F3D9  push 0x100f8c54                         ; GRAPHICS
+0x1006F497  push 0x100f9cc8                         ; ISALLYABILITYBAR
+0x1006F4CB  push 0x100f9c5c                         ; INTERFACE
+0x1006F5B6  push 0x100f9c44                         ; FASTMENU
+0x1006F5EA  push 0x100f8ce4                         ; FUNCTIONS
+0x1006F82D  push 0x100f9a5c                         ; REMOVEMAPSIZELIMIT
+0x1006F861  push 0x100f8ce4                         ; FUNCTIONS
+0x1006F8BE  add dword ptr [eax], 0xe0680000        ; Kernel32.dll
+0x1006F8D0  call dword ptr [0x100ca00c]             ; KERNEL32.dll!GetModuleHandleA
+0x1006F8DA  push 0x100f88c4                         ; GetFileSize
+0x1006F8E0  call dword ptr [0x100ca014]             ; KERNEL32.dll!GetProcAddress
+0x1006FA4C  push 0x100f9f10                         ; WFEGameColours.ini
+0x1006FBE6  push 0x100f9f34                         ; PLAYER_
+0x1006FC3D  push 0x100f9f24                         ; PLAYERCOLOURS
+0x1006FEA3  call dword ptr [0x100ca014]             ; KERNEL32.dll!GetProcAddress
+0x100733A7  call dword ptr [0x100ca210]             ; USER32.dll!MonitorFromWindow
+0x100733AE  call dword ptr [0x100ca214]             ; USER32.dll!GetMonitorInfoA
+0x100733BA  call dword ptr [0x100ca1e4]             ; USER32.dll!GetWindowRect
+0x1007341F  push 0x100f9f3c                         ; WFE.mpq
+0x100735FD  push 0x100f9c68                         ; BORDERLESS
+0x10073637  push 0x100f9c90                         ; LAUNCHER
+0x10073711  (raw 4-byte) USER32.dll!GetWindowLongA
+0x10073CD4  (raw 4-byte) (null)
+0x10073D01  push 0x100f8f78                         ; (null)
+0x10073D4C  push 0x100f8f14                         ; LOCALISATION
+0x10073E8C  push 0x100f9f80                         ; INDEX:
+0x10073EB7  push 0x100f9f98                         ; INDEX
+0x10073F7D  push 0x100f9f88                         ; Attack Reload:
+0x10073FA8  push 0x100f9f54                         ; ATTACK_RELOAD
+0x10074071  push 0x100f9f44                         ; Speed Bonus:
+0x1007409C  push 0x100f9f74                         ; SPEED_BONUS
+0x10074168  push 0x100f9f64                         ; Magic Resist:
+0x10074193  push 0x100f9fd8                         ; MAGIC_RESIST
+0x10074262  push 0x100f9fd0                         ; Vision:
+0x1007428D  push 0x100f9ff4                         ; VISION
+0x1007435C  push 0x100f9fe8                         ; Cooldown:
+0x10074387  push 0x100f9fa8                         ; COOLDOWN
+0x10074456  push 0x100f9fa0                         ; Ready!
+0x10074481  push 0x100f9fc8                         ; READY
+0x10074550  push 0x100f9fb4                         ; Not enough mana!
+0x1007457B  push 0x100fa030                         ; NO_MANA
+0x1007464A  push 0x100fa024                         ; Duration:
+0x10074675  push 0x100f8d10                         ; DURATION
+0x10074744  push 0x100fa040                         ; Damage:
+0x1007476F  push 0x100fa038                         ; DAMAGE
+0x1007483E  push 0x100fa004                         ; Armour:
+0x10074869  push 0x100f9ffc                         ; ARMOUR
+0x10074938  push 0x100fa018                         ; Strength:
+0x10074963  push 0x100fa00c                         ; STRENGTH
+0x10074A32  push 0x100fa070                         ; Agility:
+0x10074A5D  push 0x100fa068                         ; AGILITY
+0x10074B2C  push 0x100fa08c                         ; Intelligence:
+0x10074B57  push 0x100fa07c                         ; INTELLIGENCE
+0x10074C26  push 0x100fa050                         ; Gold:
+0x10074C51  push 0x100fa048                         ; GOLD
+0x10074D20  push 0x100fa060                         ; Lumber:
+0x10074D4B  push 0x100fa058                         ; LUMBER
+0x10074E1A  push 0x100fa0dc                         ; Food:
+0x10074E45  push 0x100fa0d4                         ; FOOD
+0x10074F14  push 0x100fa0f8                         ; Gold Income Rate:
+0x10074F3F  push 0x100fa0e4                         ; GOLD_INCOME_RATE
+0x1007500E  push 0x100fa0b0                         ; Lumber Income Rate:
+0x10075039  push 0x100fa09c                         ; LUMBER_INCOME_RATE
+0x10075108  push 0x100fa0cc                         ; Time:
+0x10075133  push 0x100fa0c4                         ; TIME
+0x10075202  push 0x100fa140                         ; Health:
+0x1007522D  push 0x100fa138                         ; HEALTH
+0x100752FC  push 0x100fa150                         ; Mana:
+0x10075327  push 0x100fa148                         ; MANA
+0x100754E2  push 0x100f8f78                         ; (null)
+0x10075509  push 0x100f8f78                         ; (null)
+0x10075533  push 0x100f8f78                         ; (null)
+0x1007555C  push 0x100f8f78                         ; (null)
+0x10075586  push 0x100f8f78                         ; (null)
+0x100755AF  push 0x100f8f78                         ; (null)
+0x100755EA  push 0x100f8f78                         ; (null)
+0x10075605  push 0x100f8f78                         ; (null)
+0x10075632  push 0x100f8f78                         ; (null)
+0x1007565B  push 0x100f8f78                         ; (null)
+0x10075688  push 0x100f8f78                         ; (null)
+0x100756B1  push 0x100f8f78                         ; (null)
+0x100756DE  push 0x100f8f78                         ; (null)
+0x10075707  push 0x100f8f78                         ; (null)
+0x10075736  push 0x100f8f78                         ; (null)
+0x1007575D  push 0x100f8f78                         ; (null)
+0x1007578A  push 0x100f8f78                         ; (null)
+0x100757B3  push 0x100f8f78                         ; (null)
+0x100757E0  push 0x100f8f78                         ; (null)
+0x10075809  push 0x100f8f78                         ; (null)
+0x10075836  push 0x100f8f78                         ; (null)
+0x1007585F  push 0x100f8f78                         ; (null)
+0x1007588C  push 0x100f8f78                         ; (null)
+0x100758B5  push 0x100f8f78                         ; (null)
+0x100758E2  push 0x100f8f78                         ; (null)
+0x1007590B  push 0x100f8f78                         ; (null)
+0x10075938  push 0x100f8f78                         ; (null)
+0x10075961  push 0x100f8f78                         ; (null)
+0x1007599C  push 0x100f8f78                         ; (null)
+0x100759B7  push 0x100f8f78                         ; (null)
+0x100759E4  push 0x100f8f78                         ; (null)
+0x10075A0D  push 0x100f8f78                         ; (null)
+0x10075A3A  push 0x100f8f78                         ; (null)
+0x10075A63  push 0x100f8f78                         ; (null)
+0x10075A90  push 0x100f8f78                         ; (null)
+0x10075AB9  push 0x100f8f78                         ; (null)
+0x10075AE6  push 0x100f8f78                         ; (null)
+0x10075B0F  push 0x100f8f78                         ; (null)
+0x10075B3C  push 0x100f8f78                         ; (null)
+0x10075B65  push 0x100f8f78                         ; (null)
+0x10075B92  push 0x100f8f78                         ; (null)
+0x10075BBB  push 0x100f8f78                         ; (null)
+0x10075BE8  push 0x100f8f78                         ; (null)
+0x10075C18  push 0x100f8f78                         ; (null)
+0x10075C3D  push 0x100fa110                         ; Localisation.ini
+0x10075DBB  call dword ptr [0x100ca088]             ; KERNEL32.dll!DisableThreadLibraryCalls
+0x100760AC  push 0x100fa12c                         ; [{}] {}
+0x100762D0  push 0x100fa124                         ; .mix
+0x1007630D  (raw 4-byte) .asi
+0x10076341  (raw 4-byte) .m3d
+0x1007636B  push 0x100fa168                         ; .flt
+0x1007650D  call dword ptr [0x100ca060]             ; KERNEL32.dll!UnmapViewOfFile
+0x10076528  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x10076C0D  push esp                                ; KERNEL32.dll!GetTickCount64
+0x10076C77  push 0x100fa184                         ;  FPS: {:5.2f}
+0x10076D50  push esp                                ; KERNEL32.dll!GetTickCount64
+0x10076D91  call dword ptr [0x100ca018]             ; KERNEL32.dll!GetCurrentProcess
+0x10076D9E  call dword ptr [0x100ca008]             ; KERNEL32.dll!K32GetProcessMemoryInfo
+0x10076DE5  push 0x100fa194                         ; |cFFDCDA3CMemory(MB): {:5.2f}/2048 ({:.2f}%)|r
+0x10076F79  mov edx, 0x100fa1d4                    ; ScaleFactor
+0x10076F83  mov ecx, 0x100fa1c4                    ; SelectionCircle
+0x100771BE  push 0x100f9af0                         ; ISEXTENDED
+0x100771F6  push 0x100f9b30                         ; CUSTOMBARS
+0x10077354  loopne 0x100772f7                         ; CommandButtonNumberOverlay
+0x1007741B  (raw 4-byte) MasterFont
+0x10077666  push 0x100f9b18                         ; COLOUR
+0x10077690  push 0x100f9b84                         ; MANABAR
+0x10077775  push 0x100f9b98                         ; MODE
+0x100777A3  push 0x100f9b0c                         ; HEALTHBAR
+0x100779A1  push 0x100f9b60                         ; NEUTRALPASSIVECOLOUR
+0x100779CF  push 0x100f9b0c                         ; HEALTHBAR
+0x10077B4C  push 0x100f9b60                         ; NEUTRALPASSIVECOLOUR
+0x10077B7A  push 0x100f9b0c                         ; HEALTHBAR
+0x10077BC0  push 0x100f9b48                         ; NEUTRALAGGRESSIVECOLOUR
+0x10077BEE  push 0x100f9b0c                         ; HEALTHBAR
+0x10077C2B  push 0x100f9b60                         ; NEUTRALPASSIVECOLOUR
+0x10077C59  push 0x100f9b0c                         ; HEALTHBAR
+0x10077CE4  push 0x100f9b8c                         ; YOURCOLOUR
+0x10077D12  push 0x100f9b0c                         ; HEALTHBAR
+0x10077D41  lodsb al, byte ptr [esi]                 ; ALLYCOLOUR
+0x10077D75  push 0x100f9b0c                         ; HEALTHBAR
+0x10077DA8  push 0x100f9ba0                         ; ENEMYCOLOUR
+0x10077DDD  push 0x100f9b0c                         ; HEALTHBAR
+0x10077FCF  ror byte ptr [ecx + 0x3068e845], 0x8d  ; ISENABLED
+0x10078005  push 0x100f9b84                         ; MANABAR
+0x10078137  push 0x100f8a48                         ; HEIGHT
+0x10078165  push 0x100f9b84                         ; MANABAR
+0x100782B9  push 0x100f8a48                         ; HEIGHT
+0x100782E7  push 0x100f9b0c                         ; HEALTHBAR
+0x10078584  push 0x100f8a48                         ; HEIGHT
+0x100785B2  push 0x100f9b84                         ; MANABAR
+0x100786C4  push 0x100f8d30                         ; ISENABLED
+0x100786F2  push 0x100f9b84                         ; MANABAR
+0x10078A23  push 0x100fa1fc                         ; WFEStatBarEx
+0x10078CF3  ror byte ptr [eax + 0x3068ef45], 0x8d  ; ISENABLED
+0x10078D2C  push 0x100f9b0c                         ; HEALTHBAR
+0x10078D7D  push 0x100f8c98                         ; ISHEROONLY
+0x10078DAB  push 0x100f9b0c                         ; HEALTHBAR
+0x10078F35  push 0x100f8d30                         ; ISENABLED
+0x10078F69  push 0x100f9b84                         ; MANABAR
+0x10078FDB  push 0x100f8c98                         ; ISHEROONLY
+0x10079013  push 0x100f9b84                         ; MANABAR
+0x10079A0D  push 0x100f9cdc                         ; ISHEROOVERHEADTIP
+0x10079A3B  push 0x100f9c5c                         ; INTERFACE
+0x10079CE5  push 0x100f8d30                         ; ISENABLED
+0x10079CFB  push 0x100f9b30                         ; CUSTOMBARS
+0x10079E60  push 0x100fa244                         ; |cFF00FF00
+0x10079E67  push 0x100fa218                         ; |cFFFF0000
+0x10079EA9  push 0x100fa210                         ; {}{:d}
+0x1007A02C  (raw 4-byte) CUSTOMATTACKTIP
+0x1007A069  (raw 4-byte) FUNCTIONS
+0x1007A58D  mov edx, 0x100fa234                    ; COLON_DAMAGE
+0x1007A619  push 0x100fa224                         ;  {:d} - {:d}
+0x1007A687  push 0x100f99ec                         ; EXTENDEDATTACKTIP
+0x1007A6B5  push 0x100f8ce4                         ; FUNCTIONS
+0x1007A85E  push 0x100fa2b8                         ;  {1}|r 
+0x1007AAE0  push 0x100fa244                         ; |cFF00FF00
+0x1007AAE7  push 0x100fa218                         ; |cFFFF0000
+0x1007AB36  push 0x100fa298                         ;  {2:d} - {3:d} {0}{1}{4:d}|r
+0x1007AD4C  push 0x100fa2f8                         ; {}|n
+0x1007AE03  mov edx, 0x100fa2ec                    ; COLON_RANGE
+0x1007AE4A  (raw 4-byte) {} {:.0f}|n
+0x1007AFC8  push 0x100fa244                         ; |cFF00FF00
+0x1007AFD6  push 0x100fa218                         ; |cFFFF0000
+0x1007B012  mov edx, 0x100fa250                    ; COLON_SPEED
+0x1007B060  (raw 4-byte) {} {}{:.3f}/sec|r
+0x1007B170  push 0x100f99ec                         ; EXTENDEDATTACKTIP
+0x1007B1A8  push 0x100f8ce4                         ; FUNCTIONS
+0x1007B314  push 0x100fa244                         ; |cFF00FF00
+0x1007B322  push 0x100fa218                         ; |cFFFF0000
+0x1007B39F  (raw 4-byte)  ({2:.3f} {1} {0}{3:.3f}|r)
+0x1007B5BE  push 0x100f99ec                         ; EXTENDEDATTACKTIP
+0x1007B5EC  push 0x100f8ce4                         ; FUNCTIONS
+0x1007B75A  push 0x100fa244                         ; |cFF00FF00
+0x1007B768  push 0x100fa218                         ; |cFFFF0000
+0x1007B7FA  (raw 4-byte)  {0}{2:.2f} sec|r ({3:.2f} {1} {0}{4:.2f}|r)
+0x1007B918  push 0x100fa244                         ; |cFF00FF00
+0x1007B926  push 0x100fa218                         ; |cFFFF0000
+0x1007B987  mov esp, 0x74680f6a                    ;  {}{:.2f} sec|r
+0x1007BB37  push 0x100fa244                         ; |cFF00FF00
+0x1007BB45  push 0x100fa218                         ; |cFFFF0000
+0x1007BBC6  mov esp, 0x6068106a                    ; {} {}{:.0f}%|r|n
+0x1007BDB3  mov edx, 0x100fa304                    ; UPGRADE_TOOLTIP
+0x1007C04B  mov edx, 0x100fa31c                    ; COLON_UPGRADE
+0x1007C078  adc al, 0xa3                           ; {} {}|n
+0x1007C2AD  (raw 4-byte) CUSTOMDEFENSETIP
+0x1007C2E3  push 0x100f8ce4                         ; FUNCTIONS
+0x1007C3EA  push 0x100f9a14                         ; EXTENDEDDEFENSETIP
+0x1007C41F  (raw 4-byte) FUNCTIONS
+0x1007C540  mov edx, 0x100f8598                    ; MaxUnitSpeed
+0x1007C548  add eax, 0xf8018b9                     ; Misc
+0x1007C554  je 0x1007c4fa                         ; MinUnitSpeed
+0x1007C560  mov ecx, 0x100f8018                    ; Misc
+0x1007C92D  mov edx, 0x100fa3f4                    ; COLON_ARMOR
+0x1007C9FD  mov edx, 0x100fa3e4                    ; INVULNERABLE
+0x1007CAA5  push 0x100fa244                         ; |cFF00FF00
+0x1007CAB3  push 0x100fa218                         ; |cFFFF0000
+0x1007CB62  push 0x100fa244                         ; |cFF00FF00
+0x1007CB70  push 0x100fa218                         ; |cFFFF0000
+0x1007CBC9  push 0x100fa418                         ; {0}{3:.1f}|r ({4:.0f} {1} {2}{5:.1f}|r)
+0x1007CCF9  push 0x100f7db0                         ; {:.0f}
+0x1007CE3A  jge 0xe6709354                         ; ARMOR_SMALL
+0x1007CE62  push 0x100fa2f8                         ; {}|n
+0x1007CF9F  mov esp, 0x5c680b6a                    ; {} {:.0f}|n
+0x1007D0BE  (raw 4-byte) COLON_DAMAGE_REDUCTION
+0x1007D207  push 0x100fa244                         ; |cFF00FF00
+0x1007D215  push 0x100fa218                         ; |cFFFF0000
+0x1007D2C4  push 0x100fa244                         ; |cFF00FF00
+0x1007D2D2  push 0x100fa218                         ; |cFFFF0000
+0x1007D32B  push 0x100fa390                         ; {0}{3:.2f}%|r ({4:.2f}% {1} {2}{5:.2f}%|r)
+0x1007D483  push 0x100fa244                         ; |cFF00FF00
+0x1007D491  push 0x100fa218                         ; |cFFFF0000
+0x1007D4F9  push 0x100fa384                         ; {}{:.0f}%|r
+0x1007D648  push 0x100f9a00                         ; WRITEMAGICRESIST
+0x1007D676  push 0x100f8ce4                         ; FUNCTIONS
+0x1007D748  push 0x100fa244                         ; |cFF00FF00
+0x1007D756  push 0x100fa218                         ; |cFFFF0000
+0x1007D7E1  mov esp, 0xd068106a                    ; {} {}{:.2f}%|r|n
+0x1007D8ED  mov edx, 0x100fa3bc                    ; COLON_MOVE_SPEED
+0x1007DA04  push 0x100fa244                         ; |cFF00FF00
+0x1007DA12  push 0x100fa218                         ; |cFFFF0000
+0x1007DAD6  push 0x100fa244                         ; |cFF00FF00
+0x1007DAE4  push 0x100fa218                         ; |cFFFF0000
+0x1007DB3C  push 0x100fa44c                         ; {0}{3:.0f}|r ({4:.0f} {1} {2}{5:.2f}|r)
+0x1007DC9D  push 0x100fa244                         ; |cFF00FF00
+0x1007DCAB  push 0x100fa218                         ; |cFFFF0000
+0x1007DD13  inc eax                                ; {}{:.0f}|r
+0x1007DF3D  mov edx, 0x100fa304                    ; UPGRADE_TOOLTIP
+0x1007E1DB  mov edx, 0x100fa31c                    ; COLON_UPGRADE
+0x1007E208  adc al, 0xa3                           ; {} {}|n
+0x1007E32B  jge 0xe730a845                         ; ARMORTIP_SMALL
+0x1007E3D5  push 0x100f9a4c                         ; CUSTOMATTACKTIP
+0x1007E403  push 0x100f8ce4                         ; FUNCTIONS
+0x1007E4BB  push 0x100f99d8                         ; CUSTOMDEFENSETIP
+0x1007E4E9  push 0x100f8ce4                         ; FUNCTIONS
+0x1007EA07  push 0x100f9e48                         ; ISUPGRADEDBUFFBAR
+0x1007EA3E  push 0x100f9e5c                         ; BUFFUI
+0x1007EB01  push 0x100f9e30                         ; TEXTSIZE
+0x1007EB2F  push 0x100f9e5c                         ; BUFFUI
+0x1007EC06  push 0x100f73e8                         ; UjAPICSriteFrame
+0x1007ECD0  push 0x100fa4c8                         ; WFEBuffDurationSpriteFrame
+0x1007ED2A  mov edx, 0x100fa4a0                    ; WFEModels\DurationUI\Model.mdx
+0x1007EE1A  sub al, 0x7e                           ; stand
+0x1007EE5E  push 0x100fa484                         ; WFEBuffDurationTextFrame
+0x1007FB39  push 0x100f9e5c                         ; BUFFUI
+0x1007FBAA  push 0x100f9e48                         ; ISUPGRADEDBUFFBAR
+0x1007FC33  push 0x100f9e20                         ; SHOWINDICATOR
+0x1007FCAA  push 0x100f9e78                         ; ISDRAWBUFFDURATION
+0x1007FD21  push 0x100f9e64                         ; ISDRAWAURADURATION
+0x1007FD98  push 0x100f9e30                         ; TEXTSIZE
+0x1007FF5E  push 0x100f9e5c                         ; BUFFUI
+0x1007FFD6  push 0x100f9e14                         ; ENABLEFADE
+0x1008005F  push 0x100f9e20                         ; SHOWINDICATOR
+0x100800D6  push 0x100f9e78                         ; ISDRAWBUFFDURATION
+0x1008014D  push 0x100f9e64                         ; ISDRAWAURADURATION
+0x100801C4  push 0x100f88d0                         ; DISPLAYMINUTES
+0x10080338  push 0x100fa4c0                         ; BuffUI
+0x100803A6  push 0x100fa4c0                         ; BuffUI
+0x1008257E  push 0x100f9edc                         ; TEXTCOLOUR
+0x100825AC  push 0x100f88e0                         ; COOLDOWNUI
+0x10082656  push 0x100f9ecc                         ; SHADOWCOLOUR
+0x10082684  push 0x100f88e0                         ; COOLDOWNUI
+0x1008272E  push 0x100f9e30                         ; TEXTSIZE
+0x1008275C  push 0x100f88e0                         ; COOLDOWNUI
+0x10082A97  push 0x100f88e0                         ; COOLDOWNUI
+0x10082B08  push 0x100f8d30                         ; ISENABLED
+0x10082B91  push 0x100f9eac                         ; DISPLAYTIME
+0x10082C08  push 0x100f9edc                         ; TEXTCOLOUR
+0x10082C7F  push 0x100f9ecc                         ; SHADOWCOLOUR
+0x10082CF6  push 0x100f9e30                         ; TEXTSIZE
+0x10082D6E  push 0x100f9e20                         ; SHOWINDICATOR
+0x10082DE5  push 0x100f9eb8                         ; OVERRIDEINDICATOR
+0x10082E5C  push 0x100f88d0                         ; DISPLAYMINUTES
+0x100830B5  push 0x100f88e0                         ; COOLDOWNUI
+0x10083126  push 0x100f8d30                         ; ISENABLED
+0x100831AF  push 0x100f9eac                         ; DISPLAYTIME
+0x10083226  push 0x100f9e20                         ; SHOWINDICATOR
+0x1008329D  push 0x100f88d0                         ; DISPLAYMINUTES
+0x100833EB  push 0x100fa538                         ; CooldownUI
+0x10083463  push 0x100fa538                         ; CooldownUI
+0x10083935  push 0x100f9c0c                         ; DRAWATTACKONHOVER
+0x10083963  push 0x100f8b40                         ; HOTKEYS
+0x10083A0F  push 0x100f9bcc                         ; DRAWATTACK
+0x10083A3D  push 0x100f8b40                         ; HOTKEYS
+0x10083AE9  push 0x100f9bdc                         ; DRAWSIGHTRADIUS
+0x10083B17  push 0x100f8b40                         ; HOTKEYS
+0x10083BC3  push 0x100f989c                         ; DRAWSPELLAOE
+0x10083BF1  push 0x100f8b40                         ; HOTKEYS
+0x10083C9D  push 0x100f9bb8                         ; DRAWSPELLAOEONHOVER
+0x10083CCB  push 0x100f8b40                         ; HOTKEYS
+0x10083E73  (raw 4-byte) ISCOLOURENABLED
+0x10083EA7  push 0x100f9b78                         ; INDICATORS
+0x10084460  push 0x100f9afc                         ; ISCOLOURENABLED
+0x10084495  push 0x100f9b78                         ; INDICATORS
+0x100844DA  push 0x100f9bfc                         ; ATTACKCOLOUR
+0x100844F7  push 0x100f9b78                         ; INDICATORS
+0x10084710  punpckhbw mm7, mm4                           ; ISCOLOURENABLED
+0x10084746  push 0x100f9b78                         ; INDICATORS
+0x1008478E  push 0x100f9c20                         ; SIGHTRADIUSCOLOUR
+0x100847AB  push 0x100f9b78                         ; INDICATORS
+0x10084CC6  push 0x100f9afc                         ; ISCOLOURENABLED
+0x10084CF4  push 0x100f9b78                         ; INDICATORS
+0x10084D39  push 0x100f9bec                         ; SPELLAOECOLOUR
+0x10084D56  push 0x100f9b78                         ; INDICATORS
+0x10084F01  push 0x100f9b78                         ; INDICATORS
+0x10084F72  push 0x100f9afc                         ; ISCOLOURENABLED
+0x10084FFB  push 0x100fa560                         ; IndicatorUI
+0x10085073  push 0x100fa560                         ; IndicatorUI
+0x100851BC  mov edi, dword ptr [0x100ca23c]        ; USER32.dll!GetKeyState
+0x10085553  or byte ptr [eax + 0x100f9b3c], bh    ; CUSTOM_MANA
+0x10085562  mov edx, 0x100f9b20                    ; CUSTOM_HEALTH
+0x100855C5  push 0x100f9b18                         ; COLOUR
+0x100856F5  ror byte ptr [eax - 0x439734bb], 0x9a  ; CUSTOM_HEALTH_MANA
+0x10085771  push 0x100f8d30                         ; ISENABLED
+0x100857FA  push 0x100f9a84                         ; SHOWREGEN
+0x10085828  push 0x100f9b20                         ; CUSTOM_HEALTH
+0x100858EC  push 0x100f9a84                         ; SHOWREGEN
+0x1008591A  push 0x100f9b3c                         ; CUSTOM_MANA
+0x100859DE  push 0x100f9a70                         ; ISSHORT
+0x10085A55  push 0x100f9a78                         ; ISPERCENT
+0x10085ACC  push 0x100f9a90                         ; ISDIGITTRUNCATE
+0x10085FAF  push 0x100fa594                         ; |c{:X}{}|r / |c{:X}{}|r
+0x10085FF9  push 0x100fa588                         ; |c{:X}{}|r
+0x10086229  adc dword ptr [eax - 0x28], ebp        ; {}|c{:X}{:.2f}%|r
+0x100862D2  push 0x100fa600                         ;  |c{:X}{}{:.2f}|r
+0x100865B9  push 0x100f9d40                         ; ISPORTRAIT
+0x100865E7  push 0x100f9c5c                         ; INTERFACE
+0x10086995  push 0x100f9d34                         ; ISCONSOLE
+0x100869C3  push 0x100f9c5c                         ; INTERFACE
+0x10086D2B  mov edx, 0x100fa5f0                    ; PortraitStats
+0x10086D31  (raw 4-byte) FontHeights
+0x10086D60  push 0x100fa5ac                         ; WFEHPTextFrame
+0x10086E0B  add byte ptr [eax - 0x54], ch          ; WFEHPTextFrame
+0x10086E21  push 0x100fa5c8                         ; WFEMPTextFrame
+0x10086EDE  add byte ptr [eax - 0x38], ch          ; WFEMPTextFrame
+0x1008DF77  sar byte ptr [ecx + 0x100fa63c], cl    ; InfoPanelTextFont
+0x10090378  push 0x100f9e48                         ; ISUPGRADEDBUFFBAR
+0x100903A6  push 0x100f9e5c                         ; BUFFUI
+0x10090450  push 0x100f9e78                         ; ISDRAWBUFFDURATION
+0x1009047E  push 0x100f9e5c                         ; BUFFUI
+0x100917C4  push 0x100f9d94                         ; ISATTACHTOOLTIP
+0x100917F2  push 0x100f9c5c                         ; INTERFACE
+0x10091BAB  (raw 4-byte) ISATTACHTOOLTIP
+0x10091BE4  push 0x100f9c5c                         ; INTERFACE
+0x10091C3D  push 0x100f9da4                         ; ISTOOLTIP
+0x10091C6B  push 0x100f9c5c                         ; INTERFACE
+0x10091E00  call dword ptr [0x100ca204]             ; USER32.dll!GetClientRect
+0x1009213C  push 0x100f9d24                         ; ISMULTIBOARD
+0x1009216A  push 0x100f9c5c                         ; INTERFACE
+0x10092305  push 0x100f9d0c                         ; ISBLACKBARS
+0x10092333  push 0x100f9c5c                         ; INTERFACE
+0x10092402  push 0x100f9de4                         ; ISRESOURCEBAR
+0x1009243C  push 0x100f9c5c                         ; INTERFACE
+0x10092486  push 0x100f9d34                         ; ISCONSOLE
+0x100924BE  push 0x100f9c5c                         ; INTERFACE
+0x10092777  push 0x100f9d78                         ; ISLEADERBOARD
+0x100927AE  push 0x100f9c5c                         ; INTERFACE
+0x10092941  ror byte ptr [ecx + 0xc68b47d], 0x9d   ; ISBLACKBARS
+0x1009296F  push 0x100f9c5c                         ; INTERFACE
+0x10092A40  push 0x100f9de4                         ; ISRESOURCEBAR
+0x10092A74  push 0x100f9c5c                         ; INTERFACE
+0x10092AC4  push 0x100f9d34                         ; ISCONSOLE
+0x10092AF2  push 0x100f9c5c                         ; INTERFACE
+0x10092E82  push 0x100f9d24                         ; ISMULTIBOARD
+0x10092EBD  push 0x100f9c5c                         ; INTERFACE
+0x100930B0  ror byte ptr [eax + 0x868ef45], 0x9e   ; ISMINIMAP
+0x100930E6  push 0x100f9c5c                         ; INTERFACE
+0x10093197  ror byte ptr [eax + 0x4068ef45], 0x9d  ; ISPORTRAIT
+0x100931CD  push 0x100f9c5c                         ; INTERFACE
+0x1009327E  ror byte ptr [eax - 0x639710bb], 0x9c  ; ISABILITYBAR
+0x100932B4  push 0x100f9c5c                         ; INTERFACE
+0x10093369  push 0x100f9cb8                         ; ISREPLAYPANEL
+0x1009339B  push 0x100f9c5c                         ; INTERFACE
+0x1009344C  ror byte ptr [eax - 0x539710bb], 0x9c  ; ISITEMBAR
+0x10093482  push 0x100f9c5c                         ; INTERFACE
+0x10093533  ror byte ptr [eax - 0x5b9710bb], 0x9d  ; ISTOOLTIP
+0x10093569  push 0x100f9c5c                         ; INTERFACE
+0x1009361F  ror byte ptr [eax + 0x3468ef45], 0x9d  ; ISCONSOLE
+0x10093655  push 0x100f9c5c                         ; INTERFACE
+0x1009378A  push 0x100f9d0c                         ; ISBLACKBARS
+0x100937B8  push 0x100f9c5c                         ; INTERFACE
+0x100938B0  push 0x100f9dd4                         ; ISUPPERMENUBAR
+0x100938E2  push 0x100f9c5c                         ; INTERFACE
+0x10093996  push 0x100f9de4                         ; ISRESOURCEBAR
+0x100939C9  push 0x100f9c5c                         ; INTERFACE
+0x10093A7A  ror byte ptr [eax - 0xb970cbb], 0x9d   ; ISMINIMAPBUTTONS
+0x10093AB0  push 0x100f9c5c                         ; INTERFACE
+0x10093B61  ror byte ptr [eax + 0x1868f345], 0x9d  ; ISPEONBAR
+0x10093B97  push 0x100f9c5c                         ; INTERFACE
+0x10093C48  ror byte ptr [eax - 0x77970cbb], 0x9d  ; ISHEROBAR
+0x10093C7E  push 0x100f9c5c                         ; INTERFACE
+0x10093D2F  ror byte ptr [eax + 0x6068f345], 0x9d  ; ISTIMEOFDAYINDICATOR
+0x10093D65  push 0x100f9c5c                         ; INTERFACE
+0x10093E16  ror byte ptr [eax + 0x68f345], 0x9d    ; ISINFOBAR
+0x10093E4C  push 0x100f9c5c                         ; INTERFACE
+0x10093EFD  ror byte ptr [eax + 0x3068f345], 0x8d  ; ISENABLED
+0x10093F33  push 0x100f9e5c                         ; BUFFUI
+0x10093FE4  ror byte ptr [eax + 0x4c68f345], 0x9d  ; ISINVENTORYCOVER
+0x1009401A  push 0x100f9c5c                         ; INTERFACE
+0x100940CB  push 0x100f9d78                         ; ISLEADERBOARD
+0x100940F9  push 0x100f9c5c                         ; INTERFACE
+0x100941D0  push 0x100f9d24                         ; ISMULTIBOARD
+0x100941FE  push 0x100f9c5c                         ; INTERFACE
+0x100942F4  call dword ptr [0x100ca240]             ; USER32.dll!SetTimer
+0x10094306  push 0x100f9d34                         ; ISCONSOLE
+0x10094334  push 0x100f9c5c                         ; INTERFACE
+0x10094515  push 0x100f9d34                         ; ISCONSOLE
+0x10094546  push 0x100f9c5c                         ; INTERFACE
+0x10094AF5  push 0x100fa624                         ; Textures\Black32.blp
+0x10094B16  add byte ptr [eax + 0x14], ch          ; WFEUIBlackBar
+0x10094B54  push 0x100fa624                         ; Textures\Black32.blp
+0x100955CE  ror byte ptr [ecx - 0xf972fbb], 0x9c   ; ISSLIMCURSOR
+0x100955FC  push 0x100f9c5c                         ; INTERFACE
+0x100956A6  call dword ptr [0x100ca244]             ; USER32.dll!KillTimer
+0x100956C8  call dword ptr [0x100ca244]             ; USER32.dll!KillTimer
+0x100957D1  push 0x100f9d00                         ; ISINFOBAR
+0x100957FF  push 0x100f9c5c                         ; INTERFACE
+0x100958F0  push 0x100f9d88                         ; ISHEROBAR
+0x1009591E  push 0x100f9c5c                         ; INTERFACE
+0x100962AC  push 0x100fa650                         ; Handle Count: 
+0x100964B1  push 0x100fa67c                         ; Handle Index: 
+0x1009687A  add byte ptr [eax + 0x60], ch          ; WFEHandleCounterBackDrop
+0x1009696C  add dword ptr [eax + 0xc], ebp         ; UI\widgets\BattleNet\bnet-tooltip-border.blp
+0x10096979  push 0x100f733c                         ; UI\widgets\BattleNet\bnet-tooltip-background.blp
+0x100969EF  add byte ptr [eax - 0x74], ch          ; WFEHandleCounterTextFrame
+0x10096E94  call dword ptr [0x100ca01c]             ; KERNEL32.dll!VirtualQuery
+0x10096EC2  call dword ptr [0x100ca0a0]             ; KERNEL32.dll!VirtualAlloc
+0x10096F6F  call dword ptr [0x100ca01c]             ; KERNEL32.dll!VirtualQuery
+0x10096F9D  call dword ptr [0x100ca0a0]             ; KERNEL32.dll!VirtualAlloc
+0x10097541  call dword ptr [0x100ca0a4]             ; KERNEL32.dll!VirtualFree
+0x10097BFD  call dword ptr [0x100ca01c]             ; KERNEL32.dll!VirtualQuery
+0x10097DA6  call dword ptr [0x100ca018]             ; KERNEL32.dll!GetCurrentProcess
+0x10097DD7  call dword ptr [0x100ca048]             ; KERNEL32.dll!VirtualProtect
+0x10097DEA  call dword ptr [0x100ca09c]             ; KERNEL32.dll!FlushInstructionCache
+0x10097F8E  call dword ptr [0x100ca048]             ; KERNEL32.dll!VirtualProtect
+0x10097F98  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009801A  call dword ptr [0x100ca08c]             ; KERNEL32.dll!GetCurrentThreadId
+0x1009838F  call dword ptr [0x100ca048]             ; KERNEL32.dll!VirtualProtect
+0x10098399  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009842D  call dword ptr [0x100ca08c]             ; KERNEL32.dll!GetCurrentThreadId
+0x10098594  call dword ptr [0x100ca048]             ; KERNEL32.dll!VirtualProtect
+0x1009859E  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x10098606  call dword ptr [0x100ca08c]             ; KERNEL32.dll!GetCurrentThreadId
+0x10098649  call dword ptr [0x100ca048]             ; KERNEL32.dll!VirtualProtect
+0x100986C3  call dword ptr [0x100ca094]             ; KERNEL32.dll!ResumeThread
+0x10098723  call dword ptr [0x100ca08c]             ; KERNEL32.dll!GetCurrentThreadId
+0x100987A4  call dword ptr [0x100ca08c]             ; KERNEL32.dll!GetCurrentThreadId
+0x100988FB  (raw 4-byte) KERNEL32.dll!GetThreadContext
+0x100989A7  (raw 4-byte) KERNEL32.dll!SetThreadContext
+0x10098A23  (raw 4-byte) KERNEL32.dll!SetThreadContext
+0x10098A33  (raw 4-byte) KERNEL32.dll!GetCurrentProcess
+0x10098A81  (raw 4-byte) KERNEL32.dll!VirtualProtect
+0x10098AA5  adc eax, 0x100ca09c                    ; KERNEL32.dll!FlushInstructionCache
+0x10098B6D  (raw 4-byte) KERNEL32.dll!ResumeThread
+0x10098C0A  adc eax, 0x100ca024                    ; KERNEL32.dll!GetCurrentThread
+0x10098C77  call dword ptr [0x100ca090]             ; KERNEL32.dll!SuspendThread
+0x10098C82  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x10099900  call dword ptr [0x100ca050]             ; KERNEL32.dll!SetLastError
+0x10099AC2  cmp eax, 0x100cb0f0                    ; success
+0x10099AC9  mov eax, 0x100cb71c                    ; unknown error
+0x10099B03  add al, 0x44                           ; bad allocation
+0x1009A8CC  adc eax, 0x100ca16c                    ; KERNEL32.dll!AreFileApisANSI
+0x1009A8EC  call dword ptr [0x100ca170]             ; KERNEL32.dll!MultiByteToWideChar
+0x1009A8F8  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009A941  call dword ptr [0x100ca140]             ; KERNEL32.dll!WideCharToMultiByte
+0x1009A96D  call dword ptr [0x100ca140]             ; KERNEL32.dll!WideCharToMultiByte
+0x1009A979  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009A99D  call dword ptr [0x100ca140]             ; KERNEL32.dll!WideCharToMultiByte
+0x1009A9A9  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009A9F7  adc eax, 0x100ca178                    ; KERNEL32.dll!GetLocaleInfoEx
+0x1009AA1D  call dword ptr [0x100ca158]             ; KERNEL32.dll!FormatMessageA
+0x1009AA30  jmp dword ptr [0x100ca174]             ; KERNEL32.dll!LocalFree
+0x1009AA3C  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x1009AA4E  jmp dword ptr [0x100ca08c]             ; KERNEL32.dll!GetCurrentThreadId
+0x1009AA60  call dword ptr [0x100ca17c]             ; KERNEL32.dll!WaitForSingleObjectEx
+0x1009AA79  call dword ptr [0x100ca180]             ; KERNEL32.dll!GetExitCodeThread
+0x1009AA8B  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x1009AB4B  call dword ptr [0x100ca184]             ; KERNEL32.dll!ReleaseSRWLockExclusive
+0x1009AB69  call dword ptr [0x100ca08c]             ; KERNEL32.dll!GetCurrentThreadId
+0x1009AB88  call dword ptr [0x100ca188]             ; KERNEL32.dll!AcquireSRWLockExclusive
+0x1009ABB6  call dword ptr [0x100ca188]             ; KERNEL32.dll!AcquireSRWLockExclusive
+0x1009AC11  call dword ptr [0x100ca18c]             ; KERNEL32.dll!TryAcquireSRWLockExclusive
+0x1009AC28  call dword ptr [0x100ca18c]             ; KERNEL32.dll!TryAcquireSRWLockExclusive
+0x1009AD76  call dword ptr [0x100ca190]             ; KERNEL32.dll!QueryPerformanceCounter
+0x1009AD9F  call dword ptr [0x100ca194]             ; KERNEL32.dll!QueryPerformanceFrequency
+0x1009AE25  jmp dword ptr [0x100ca06c]             ; KERNEL32.dll!Sleep
+0x1009AE31  call dword ptr [0x100ca1a8]             ; KERNEL32.dll!DeleteCriticalSection
+0x1009AE46  call dword ptr [0x100ca1a4]             ; KERNEL32.dll!InitializeCriticalSectionEx
+0x1009AE54  call dword ptr [0x100ca19c]             ; KERNEL32.dll!EnterCriticalSection
+0x1009AE62  call dword ptr [0x100ca1a0]             ; KERNEL32.dll!LeaveCriticalSection
+0x1009AE9E  call dword ptr [0x100ca1b0]             ; KERNEL32.dll!DecodePointer
+0x1009AEE5  call dword ptr [0x100ca1ac]             ; KERNEL32.dll!EncodePointer
+0x1009AF62  adc eax, 0x100ca170                    ; KERNEL32.dll!MultiByteToWideChar
+0x1009AFCC  call dword ptr [0x100ca170]             ; KERNEL32.dll!MultiByteToWideChar
+0x1009AFE9  call dword ptr [0x100ca1b4]             ; KERNEL32.dll!LCMapStringEx
+0x1009B028  call dword ptr [0x100ca1b4]             ; KERNEL32.dll!LCMapStringEx
+0x1009B087  call dword ptr [0x100ca1b4]             ; KERNEL32.dll!LCMapStringEx
+0x1009B0AA  call dword ptr [0x100ca140]             ; KERNEL32.dll!WideCharToMultiByte
+0x1009B10D  adc eax, 0x100ca1b8                    ; KERNEL32.dll!WakeAllConditionVariable
+0x1009B11C  call dword ptr [0x100ca0ac]             ; KERNEL32.dll!GetModuleHandleW
+0x1009B124  push 0x100e8b9c                         ; GetSystemTimePreciseAsFileTime
+0x1009B12A  call dword ptr [0x100ca014]             ; KERNEL32.dll!GetProcAddress
+0x1009B130  push 0x100e8954                         ; GetTempPath2W
+0x1009B13B  call dword ptr [0x100ca014]             ; KERNEL32.dll!GetProcAddress
+0x1009B186  call dword ptr [0x100ca1bc]             ; KERNEL32.dll!GetSystemTimeAsFileTime
+0x1009B53B  call dword ptr [0x100ca188]             ; KERNEL32.dll!AcquireSRWLockExclusive
+0x1009B548  call dword ptr [0x100ca184]             ; KERNEL32.dll!ReleaseSRWLockExclusive
+0x1009B553  call dword ptr [0x100ca1b8]             ; KERNEL32.dll!WakeAllConditionVariable
+0x1009B566  call dword ptr [0x100ca188]             ; KERNEL32.dll!AcquireSRWLockExclusive
+0x1009B599  call dword ptr [0x100ca184]             ; KERNEL32.dll!ReleaseSRWLockExclusive
+0x1009B5A4  call dword ptr [0x100ca1b8]             ; KERNEL32.dll!WakeAllConditionVariable
+0x1009B5B8  call dword ptr [0x100ca188]             ; KERNEL32.dll!AcquireSRWLockExclusive
+0x1009B5F3  adc eax, 0x100ca184                    ; KERNEL32.dll!ReleaseSRWLockExclusive
+0x1009B60A  call dword ptr [0x100ca198]             ; KERNEL32.dll!SleepConditionVariableSRW
+0x1009B61F  call dword ptr [0x100ca1cc]             ; KERNEL32.dll!SetUnhandledExceptionFilter
+0x1009B629  adc eax, 0x100ca1c8                    ; KERNEL32.dll!UnhandledExceptionFilter
+0x1009B635  (raw 4-byte) KERNEL32.dll!GetCurrentProcess
+0x1009B63A  call dword ptr [0x100ca1d0]             ; KERNEL32.dll!TerminateProcess
+0x1009B64D  call dword ptr [0x100ca1d4]             ; KERNEL32.dll!IsProcessorFeaturePresent
+0x1009B755  call dword ptr [0x100ca1d4]             ; KERNEL32.dll!IsProcessorFeaturePresent
+0x1009BDDD  adc eax, 0x100ca1d4                    ; KERNEL32.dll!IsProcessorFeaturePresent
+0x1009C270  call dword ptr [0x100ca1d4]             ; KERNEL32.dll!IsProcessorFeaturePresent
+0x1009C33E  (raw 4-byte) KERNEL32.dll!IsDebuggerPresent
+0x1009C355  call dword ptr [0x100ca1cc]             ; KERNEL32.dll!SetUnhandledExceptionFilter
+0x1009C35F  call dword ptr [0x100ca1c8]             ; KERNEL32.dll!UnhandledExceptionFilter
+0x1009C3E7  call dword ptr [0x100ca1bc]             ; KERNEL32.dll!GetSystemTimeAsFileTime
+0x1009C3F6  call dword ptr [0x100ca08c]             ; KERNEL32.dll!GetCurrentThreadId
+0x1009C3FF  call dword ptr [0x100ca03c]             ; KERNEL32.dll!GetCurrentProcessId
+0x1009C40C  call dword ptr [0x100ca190]             ; KERNEL32.dll!QueryPerformanceCounter
+0x1009C472  call dword ptr [0x100ca154]             ; KERNEL32.dll!InitializeSListHead
+0x1009C74B  call dword ptr [0x100ca150]             ; KERNEL32.dll!RtlUnwind
+0x1009CB92  call dword ptr [0x100ca14c]             ; KERNEL32.dll!InterlockedFlushSList
+0x1009D5BF  call dword ptr [0x100ca148]             ; KERNEL32.dll!RaiseException
+0x1009EB08  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009EB81  call dword ptr [0x100ca050]             ; KERNEL32.dll!SetLastError
+0x1009EB9A  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009EBB1  call dword ptr [0x100ca050]             ; KERNEL32.dll!SetLastError
+0x1009F232  call dword ptr [0x100ca1ac]             ; KERNEL32.dll!EncodePointer
+0x1009F503  add al, 0xb0                           ; bad exception
+0x1009FAEF  call dword ptr [0x100ca150]             ; KERNEL32.dll!RtlUnwind
+0x1009FB69  call dword ptr [0x100ca1a8]             ; KERNEL32.dll!DeleteCriticalSection
+0x1009FC05  call dword ptr [0x100ca0a8]             ; KERNEL32.dll!FreeLibrary
+0x1009FC0F  call dword ptr [0x100ca014]             ; KERNEL32.dll!GetProcAddress
+0x1009FC2F  call dword ptr [0x100ca0b0]             ; KERNEL32.dll!LoadLibraryExW
+0x1009FC39  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009FC61  call dword ptr [0x100ca0b0]             ; KERNEL32.dll!LoadLibraryExW
+0x1009FC71  push 0x100e9700                         ; FlsAlloc
+0x1009FC7A  adc byte ptr [eax], ch                 ; FlsAlloc
+0x1009FCA2  jmp dword ptr [0x100ca130]             ; KERNEL32.dll!TlsAlloc
+0x1009FCAC  push 0x100e9714                         ; FlsFree
+0x1009FCB5  adc byte ptr [eax + 0x14], ch          ; FlsFree
+0x1009FCDA  call dword ptr [0x100ca128]             ; KERNEL32.dll!TlsFree
+0x1009FCE7  push 0x100e9724                         ; FlsGetValue
+0x1009FCF0  adc byte ptr [eax + 0x24], ch          ; FlsGetValue
+0x1009FD15  call dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x1009FD22  push 0x100e9738                         ; FlsSetValue
+0x1009FD2B  adc byte ptr [eax + 0x38], ch          ; FlsSetValue
+0x1009FD53  call dword ptr [0x100ca12c]             ; KERNEL32.dll!TlsSetValue
+0x1009FD60  push 0x100e974c                         ; InitializeCriticalSectionEx
+0x1009FD69  adc byte ptr [eax + 0x4c], ch          ; InitializeCriticalSectionEx
+0x1009FD9A  call dword ptr [0x100ca144]             ; KERNEL32.dll!InitializeCriticalSectionAndSpinCount
+0x1009FEB2  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009FEC1  call dword ptr [0x100ca050]             ; KERNEL32.dll!SetLastError
+0x1009FEDA  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x1009FF0A  call dword ptr [0x100ca050]             ; KERNEL32.dll!SetLastError
+0x100A002B  call dword ptr [0x100ca1d8]             ; KERNEL32.dll!IsDebuggerPresent
+0x100A0035  call dword ptr [0x100ca1cc]             ; KERNEL32.dll!SetUnhandledExceptionFilter
+0x100A0044  (raw 4-byte) KERNEL32.dll!UnhandledExceptionFilter
+0x100A015E  call dword ptr [0x100ca1d4]             ; KERNEL32.dll!IsProcessorFeaturePresent
+0x100A0183  (raw 4-byte) KERNEL32.dll!GetCurrentProcess
+0x100A0188  call dword ptr [0x100ca1d0]             ; KERNEL32.dll!TerminateProcess
+0x100A16A2  call dword ptr [0x100ca1a8]             ; KERNEL32.dll!DeleteCriticalSection
+0x100A1718  adc eax, 0x100ca19c                    ; KERNEL32.dll!EnterCriticalSection
+0x100A172C  adc eax, 0x100ca1a0                    ; KERNEL32.dll!LeaveCriticalSection
+0x100A3CA5  mov dword ptr [esi + 0x30], 0x100f8f78 ; (null)
+0x100A3FF1  js 0x100a3f82                         ; (null)
+0x100A453E  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100A4545  call dword ptr [0x100ca124]             ; KERNEL32.dll!ExitThread
+0x100A45BE  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x100A45CD  call dword ptr [0x100ca0a8]             ; KERNEL32.dll!FreeLibrary
+0x100A4611  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x100A4627  call dword ptr [0x100ca068]             ; KERNEL32.dll!FreeLibraryAndExitThread
+0x100A4631  adc eax, 0x100ca124                    ; KERNEL32.dll!ExitThread
+0x100A466E  call dword ptr [0x100ca120]             ; KERNEL32.dll!GetModuleHandleExW
+0x100A46D0  call dword ptr [0x100ca070]             ; KERNEL32.dll!CreateThread
+0x100A46DC  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100A4BEA  adc eax, 0x100ca010                    ; KERNEL32.dll!ReadFile
+0x100A50D2  adc eax, 0x100ca018                    ; KERNEL32.dll!GetCurrentProcess
+0x100A50D8  call dword ptr [0x100ca1d0]             ; KERNEL32.dll!TerminateProcess
+0x100A50EA  call dword ptr [0x100ca11c]             ; KERNEL32.dll!ExitProcess
+0x100A50F4  adc eax, 0x100ca0ac                    ; KERNEL32.dll!GetModuleHandleW
+0x100A5181  call dword ptr [0x100ca120]             ; KERNEL32.dll!GetModuleHandleExW
+0x100A518B  push 0x100e9af8                         ; CorExitProcess
+0x100A5194  adc eax, 0x100ca014                    ; KERNEL32.dll!GetProcAddress
+0x100A51B5  call dword ptr [0x100ca0a8]             ; KERNEL32.dll!FreeLibrary
+0x100A5DF3  cmp cl, byte ptr [edi + 0x100ea62c]    ; INITY
+0x100A5DFD  (raw 4-byte) inity
+0x100A5F63  cmp al, byte ptr [edx + 0x100ea654]    ; IND)ind)
+0x100A5F9F  cmp al, byte ptr [edx + 0x100ea644]    ; SNAN)
+0x100A5FA8  or byte ptr [esi + 0xe], 0x10         ; snan)
+0x100A9B4B  call dword ptr [0x100ca1bc]             ; KERNEL32.dll!GetSystemTimeAsFileTime
+0x100A9D14  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100A9F1C  call dword ptr [0x100ca19c]             ; KERNEL32.dll!EnterCriticalSection
+0x100A9F3C  call dword ptr [0x100ca1a8]             ; KERNEL32.dll!DeleteCriticalSection
+0x100A9F64  call dword ptr [0x100ca1a0]             ; KERNEL32.dll!LeaveCriticalSection
+0x100AA3B8  call dword ptr [0x100ca1c4]             ; KERNEL32.dll!GetCPInfo
+0x100AA788  call dword ptr [0x100ca1d4]             ; KERNEL32.dll!IsProcessorFeaturePresent
+0x100AA872  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AA8B3  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100ABCE0  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100ABD82  call dword ptr [0x100ca050]             ; KERNEL32.dll!SetLastError
+0x100ABE31  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100ABED3  call dword ptr [0x100ca050]             ; KERNEL32.dll!SetLastError
+0x100AD6A2  call dword ptr [0x100ca114]             ; KERNEL32.dll!HeapFree
+0x100AD6AD  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AD7C3  call dword ptr [0x100ca110]             ; KERNEL32.dll!HeapAlloc
+0x100AD9AC  call dword ptr [0x100ca1dc]             ; KERNEL32.dll!GetStartupInfoW
+0x100ADA16  call dword ptr [0x100ca108]             ; KERNEL32.dll!GetFileType
+0x100ADAA2  call dword ptr [0x100ca10c]             ; KERNEL32.dll!GetStdHandle
+0x100ADAB4  call dword ptr [0x100ca108]             ; KERNEL32.dll!GetFileType
+0x100ADDAA  call dword ptr [0x100ca100]             ; KERNEL32.dll!SetFilePointerEx
+0x100ADDB9  call dword ptr [0x100ca104]             ; KERNEL32.dll!GetFileSizeEx
+0x100ADE91  (raw 4-byte) KERNEL32.dll!FlushFileBuffers
+0x100ADE99  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100ADFCA  (raw 4-byte) KERNEL32.dll!GetConsoleOutputCP
+0x100AE21A  call dword ptr [0x100ca05c]             ; KERNEL32.dll!WriteFile
+0x100AE260  call dword ptr [0x100ca05c]             ; KERNEL32.dll!WriteFile
+0x100AE303  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AE385  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AE3FD  call dword ptr [0x100ca0f4]             ; KERNEL32.dll!GetConsoleMode
+0x100AE4AD  call dword ptr [0x100ca05c]             ; KERNEL32.dll!WriteFile
+0x100AE4D3  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AE596  call dword ptr [0x100ca05c]             ; KERNEL32.dll!WriteFile
+0x100AE5BC  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AE6BE  call dword ptr [0x100ca05c]             ; KERNEL32.dll!WriteFile
+0x100AE6F0  (raw 4-byte) KERNEL32.dll!GetLastError
+0x100AE9D4  call dword ptr [0x100ca05c]             ; KERNEL32.dll!WriteFile
+0x100AE9DE  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AEC0C  call dword ptr [0x100ca100]             ; KERNEL32.dll!SetFilePointerEx
+0x100AEC19  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AEEEA  call dword ptr [0x100ca010]             ; KERNEL32.dll!ReadFile
+0x100AF062  call dword ptr [0x100ca010]             ; KERNEL32.dll!ReadFile
+0x100AF25A  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AF693  call dword ptr [0x100ca0f4]             ; KERNEL32.dll!GetConsoleMode
+0x100AF6B3  call dword ptr [0x100ca0f0]             ; KERNEL32.dll!ReadConsoleW
+0x100AF6BD  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AF6F9  call dword ptr [0x100ca010]             ; KERNEL32.dll!ReadFile
+0x100AF761  (raw 4-byte) KERNEL32.dll!GetLastError
+0x100AF7F8  test dword ptr [edx], 0xdc15ff10        ; KERNEL32.dll!EnumSystemLocalesW
+0x100AF872  push 0x100ebac8                         ; AreFileApisANSI
+0x100AF879  mov edx, 0xc868100e                    ; AreFileApisANSI
+0x100AF88D  loopne 0x100af849                         ; CompareStringEx
+0x100AF893  mov edx, 0xe068100e                    ; CompareStringEx
+0x100AF8A7  clc                                    ; EnumSystemLocalesEx
+0x100AF8AD  mov edx, 0xf868100e                    ; EnumSystemLocalesEx
+0x100AF8C1  adc al, 0xbb                           ; GetDateFormatEx
+0x100AF8C7  mov ebx, 0x1468100e                    ; GetDateFormatEx
+0x100AF8DB  sub al, 0xbb                           ; GetLocaleInfoEx
+0x100AF8E1  mov ebx, 0x2c68100e                    ; GetLocaleInfoEx
+0x100AF8F5  inc esp                                ; GetTimeFormatEx
+0x100AF8FB  mov ebx, 0x4468100e                    ; GetTimeFormatEx
+0x100AF90F  pop esp                                ; GetUserDefaultLocaleName
+0x100AF915  mov ebx, 0x5c68100e                    ; GetUserDefaultLocaleName
+0x100AF929  (raw 4-byte) IsValidLocaleName
+0x100AF92F  mov ebx, 0x8868100e                    ; IsValidLocaleName
+0x100AF943  (raw 4-byte) LCIDToLocaleName
+0x100AF949  mov ebx, 0xbc68100e                    ; LCIDToLocaleName
+0x100AF95D  movsb byte ptr es:[edi], byte ptr [esi]  ; LCMapStringEx
+0x100AF963  mov ebx, 0xa468100e                    ; LCMapStringEx
+0x100AF977  (raw 4-byte) LocaleNameToLCID
+0x100AF97D  mov ebx, 0xd868100e                    ; LocaleNameToLCID
+0x100AF9CE  call dword ptr [0x100ca0b0]             ; KERNEL32.dll!LoadLibraryExW
+0x100AF9DA  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100AFA10  call dword ptr [0x100ca0b0]             ; KERNEL32.dll!LoadLibraryExW
+0x100AFA51  call dword ptr [0x100ca0a8]             ; KERNEL32.dll!FreeLibrary
+0x100AFAA9  call dword ptr [0x100ca014]             ; KERNEL32.dll!GetProcAddress
+0x100AFAE6  push 0x100ebc18                         ; AppPolicyGetProcessTerminationMethod
+0x100AFAED  mov esp, 0x1868100e                    ; AppPolicyGetProcessTerminationMethod
+0x100AFB26  push 0x100ebc44                         ; AppPolicyGetThreadInitializationType
+0x100AFB2D  mov esp, 0x4468100e                    ; AppPolicyGetThreadInitializationType
+0x100AFBE0  mov esp, 0x68100e                      ; FlsAlloc
+0x100AFC07  call dword ptr [0x100ca130]             ; KERNEL32.dll!TlsAlloc
+0x100AFC1F  mov esp, 0x1468100e                    ; FlsFree
+0x100AFC4B  jmp dword ptr [0x100ca128]             ; KERNEL32.dll!TlsFree
+0x100AFC5E  mov esp, 0x2468100e                    ; FlsGetValue
+0x100AFC8A  jmp dword ptr [0x100ca04c]             ; KERNEL32.dll!TlsGetValue
+0x100AFC9D  mov esp, 0x3868100e                    ; FlsSetValue
+0x100AFCCC  jmp dword ptr [0x100ca12c]             ; KERNEL32.dll!TlsSetValue
+0x100AFD06  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100AFD3C  call dword ptr [0x100ca0e0]             ; KERNEL32.dll!GetUserDefaultLCID
+0x100AFD5A  mov ebx, 0x4c68100e                    ; InitializeCriticalSectionEx
+0x100AFD8D  call dword ptr [0x100ca144]             ; KERNEL32.dll!InitializeCriticalSectionAndSpinCount
+0x100AFDC5  call dword ptr [0x100ca0e4]             ; KERNEL32.dll!IsValidLocale
+0x100AFE61  call dword ptr [0x100ca0ec]             ; KERNEL32.dll!LCMapStringW
+0x100AFEA3  push 0x100ebbf0                         ; RoInitialize
+0x100AFEAA  mov ebx, 0xf068100e                    ; RoInitialize
+0x100AFEDB  push 0x100ebc04                         ; RoUninitialize
+0x100AFEE2  mov esp, 0x468100e                     ; RoUninitialize
+0x100AFF78  call dword ptr ss:[0x100ca0a8]          ; KERNEL32.dll!FreeLibrary
+0x100AFFF5  call dword ptr [0x100ca1a8]             ; KERNEL32.dll!DeleteCriticalSection
+0x100B01F7  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x100B0201  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100B0563  call dword ptr [0x100ca110]             ; KERNEL32.dll!HeapAlloc
+0x100B0B13  push 0x100ebd18                         ; e+000
+0x100B11FF  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100B1597  push 0x100ebd24                         ; UTF-8
+0x100B15B5  push 0x100ebd2c                         ; UTF-16LEUNICODE
+0x100B1C0F  call dword ptr [0x100ca170]             ; KERNEL32.dll!MultiByteToWideChar
+0x100B1DF0  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100B2148  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100B2437  adc eax, 0x100ca000                    ; KERNEL32.dll!GetLastError
+0x100B260A  call dword ptr [0x100ca1c0]             ; KERNEL32.dll!GetStringTypeW
+0x100B2F80  call dword ptr [0x100ca148]             ; KERNEL32.dll!RaiseException
+0x100B33F8  call dword ptr [0x100ca0d8]             ; KERNEL32.dll!HeapReAlloc
+0x100B34F5  call dword ptr [0x100ca140]             ; KERNEL32.dll!WideCharToMultiByte
+0x100B372E  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100B3771  (raw 4-byte) KERNEL32.dll!GetLastError
+0x100B3AB0  (raw 4-byte) KERNEL32.dll!FindFirstFileExW
+0x100B3BA4  (raw 4-byte) KERNEL32.dll!FindNextFileW
+0x100B3BE1  call dword ptr [0x100ca160]             ; KERNEL32.dll!FindClose
+0x100B3C16  (raw 4-byte) KERNEL32.dll!FindClose
+0x100B3D5B  call dword ptr [0x100ca118]             ; KERNEL32.dll!GetModuleFileNameW
+0x100B3D65  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100B3F10  call dword ptr [0x100ca0cc]             ; KERNEL32.dll!GetOEMCP
+0x100B3F27  call dword ptr [0x100ca0d0]             ; KERNEL32.dll!GetACP
+0x100B3FED  (raw 4-byte) KERNEL32.dll!GetCPInfo
+0x100B440F  call dword ptr [0x100ca0d4]             ; KERNEL32.dll!IsValidCodePage
+0x100B444B  call dword ptr [0x100ca1c4]             ; KERNEL32.dll!GetCPInfo
+0x100B461B  call dword ptr [0x100ca0c8]             ; KERNEL32.dll!GetCommandLineA
+0x100B4626  call dword ptr [0x100ca0c4]             ; KERNEL32.dll!GetCommandLineW
+0x100B4673  call dword ptr [0x100ca0c0]             ; KERNEL32.dll!GetEnvironmentStringsW
+0x100B46AB  call dword ptr [0x100ca0bc]             ; KERNEL32.dll!FreeEnvironmentStringsW
+0x100B46CD  (raw 4-byte) KERNEL32.dll!FreeEnvironmentStringsW
+0x100B4700  (raw 4-byte) KERNEL32.dll!FreeEnvironmentStringsW
+0x100B4778  call dword ptr [0x100ca0b8]             ; KERNEL32.dll!GetProcessHeap
+0x100B61A5  call dword ptr [0x100ca0d0]             ; KERNEL32.dll!GetACP
+0x100B61DC  call dword ptr [0x100ca0d4]             ; KERNEL32.dll!IsValidCodePage
+0x100B633F  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100B63CB  (raw 4-byte) KERNEL32.dll!EnumSystemLocalesW
+0x100B644F  call dword ptr [0x100ca0dc]             ; KERNEL32.dll!EnumSystemLocalesW
+0x100B64C2  call dword ptr [0x100ca0dc]             ; KERNEL32.dll!EnumSystemLocalesW
+0x100B6557  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100B65A1  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100B6667  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100B67AA  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100B6918  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100B6941  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100B6956  call dword ptr [0x100ca0d0]             ; KERNEL32.dll!GetACP
+0x100B69B2  adc eax, 0x100ca0e8                    ; KERNEL32.dll!GetLocaleInfoW
+0x100B6B65  (raw 4-byte) KERNEL32.dll!GetUserDefaultLCID
+0x100B6BA1  call dword ptr [0x100ca0d4]             ; KERNEL32.dll!IsValidCodePage
+0x100B6BB4  call dword ptr [0x100ca0e4]             ; KERNEL32.dll!IsValidLocale
+0x100B6BFC  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100B6C17  call dword ptr [0x100ca0e8]             ; KERNEL32.dll!GetLocaleInfoW
+0x100B6CEB  (raw 4-byte) KERNEL32.dll!DeleteCriticalSection
+0x100B6DBB  call dword ptr [0x100ca19c]             ; KERNEL32.dll!EnterCriticalSection
+0x100B6E22  call dword ptr [0x100ca0b4]             ; KERNEL32.dll!SetStdHandle
+0x100B6E70  call dword ptr [0x100ca1a0]             ; KERNEL32.dll!LeaveCriticalSection
+0x100B6F20  call dword ptr [0x100ca19c]             ; KERNEL32.dll!EnterCriticalSection
+0x100B6F2D  call dword ptr [0x100ca1a0]             ; KERNEL32.dll!LeaveCriticalSection
+0x100B6FEB  call dword ptr [0x100ca0b4]             ; KERNEL32.dll!SetStdHandle
+0x100B7BE0  push 0x100eedb0                         ; 1#IND
+0x100B7BE7  push 0x100eeda8                         ; 1#SNAN
+0x100B7BEE  push 0x100eeda0                         ; 1#QNAN
+0x100B7C11  push 0x100eed98                         ; 1#INF
+0x100B9767  call dword ptr [0x100ca15c]             ; KERNEL32.dll!CreateFileW
+0x100B9BA5  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100B9BB8  call dword ptr [0x100ca108]             ; KERNEL32.dll!GetFileType
+0x100B9BC2  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100B9BEB  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x100B9D38  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x100B9D6A  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100B9DCC  call dword ptr [0x100ca1c0]             ; KERNEL32.dll!GetStringTypeW
+0x100BA68E  call dword ptr [0x100ca084]             ; KERNEL32.dll!HeapSize
+0x100BA9C1  call dword ptr [0x100ca15c]             ; KERNEL32.dll!CreateFileW
+0x100BA9FC  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x100BAA1A  call dword ptr [0x100ca134]             ; KERNEL32.dll!WriteConsoleW
+0x100BAA26  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100BAA4B  call dword ptr [0x100ca134]             ; KERNEL32.dll!WriteConsoleW
+0x100BAC02  lea ecx, [0x100eedd0]                  ; log10
+0x100BAC6E  lea ecx, [0x100eedd0]                  ; log10
+0x100BB10D  call dword ptr [0x100ca138]             ; KERNEL32.dll!SetEndOfFile
+0x100BB117  call dword ptr [0x100ca000]             ; KERNEL32.dll!GetLastError
+0x100BB766  call dword ptr [0x100ca1d4]             ; KERNEL32.dll!IsProcessorFeaturePresent
+0x100BC07C  call dword ptr [0x100ca1b0]             ; KERNEL32.dll!DecodePointer
+0x100BC0C0  in al, 0x34                           ; log10
+0x100BC0CD  mov dword ptr [ebp - 0x1c], 0x100ebe34 ; log10
+0x100BC1AB  in al, 0x54                           ; asin
+0x100BC1B2  mov dword ptr [ebp - 0x1c], 0x100ebe5c ; acos
+0x100BC1BB  mov dword ptr [ebp - 0x1c], 0x100ebe74 ; sqrt
+0x100BD00B  adc ch, byte ptr [0x100fb068]          ; UUUUUU
+0x100BD108  movlpd xmm5, qword ptr [0x100fb068]       ; UUUUUU
+0x100BD58E  addpd xmm6, xmmword ptr [0x100fb100]     ; UUUUUU
+0x100BD74E  addpd xmm6, xmmword ptr [0x100fb1b0]     ; UUUUUU
+0x100BE065  (raw 4-byte) asin
+0x100BE0CB  (raw 4-byte) asin
+0x100BE553  adc ch, byte ptr [0x100fe948]          ; UUUUUU
+0x100BE65D  movlpd xmm5, qword ptr [0x100fe948]       ; UUUUUU
+0x100BEB0B  addpd xmm6, xmmword ptr [0x100fe9e0]     ; UUUUUU
+0x100BECBB  addpd xmm6, xmmword ptr [0x100fea90]     ; UUUUUU
+0x100BEDC9  (raw 4-byte) sqrt
+0x100BEE26  (raw 4-byte) sqrt
+0x100C759B  mov edx, dword ptr [0x1010ab50]        ; AgentCount.txt
+0x100C75DF  add eax, 0x1010ab50                    ; AgentCount.txt
+0x100C75FB  mov edx, dword ptr [0x1010ab38]        ; HandleCount.txt
+0x100C763F  add eax, 0x1010ab38                    ; HandleCount.txt
+0x100C789B  mov eax, dword ptr [0x1011d4d8]        ; Default String
+0x100C78DA  add eax, 0x1011d4d8                    ; Default String
+0x100C78FB  mov eax, dword ptr [0x1011d538]        ; .w3x|.w3m
+0x100C793A  add eax, 0x1011d538                    ; .w3x|.w3m
+0x100C795B  mov eax, dword ptr [0x1011d520]        ; .w3n
+0x100C799A  add eax, 0x1011d520                    ; .w3n
+0x100C79BB  mov eax, dword ptr [0x1011d4f0]        ; .w3g
+0x100C79FA  add eax, 0x1011d4f0                    ; .w3g
+0x100C7A1B  mov eax, dword ptr [0x1011d508]        ; .mpq
+0x100C7A5A  add eax, 0x1011d508                    ; .mpq
+0x100C7A7B  mov eax, dword ptr [0x1011d550]        ; .mix|.asi|.flt
+0x100C7ABA  add eax, 0x1011d550                    ; .mix|.asi|.flt
+0x100C80F9  push 0x1011d668                         ; ARMOR_SMALL
+0x100C8119  push 0x1011d728                         ; ARMORTIP_SMALL
+0x100C867A  call dword ptr [0x100ca060]             ; KERNEL32.dll!UnmapViewOfFile
+0x100C8694  call dword ptr [0x100ca004]             ; KERNEL32.dll!CloseHandle
+0x100C8AFB  mov eax, dword ptr [0x1011ec0c]        ; d3d8to9.dll
+0x100C8B3A  add eax, 0x1011ec0c                    ; d3d8to9.dll

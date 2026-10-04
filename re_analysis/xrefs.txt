@@ -1,0 +1,163 @@
+0x10001092  push 0x100f45d0                     ; imm -> UjAPI\Jass\Errors.txt
+0x100010B2  call dword ptr [0x100ca00c]         ; iat -> KERNEL32.dll!GetModuleHandleA
+0x100010C0  push 0x100f45f0                     ; imm -> Game.dll
+0x100010C5  call dword ptr [0x100ca00c]         ; iat -> KERNEL32.dll!GetModuleHandleA
+0x10001142  mov dword ptr [esp + 0x14], 0x100f7184 ; imm -> cheatengine-i386.exe
+0x10001152  mov dword ptr [esp + 0x1c], 0x100f719c ; imm -> cheatengine-x86_64.exe
+0x10001162  mov dword ptr [esp + 0x24], 0x100f71b4 ; imm -> cheatengine-x86_64-SSE4-AVX2.exe
+0x10001190  push 0x100f71f8                     ; imm -> d3d8.dll
+0x10001195  call dword ptr [0x100ca00c]         ; iat -> KERNEL32.dll!GetModuleHandleA
+0x1000119F  push 0x100f7204                     ; imm -> d3d9.dll
+0x100011A4  call dword ptr [0x100ca00c]         ; iat -> KERNEL32.dll!GetModuleHandleA
+0x10001942  push 0x100f7814                     ; imm -> Fonts\FRIZQT__.TTF
+0x10001A15  mov eax, 0x1011d508                ; imm -> .mpq
+0x10001A1C  cmova eax, dword ptr [0x1011d508]    ; mem -> .mpq
+0x10001A4D  mov eax, 0x1011d538                ; imm -> .w3x|.w3m
+0x10001A58  cmova eax, dword ptr [0x1011d538]    ; mem -> .w3x|.w3m
+0x10001B04  mov eax, 0x1011d520                ; imm -> .w3n
+0x10001B1A  cmova eax, dword ptr [0x1011d520]    ; mem -> .w3n
+0x10001BAB  mov eax, 0x1011d4f0                ; imm -> .w3g
+0x10001BC1  cmova eax, dword ptr [0x1011d4f0]    ; mem -> .w3g
+0x10001C52  mov eax, 0x1011d550                ; imm -> .mix|.asi|.flt
+0x10001C68  cmova eax, dword ptr [0x1011d550]    ; mem -> .mix|.asi|.flt
+0x10001ED2  push 0x100f7828                     ; imm -> .tga|.blp|.png|.dds|.jpg
+0x10001F13  push 0x100f45f0                     ; imm -> Game.dll
+0x10001F18  call dword ptr [0x100ca00c]         ; iat -> KERNEL32.dll!GetModuleHandleA
+0x10001F22  mov ecx, 0x100f45f0                ; imm -> Game.dll
+0x10001F4D  call dword ptr [0x100ca028]         ; iat -> KERNEL32.dll!GetModuleFileNameA
+0x100020A2  push 0x100f7cc0                     ; imm -> ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+0x10002120  push 0x100f7e0c                     ; imm -> Storm.dll
+0x10002125  call dword ptr [0x100ca00c]         ; iat -> KERNEL32.dll!GetModuleHandleA
+0x10003074  push 0x100f7fbc                     ; imm -> DAMAGETIP_NORMAL
+0x1000308F  push 0x100f7fac                     ; imm -> DAMAGETIP_MELEE
+0x100030C2  push 0x100f7f98                     ; imm -> DAMAGETIP_PIERCE
+0x100030F5  push 0x100f7f88                     ; imm -> DAMAGETIP_SIEGE
+0x10003128  push 0x100f7ff4                     ; imm -> DAMAGETIP_MAGIC
+0x1000315B  push 0x100f7fe4                     ; imm -> DAMAGETIP_CHAOS
+0x1000318E  push 0x100f7fd4                     ; imm -> DAMAGETIP_HERO
+0x1000378D  push 0x100f8470                     ; imm -> HeroDur
+0x100037D2  push 0x100f8468                     ; imm -> Cool
+0x1000380B  push 0x100f8460                     ; imm -> Area
+0x10003877  push 0x100f8480                     ; imm -> Cost
+0x10003C04  mov dword ptr [ebp - 0xc4], 0x100f84a8 ; imm -> Blue
+0x10003C21  mov dword ptr [ebp - 0xb8], 0x100f84a0 ; imm -> Cyan
+0x10003C3E  mov dword ptr [ebp - 0xac], 0x100f8498 ; imm -> Purple
+0x10003C5B  mov dword ptr [ebp - 0xa0], 0x100f8490 ; imm -> Yellow
+0x10003C78  mov dword ptr [ebp - 0x94], 0x100f84cc ; imm -> Orange
+0x10003C95  mov dword ptr [ebp - 0x88], 0x100f84c4 ; imm -> Green
+0x10003CAF  mov dword ptr [ebp - 0x7c], 0x100f84bc ; imm -> Pink
+0x10003CC3  mov dword ptr [ebp - 0x70], 0x100f84b0 ; imm -> Light Gray
+0x10003CD7  mov dword ptr [ebp - 0x64], 0x100f84f0 ; imm -> Light Blue
+0x10003CEB  mov dword ptr [ebp - 0x58], 0x100f84e8 ; imm -> Aqua
+0x10003CFF  mov dword ptr [ebp - 0x4c], 0x100f84e0 ; imm -> Brown
+0x10003D13  mov dword ptr [ebp - 0x40], 0x100f84d4 ; imm -> Aggressive
+0x10003D27  mov dword ptr [ebp - 0x34], 0x100f8518 ; imm -> Neutral
+0x100041B2  push 0x100f8558                     ; imm -> abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 
+0x100042DD  mov dword ptr [ebp - 0xcc], 0x100f85d4 ; imm -> nothing
+0x100042FB  mov dword ptr [ebp - 0xc0], 0x100f85dc ; imm -> unknown
+0x10004316  mov dword ptr [ebp - 0xb4], 0x100f85e4 ; imm -> null
+0x10004331  mov dword ptr [ebp - 0xa8], 0x100f8620 ; imm -> code
+0x1000434C  mov dword ptr [ebp - 0x9c], 0x100f8628 ; imm -> integer
+0x10004367  mov dword ptr [ebp - 0x90], 0x100f8630 ; imm -> real
+0x10004382  mov dword ptr [ebp - 0x84], 0x100f8638 ; imm -> string
+0x10004397  mov dword ptr [ebp - 0x78], 0x100f85b8 ; imm -> handle
+0x100043A9  mov dword ptr [ebp - 0x6c], 0x100f85ec ; imm -> boolean
+0x100043BB  mov dword ptr [ebp - 0x60], 0x100f85f4 ; imm -> integer array
+0x100043CD  mov dword ptr [ebp - 0x54], 0x100f8604 ; imm -> real array
+0x100043DF  mov dword ptr [ebp - 0x48], 0x100f8610 ; imm -> string array
+0x100043F1  mov dword ptr [ebp - 0x3c], 0x100f8668 ; imm -> handle array
+0x10004403  mov dword ptr [ebp - 0x30], 0x100f8678 ; imm -> boolean array
+0x10004545  mov dword ptr [ebp - 0x22c], 0x100f8688 ; imm -> ENDPROGRAM
+0x10004560  mov dword ptr [ebp - 0x220], 0x100f8694 ; imm -> JUMP_DEPRECATED
+0x1000457B  mov dword ptr [ebp - 0x214], 0x100f8640 ; imm -> FUNCTION
+0x10004596  mov dword ptr [ebp - 0x208], 0x100f864c ; imm -> ENDFUNCTION
+0x100045B1  mov dword ptr [ebp - 0x1fc], 0x100f8658 ; imm -> LOCAL
+0x100045CC  mov dword ptr [ebp - 0x1f0], 0x100f8660 ; imm -> GLOBAL
+0x100045E7  mov dword ptr [ebp - 0x1e4], 0x100f86c4 ; imm -> CONSTANT
+0x10004602  mov dword ptr [ebp - 0x1d8], 0x100f86d0 ; imm -> POPFUNCARG
+0x1000461D  mov dword ptr [ebp - 0x1cc], 0x100f86dc ; imm -> TYPE
+0x10004638  mov dword ptr [ebp - 0x1c0], 0x100f86e4 ; imm -> EXTENDS
+0x10004653  mov dword ptr [ebp - 0x1b4], 0x100f86a4 ; imm -> CLEANSTACK
+0x1000466E  mov dword ptr [ebp - 0x1a8], 0x100f86b0 ; imm -> LITERAL
+0x100046A4  mov dword ptr [ebp - 0x190], 0x100f86bc ; imm -> GETVAR
+0x100046BF  mov dword ptr [ebp - 0x184], 0x100f870c ; imm -> CODE
+0x100046DA  mov dword ptr [ebp - 0x178], 0x100f8714 ; imm -> GETARRAY
+0x100046F5  mov dword ptr [ebp - 0x16c], 0x100f8720 ; imm -> SETVAR
+0x10004710  mov dword ptr [ebp - 0x160], 0x100f8728 ; imm -> SETARRAY
+0x1000472B  mov dword ptr [ebp - 0x154], 0x100f86ec ; imm -> PUSH
+0x10004761  mov dword ptr [ebp - 0x13c], 0x100f86f8 ; imm -> NATIVE
+0x1000477C  mov dword ptr [ebp - 0x130], 0x100f8700 ; imm -> JASSCALL
+0x100047E8  mov dword ptr [ebp - 0x100], 0x100f8770 ; imm -> EQUAL
+0x10004803  mov dword ptr [ebp - 0xf4], 0x100f8734 ; imm -> NOTEQUAL
+0x10004826  mov dword ptr [ebp - 0xe8], 0x100f8740 ; imm -> LESSEREQUAL
+0x10004844  mov dword ptr [ebp - 0xdc], 0x100f874c ; imm -> GREATEREQUAL
+0x1000485F  mov dword ptr [ebp - 0xd0], 0x100f875c ; imm -> LESSER
+0x1000487A  mov dword ptr [ebp - 0xc4], 0x100f8790 ; imm -> GREATER
+0x10004901  mov dword ptr [ebp - 0x88], 0x100f877c ; imm -> MODULO
+0x10004919  mov dword ptr [ebp - 0x7c], 0x100f8784 ; imm -> NEGATE
+0x1000493D  mov dword ptr [ebp - 0x64], 0x100f87ac ; imm -> RETURN
+0x1000494F  mov dword ptr [ebp - 0x58], 0x100f87b4 ; imm -> LABEL
+0x10004961  mov dword ptr [ebp - 0x4c], 0x100f87bc ; imm -> JUMPIFTRUE
+0x10004973  mov dword ptr [ebp - 0x40], 0x100f87c8 ; imm -> JUMPIFFALSE
+0x10004985  mov dword ptr [ebp - 0x34], 0x100f87a4 ; imm -> JUMP
+0x10004DC2  push 0x100f8c60                     ; imm -> WFETextures\Indicators\AoE_512.blp
+0x10004E24  call dword ptr [0x100ca1fc]         ; iat -> USER32.dll!MapVirtualKeyA
+0x10004EB2  push 0x100f8c60                     ; imm -> WFETextures\Indicators\AoE_512.blp
+0x10004F62  push 0x100f8c60                     ; imm -> WFETextures\Indicators\AoE_512.blp
+0x10004FF2  push 0x100f8c60                     ; imm -> WFETextures\Indicators\AoE_512.blp
+0x10005142  push 0x100fa500                     ; imm -> WFEModels\CooldownUI\Model.mdx
+0x100051C2  push 0x100f8c60                     ; imm -> WFETextures\Indicators\AoE_512.blp
+0x10005AB0  mov eax, 0x100ef864                ; imm -> iostream
+0x10005AD5  push 0x100f456c                     ; imm -> iostream stream error
+0x10005B6A  mov dword ptr [ecx + 4], 0x100ef870 ; imm -> bad cast
+0x10005F17  push 0x100ef87c                     ; imm -> bad locale name
+0x100061D7  mov esi, 0x100ef89c                ; imm -> ios_base::badbit set
+0x100061E1  mov esi, 0x100ef8b4                ; imm -> ios_base::failbit set
+0x100061E6  mov eax, 0x100ef8cc                ; imm -> ios_base::eofbit set
+0x10008916  mov ecx, 0x100efde4                ; imm -> nan(ind)
+0x10008936  mov ecx, 0x100efdf4                ; imm -> nan(snan)
+0x10008D25  push 0x100efb5c                     ; imm -> {:d}, {:d}
+0x10008D50  push 0x100efb68                     ; imm -> map/set too long
+0x10008E75  push 0x100efbc8                     ; imm -> {:d}
+0x10008EB7  push 0x100efbd4                     ; imm -> {:d} ({}{:d})
+0x10009031  push 0x100efbe4                     ; imm ->  ({}{})
+0x100092EF  push 0x100efbec                     ; imm -> {} | '{}' | {} | {}
+0x100093FB  push 0x100efc04                     ; imm ->   CAgentBaseAbs ({:08X}) -> CAgentWar3 ({:08X})
+0x1000949C  push 0x100efc38                     ; imm ->   ({:08X}) -> [ {} ]
+0x1000972B  mov ecx, 0x100efbb4                ; imm -> Number is too big
+0x100097E6  mov eax, 0x1010ab50                ; imm -> AgentCount.txt
+0x10009B09  mov edx, 0x100efc50                ; imm -> ========== Agent Count =======
+0x10009B5E  push 0x100efc70                     ; imm ->  ({}{:d})
+0x10009BC6  push 0x100efbc8                     ; imm -> {:d}
+0x10009DAA  push 0x100efbe4                     ; imm ->  ({}{})
+0x1000A098  push 0x100efc84                     ; imm -> Total: {} | {}
+0x1000A103  mov edx, 0x100efc94                ; imm -> ===============================
+0x1000A596  mov eax, 0x1010ab38                ; imm -> HandleCount.txt
+0x1000A926  mov edx, 0x100efcb8                ; imm -> ========== Handle Count =======
+0x1000A97B  push 0x100efc70                     ; imm ->  ({}{:d})
+0x1000A9D9  push 0x100efbc8                     ; imm -> {:d}
+0x1000ABC0  push 0x100efbe4                     ; imm ->  ({}{})
+0x1000AEC9  push 0x100efcdc                     ; imm -> ({}{:d})
+0x1000AF2E  push 0x100efce8                     ; imm -> Handle Index: {:d} {}
+0x1000B0C0  push 0x100efc84                     ; imm -> Total: {} | {}
+0x1000B12B  mov edx, 0x100efd00                ; imm -> ============================================
+0x1000CFD0  push 0x100efd4c                     ; imm -> invalid vector subscript
+0x1000D550  push 0x100efdc8                     ; imm -> invalid string position
+0x1000DFFB  mov eax, 0x100efde4                ; imm -> nan(ind)
+0x1000E01D  mov eax, 0x100efdf4                ; imm -> nan(snan)
+0x1000E0FB  mov eax, 0x100efde4                ; imm -> nan(ind)
+0x1000E11D  mov eax, 0x100efdf4                ; imm -> nan(snan)
+0x1000E200  mov ecx, 0x100efde4                ; imm -> nan(ind)
+0x1000E220  mov ecx, 0x100efdf4                ; imm -> nan(snan)
+0x1000E3B9  mov ecx, 0x100efde4                ; imm -> nan(ind)
+0x1000E3DB  mov ecx, 0x100efdf4                ; imm -> nan(snan)
+0x1000F2CE  push 0x100ef87c                     ; imm -> bad locale name
+0x1000F9A6  mov eax, dword ptr [0x100efe60]    ; mem -> 0e+00
+0x10011040  push 0x100efe50                     ; imm -> vector too long
+0x1001117A  mov ecx, dword ptr [0x100efe60]    ; mem -> 0e+00
+0x1001274A  mov ecx, 0x100ef8e4                ; imm -> Unmatched '}' in format string.
+0x10012A4C  mov ecx, 0x100ef904                ; imm -> Invalid format string.
+0x10012A56  mov ecx, 0x100efd94                ; imm -> Can not switch from automatic to manual indexing
+0x10012A60  mov ecx, 0x100ef958                ; imm -> Can not switch from manual to automatic indexing
+0x10012A6A  mov ecx, 0x100ef91c                ; imm -> Unknown format specifier.
+0x10012A74  mov ecx, 0x100ef938                ; imm -> Missing '}' in format string.
