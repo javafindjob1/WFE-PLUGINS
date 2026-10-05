@@ -159,8 +159,10 @@ struct Config {
     // ---- 聊天命令（动态切换显示模式）----
     int   chat_cmd    = 1;          // 1=启用游戏内聊天命〔?〕
     char  chat_prefix[8] = "@";     // 命令前缀
+    // block_cmd：1=拦截 @ 命令，只本地处理、不广播给其他玩家（默认）；0=照旧广播
+    int   block_cmd   = 1;
     // 开局默认【静默】：不显示明细、不显示统计，等玩家自己用聊天命令开启〔?〕
-    //   0=全部 1=来源自己/友方 2=来源敌人 3=关闭（默认，连日志一起停〔?〕
+    //   0=来源自己 1=来源自己/友方 2=来源敌人 3=关闭（默认，连日志一起停〔?〕
     int   mode        = 3;
     // start_hint=1 时，第一次伤害那一刻提示一〔?〕怎么开〔?〕（默〔?〕0 = 完全不打扰）
     int   start_hint  = 0;
@@ -185,7 +187,7 @@ struct Config {
     //   3=reuse：用缓存的单个组枚举（只在首次分配一个句柄，用来判断"反复分配句柄"是不是元凶）
     //   4=memory：只用纯内存读，失败即跳过（最保守〔?〕
     int   pick        = 0;
-    // filter_side: 模式 1/2 按哪一方判〔?〕
+    // filter_side: 模式 0/1/2 按哪一方判〔?〕
     //   0=来源方（默认：看"伤害来源"是谁，
     //   1=目标方（〔?〕挨打的是〔?〕〔?〕
     //   2=任一方（来源或目标任一方满足就显示〔?〕
@@ -245,7 +247,7 @@ static Config g_cfg;
 #define BACKEND_NATIVE 2
 
 // 运行期显示模式（@0/@1/@2/@3 会改它；初值来〔?〕ini 〔?〕mode〔?〕
-//   0=全部  1=伤害来源为自〔?〕友方  2=伤害来源为敌〔?〕3=关闭（连日志一起停〔?〕
+//   0=来源自己  1=伤害来源为自〔?〕友方  2=伤害来源为敌〔?〕3=关闭（连日志一起停〔?〕
 static volatile LONG g_mode = 0;
 
 //------------------------------------------------------------------------------
@@ -3406,6 +3408,7 @@ static int LocalPlayerId()
 static const char* ModeNameUtf8(int m)
 {
     switch (m) {
+    case 0:  return "仅来源为自己";
     case 1:  return "仅来源为自己/友方";
     case 2:  return "仅来源为敌人";
     case 3:  return "关闭";
@@ -3416,7 +3419,8 @@ static const char* ModeNameUtf8(int m)
 static const char* ModeNameAscii(int m)
 {
     switch (m) {
-    case 1:  return "SRC-SELF";
+    case 0:  return "SRC-SELF";
+    case 1:  return "SRC-SELFALLY";
     case 2:  return "SRC-ENEMY";
     case 3:  return "OFF";
     default: return "ALL";
@@ -3428,6 +3432,7 @@ static const char* ModeNameAscii(int m)
 static const char* ModeHelpUtf8(int m)
 {
     switch (m) {
+    case 0:  return "只看来源是自己的伤害";
     case 1:  return "只看来源是自己/友方的伤害";
     case 2:  return "只看来源是敌人的伤害";
     case 3:  return "不显示明细（统计照旧，死亡仍结算）";
@@ -3438,6 +3443,7 @@ static const char* ModeHelpUtf8(int m)
 static const char* ModeHelpAscii(int m)
 {
     switch (m) {
+    case 0:  return "only damage FROM self";
     case 1:  return "only damage FROM self/ally";
     case 2:  return "only damage FROM enemy";
     case 3:  return "no per-hit text (stats still on)";
@@ -3458,11 +3464,13 @@ static void ShowModeAck(int newMode, int byHotkey)
 
     // 〔?〕1 行：当前状态（用用户的原话〔?〕
     AppUtf8(line, sizeof(line), g_cfg.labels
-            ? (newMode == 1 ? "|cffffcc00[伤害]|r 显示自己和友军伤害"
+            ? (newMode == 0 ? "|cffffcc00[伤害]|r 只显示自己的伤害"
+              : newMode == 1 ? "|cffffcc00[伤害]|r 显示自己和友军伤害"
               : newMode == 2 ? "|cffffcc00[伤害]|r 显示敌人伤害"
               : newMode == 3 ? "|cffffcc00[伤害]|r 已关闭明细（统计照旧，死亡仍结算）"
                              : "|cffffcc00[伤害]|r 统计全部伤害")
-            : (newMode == 1 ? "|cffffcc00[DMG]|r self+ally damage"
+            : (newMode == 0 ? "|cffffcc00[DMG]|r self damage only"
+              : newMode == 1 ? "|cffffcc00[DMG]|r self+ally damage"
               : newMode == 2 ? "|cffffcc00[DMG]|r enemy damage"
               : newMode == 3 ? "|cffffcc00[DMG]|r detail OFF (stats still on)"
                              : "|cffffcc00[DMG]|r all damage"));
@@ -3839,6 +3847,80 @@ static uint32_t __fastcall ChatHook3(void* s, void* e, int p, const char* t, int
 static void* const kChatThunks[CHAT_MAX_SLOTS] = {
     (void*)&ChatHook0, (void*)&ChatHook1, (void*)&ChatHook2, (void*)&ChatHook3
 };
+
+//------------------------------------------------------------------------------
+// v1.4.23：拦截聊天发送函数 game+0x241EA0 —— @ 命令只本地处理、不广播给盟友
+//
+// 逆向依据（v1.3.94~97 实机钉死，见 §7.5 直投聊天注释）：
+//   发送函数 RVA 0x241EA0，__thiscall(this=本地玩家对象, text=裸 UTF-8 char*)，
+//   序言 55 8B EC 6A FF 68 …（标准 SEH 序言，ret 4 = 1 个栈参）。
+//   只被提交路径 game+0x3518B3 调用（玩家按回车那一下）。
+//   提交路径在 call 之后还会清空输入框，所以【跳过发送函数】不会留下残留文本。
+//
+// 为什么要拦：聊天命令（@0/@1/@2/@3/@幸存者/@?/@! …）本会被广播给同局玩家，
+//   这里在发送这一层拦下，本地照常处理（HandleChatCommand 已在游戏线程上）。
+//------------------------------------------------------------------------------
+#define WC3_RVA_CHAT_SEND 0x241EA0u
+typedef void (__fastcall *fn_chat_send_t)(void* self, void* edx_dummy, const char* text);
+static void*     g_chatSendTramp  = NULL;
+static uint32_t  g_chatSendTarget = 0;
+
+static void __fastcall ChatSendHook(void* self, void* edx_dummy, const char* text)
+{
+    int suppress = 0;
+    __try {
+        if (g_cfg.block_cmd && g_cfg.chat_cmd && text && text[0] && g_cfg.chat_prefix[0]) {
+            const char* p = text;
+            while (*p == ' ') ++p;
+            if (strncmp(p, g_cfg.chat_prefix, strlen(g_cfg.chat_prefix)) == 0) {
+                suppress = 1;   // 先决定拦截，再处理（处理失败也不广播出去）
+                const int lid = LocalPlayerId();
+                HandleChatCommand(lid, text);
+                LogLine("拦截聊天命令（不广播）：玩家%d \"%s\"", lid, text);
+            }
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        LogLine("E 聊天发送钩子异常，已吞掉（code=%08X）", (uint32_t)GetExceptionCode());
+    }
+    if (!suppress) {
+        fn_chat_send_t orig = (fn_chat_send_t)(uintptr_t)g_chatSendTramp;
+        if (orig) orig(self, edx_dummy, text);
+    }
+}
+
+static void InitChatSendBlock()
+{
+    if (!g_cfg.block_cmd) {
+        LogLine("拦截聊天命令：已按 ini 关闭（block_cmd=0），@ 命令会照常广播");
+        return;
+    }
+    const uint32_t base = Wc3GameBase();
+    if (!base) { LogLine("拦截聊天命令：拿不到 Game.dll 基址，跳过（@ 命令照常广播）"); return; }
+
+    const uint32_t fn = base + WC3_RVA_CHAT_SEND;
+    uint8_t b[5] = { 0 };
+    __try { for (int i = 0; i < 5; ++i) b[i] = *(const uint8_t*)(uintptr_t)(fn + i); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { b[0] = 0; }
+    if (!(b[0] == 0x55 && b[1] == 0x8B && b[2] == 0xEC && b[3] == 0x6A && b[4] == 0xFF)) {
+        LogLine("拦截聊天命令：Game.dll+0x%X 序言 %02X %02X %02X %02X %02X 不符，版本可能不匹配，跳过",
+                WC3_RVA_CHAT_SEND, b[0], b[1], b[2], b[3], b[4]);
+        return;
+    }
+
+    int hops = 0;
+    const uint32_t live = FollowJumps(fn, &hops);
+    if (hops > 0) LogLine("拦截聊天命令：入口 %08X 已被挂钩，跟随 %d 跳到 %08X", fn, hops, live);
+
+    void* tramp = NULL;
+    const int stolen = InstallDetour(live, (void*)&ChatSendHook, &tramp);
+    if (!stolen || !tramp) {
+        LogLine("拦截聊天命令：挂钩失败（目标 %08X），@ 命令仍会照常广播", live);
+        return;
+    }
+    g_chatSendTramp  = tramp;
+    g_chatSendTarget = live;
+    LogLine("拦截聊天命令：已挂钩发送函数 %08X（偷 %d 字节），@ 命令将只本地处理、不广播", live, stolen);
+}
 
 // v1.3.37：把一个绝对地址连同"模块〔?〕+ 模块基址 + 模块内偏〔?〕一起写进日志〔?〕
 //   为什么需要：WFE 的钩子处理函数在 WFEDll.dll 里，〔?〕DLL 〔?〕ASLR（每局基址都不同）〔?〕
@@ -5820,6 +5902,8 @@ static void InitChatHook()
         return;
     }
 
+    InitChatSendBlock();    // v1.4.23：拦截 @ 命令发送，只本地处理、不广播
+
     if (g_nativeMode) {
         LogLine("聊天命令：native 模式 —— 已知 RVA 优先 + 入口可信性校验（v1.3.33，只钩唯一一个）");
         const uint32_t fn = LocateChatFnNative();
@@ -7355,7 +7439,7 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
         // 聊天命令路径也会调它，所以两边共用同一个开关〔?〕
         EnsureTextReady(snap.target_handle, snap.source_handle);
 
-        const int mode = (int)g_mode;      // 0=全部 1=来源自己/友方 2=来源敌人 3=关闭
+        const int mode = (int)g_mode;      // 0=来源自己 1=来源自己/友方 2=来源敌人 3=关闭
 
         // 开局默认静默（mode=3）：不显示明细、不显示统计，等玩家自己发命令开启〔?〕
         // start_hint=1 时，〔?〕进游戏后第一次挨〔?〕这一刻提示一行怎么开启（默认关）〔?〕
@@ -7363,8 +7447,8 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
         if (g_cfg.start_hint && mode == 3 && InterlockedExchange(&s_hintDone, 1) == 0) {
             char l[512] = { 0 };
             AppUtf8(l, sizeof(l), g_cfg.labels
-                ? "|cff00ffff[统计]|r 已就绪（默认不显示）。热键 Ctrl+Alt+1 自己友军 / 2 敌人 / 0 全部 / 3 关闭"
-                : "|cff00ffff[STATS]|r ready (off). hotkeys Ctrl+Alt+1 self+ally / 2 enemy / 0 all / 3 off");
+                ? "|cff00ffff[统计]|r 已就绪（默认不显示）。热键 Ctrl+Alt+0 自己 / 1 自己友军 / 2 敌人 / 3 关闭"
+                : "|cff00ffff[STATS]|r ready (off). hotkeys Ctrl+Alt+0 self / 1 self+ally / 2 enemy / 3 off");
             ShowMessage(l);
         }
 
@@ -7457,6 +7541,17 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
             if (!skip && g_cfg.only_related) {
                 if (!IsRelatedToLocalPlayer(snap.target_handle) &&
                     !IsRelatedToLocalPlayer(snap.source_handle)) skip = 1;
+            }
+
+            // ---- 模式 0：只显示自己（伤害来源/目标必须是本地玩家自己的单位，不含友军）----
+            if (!skip && mode == 0) {
+                const int selfSrc = IsRelatedToLocalPlayer(snap.source_handle);
+                const int selfTgt = IsRelatedToLocalPlayer(snap.target_handle);
+                int hit = 0;
+                if (g_cfg.filter_side == 0)      hit = selfSrc;            // 默认：看来源
+                else if (g_cfg.filter_side == 1) hit = selfTgt;            // 看目标
+                else                             hit = selfSrc || selfTgt; // 任一方
+                if (!hit) skip = 1;
             }
 
             // ---- 模式过滤（按【来源方】判定：看伤害来源是谁）----
@@ -7581,7 +7676,7 @@ static void WriteDefaultIni()
         "; ============================================================================\r\n",
         "\r\n",
         "; ---- 游戏内聊天命令（只认本地玩家自己发的）---\r\n",
-        ";   @0 = 全部显示\r\n",
+        ";   @0 = 只显示【伤害来源】为自己的\r\n",
         ";   @1 = 只显示【伤害来源】为自己或友方的\r\n",
         ";   @2 = 只显示【伤害来源】为敌人的\r\n",
         ";   @3 = 关闭显示（连日志一起停）\r\n",
@@ -7612,19 +7707,20 @@ static void WriteDefaultIni()
         "; enable    : 1=启用插件  0=完全停用（不钩、不显示、不记日志）\r\n",
         "; log_only  : 1=只写日志不显示  0=日志+屏幕都出\r\n",
         "; 开局默认是【静默】的：不显示明细、不显示统计，等玩家自己发聊天命令开启。\r\n",
-        ";   开启：@1 只显示来源为自己/友方   @2 只显示来源为敌人   @0 全部\r\n",
+        ";   开启：@0 只显示来源为自己   @1 只显示来源为自己/友方   @2 只显示来源为敌人\r\n",
         ";   关闭：@3（连日志一起停）\r\n",
         "; 想在进游戏第一次挨打时提示一行怎么开启，把 start_hint 改成 1。\r\n",
         "enable=1\r\n", "log_only=0\r\n", "start_hint=0\r\n",
         "\r\n",
         "; ---- 显示模式（游戏内可用聊天命令动态切换）----\r\n",
-        "; mode      : 启动时的模式  0=全部显示  1=只显示来源为自己/友方  2=只显示来源为敌人  3=关闭(连日志也不记)\r\n",
+        "; mode      : 启动时的模式  0=只显示来源为自己  1=只显示来源为自己/友方  2=只显示来源为敌人  3=关闭(连日志也不记)\r\n",
         "; chat_cmd  : 1=允许游戏内用聊天命令切换  0=只能用本文件的 mode\r\n",
         "; chat_prefix: 命令前缀，默认 @。游戏内发 @0/@1/@2/@3 即切换（只认本地玩家自己发的）\r\n",
-        "; filter_side: 模式 1/2 按哪一方判定  0=来源方看“伤害来源”是谁，默认)\r\n",
+        "; block_cmd : 1=拦截 @ 命令，只本地处理、不广播给其他玩家（默认）；0=照旧广播（盟友看得到）\r\n",
+        "; filter_side: 模式 0/1/2 按哪一方判定  0=来源方看“伤害来源”是谁，默认)\r\n",
         ";                                    1=目标方(看“挨打的是谁”)\r\n",
         ";                                    2=任一方(来源或目标任一方满足即显示)\r\n",
-        "mode=3\r\n", "chat_cmd=1\r\n", "chat_prefix=@\r\n", "filter_side=0\r\n",
+        "mode=3\r\n", "chat_cmd=1\r\n", "chat_prefix=@\r\n", "block_cmd=1\r\n", "filter_side=0\r\n",
         "; hotkeys: 1=启用热键（Ctrl+Alt+数字 切模式 / R 记录选中单位 / Q 看统计 / S 结算）。\r\n",
         ";          死亡结算复制到剪贴板的能力已在 v1.4.13 删除，v1.4.14 连带删除全部剪贴板配置。\r\n",
 
@@ -7785,6 +7881,7 @@ static void LoadConfig()
         else if (!_stricmp(k, "labels"))       g_cfg.labels       = iv;
         else if (!_stricmp(k, "encoding"))     g_cfg.encoding     = iv;
         else if (!_stricmp(k, "chat_cmd"))     g_cfg.chat_cmd     = iv;
+        else if (!_stricmp(k, "block_cmd"))    g_cfg.block_cmd    = iv;
         else if (!_stricmp(k, "chat_prefix")) {
             strncpy_s(g_cfg.chat_prefix, sizeof(g_cfg.chat_prefix), v, _TRUNCATE);
             if (!g_cfg.chat_prefix[0]) strcpy_s(g_cfg.chat_prefix, sizeof(g_cfg.chat_prefix), "@");
@@ -7862,14 +7959,14 @@ static void LoadConfig()
             " skip_locust=%d filter_zero=%d min_amount=%.1f"
             " only_related=%d throttle_ms=%d show_hp=%d show_weapon=%d show_owner=%d"
             " color=%d log_events=%d labels=%d encoding=%d log_max_lines=%d"
-            " | mode=%d start_hint=%d hotkeys=%d pick=%d chat_cmd=%d chat_prefix=\"%s\" filter_side=%d track_min_damage=%.1f chat_dr=%d chat_marker=\"%s\"",
+            " | mode=%d start_hint=%d hotkeys=%d pick=%d chat_cmd=%d block_cmd=%d chat_prefix=\"%s\" filter_side=%d track_min_damage=%.1f chat_dr=%d chat_marker=\"%s\"",
             g_cfg.enable, g_cfg.log_only, g_cfg.backend, g_cfg.debug,
             g_cfg.chat_send_delay_ms, g_cfg.chat_diag, g_cfg.ydbase_wait_sec,
             g_cfg.native_chain,            g_cfg.skip_locust, g_cfg.filter_zero,
             g_cfg.min_amount, g_cfg.only_related, g_cfg.throttle_ms,
             g_cfg.show_hp, g_cfg.show_weapon, g_cfg.show_owner,
             g_cfg.color, g_cfg.log_events, g_cfg.labels, g_cfg.encoding, g_cfg.log_max_lines,
-            g_cfg.mode, g_cfg.start_hint, g_cfg.hotkeys, g_cfg.pick, g_cfg.chat_cmd, g_cfg.chat_prefix,
+            g_cfg.mode, g_cfg.start_hint, g_cfg.hotkeys, g_cfg.pick, g_cfg.chat_cmd, g_cfg.block_cmd, g_cfg.chat_prefix,
             g_cfg.filter_side, g_cfg.track_min_damage, g_cfg.chat_dr, g_cfg.chat_marker);
     LogLine("配置: 直投聊天 chat_send_target=%d（0=全部 1=盟友 2=观察者）", g_cfg.chat_send_target);
 }

@@ -1,6 +1,6 @@
-<#
+﻿<#
 ================================================================================
- deploy_watcher.ps1 -- install the freshly built UDamageWatcher into both loaders
+ deploy_watcher.ps1 -- install the freshly built UDamageWatcher into WFE Libraries
 ================================================================================
  Why this exists (2026-10-02):
    build_watcher.ps1 can no longer be used as the deploy path: its step 5 runs the
@@ -10,17 +10,11 @@
    does the install half deterministically.
 
  What it does (idempotent; each step verified by SHA256, never by exit code):
-   1. copies _build\watcher\UDamageWatcher.dll -> warcraft3\UDamageWatcher.dll
-      (the YDWE plugin folder; kept in sync even though config.cfg disables it)
-   2. copies the same DLL -> <WFE>\Application\Libraries\UDamageWatcher.dll
-      (the LIVE loader: config.cfg has UDamageWatcher.dll = 0, WFE auto-injects)
-   3. copies the working ini next to both, so the deployed config is the
+   1. copies _build\watcher\UDamageWatcher.dll -> <WFE>\Application\Libraries\UDamageWatcher.dll
+      (the LIVE loader: WFE auto-injects the plugin)
+   2. copies the working ini next to it, so the deployed config is the
       verified snapshot (backend=2 native, encoding=2 UTF-8, pick=auto)
-   4. re-reads all four files and fails loudly on any hash mismatch
-
- IMPORTANT: with WFE active, the DLL must be copied to WFE's Libraries folder.
-   YDWE's config.cfg entry stays 0 so the DLL is not loaded twice (loading it
-   through both paths installs two detours and they fight).
+   3. re-reads the files and fails loudly on any hash mismatch
 
  Usage:
    .\deploy_watcher.ps1
@@ -29,7 +23,8 @@
 #>
 [CmdletBinding()]
 param(
-	[string]$Wfe = ''
+	[string]$Wfe = '',
+	[string]$CommitMsg = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -51,11 +46,9 @@ if (-not (Test-Path $artDll)) { Die "artifact missing: $artDll (run _tools\build
 $artHash = (Get-FileHash $artDll -Algorithm SHA256).Hash
 Ok ("artifact : {0}  {1:N0} bytes  SHA256={2}" -f $artDll, (Get-Item $artDll).Length, $artHash.Substring(0, 16))
 
-# ini source: prefer the verified working snapshot, fall back to whatever the
-# live WFE folder currently has (that is by definition the config in use).
+# ini source: the verified working snapshot (backend=2 native, encoding=2 UTF-8).
 $iniCandidates = @(
-	(Join-Path $root '_config\UDamageWatcher.ini.working'),
-	(Join-Path $root 'warcraft3\UDamageWatcher.ini')
+	(Join-Path $root '_config\UDamageWatcher.ini.working')
 )
 $iniSrc = $iniCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 $iniHash = ''
@@ -73,11 +66,10 @@ if (-not $Wfe) {
 	}
 }
 if ($Wfe -and (Test-Path $Wfe)) { Ok ("WFE libs : {0}" -f $Wfe) }
-else { Warn 'WFE Libraries folder not found; only the YDWE plugin folder will be updated' }
+else { Die 'WFE Libraries folder not found; nothing to deploy (pass -Wfe)' }
 
 #------------------------------------------------------------------------------
 $targets = @()
-$targets += [pscustomobject]@{ Name = 'YDWE plugin dir'; Dir = (Join-Path $root 'warcraft3') }
 if ($Wfe) { $targets += [pscustomobject]@{ Name = 'WFE Libraries'; Dir = $Wfe } }
 
 Step '1/4 copy ini FIRST, then DLL (ini is never locked; a locked DLL must not skip it)'
@@ -183,25 +175,25 @@ foreach ($t in $targets) {
 if ($stale -eq 0) { Info '  no stale renamed-aside copies present' }
 
 #------------------------------------------------------------------------------
-Step '3/4 loader registration sanity (config.cfg)'
-$cfg = Join-Path $root 'warcraft3\config.cfg'
-if (Test-Path $cfg) {
-	$gbk = [System.Text.Encoding]::GetEncoding(936)
-	$lines = $gbk.GetString([System.IO.File]::ReadAllBytes($cfg)) -split "`r`n|`n"
-	$line = $lines | Where-Object { $_ -match '^\s*UDamageWatcher\.dll\s*=' } | Select-Object -First 1
-	if ($line) {
-		Info ("  {0}" -f $line)
-		if ($line -match '=\s*1\s*$' -and $Wfe) {
-			Warn '  config.cfg loads the plugin from YDWE AND WFE would inject it too ->'
-			Warn '  that installs two detours of the same DLL. Set it to 0 when using WFE.'
-		} elseif ($line -match '=\s*0\s*$' -and $Wfe) {
-			Ok '  = 0 with WFE present: single loader (WFE auto-inject). Correct.'
-		}
-	} else {
-		Warn '  no UDamageWatcher.dll line in config.cfg'
-	}
+# 3/4：git 本地提交 —— 每次部署留一个可回滚的提交点（防止改错难回滚）
+#   提交的是【源码 + 配置快照 + 脚本】，不是 _build 产物（.gitignore 已排除）。
+#   想自定义提交信息就加 -CommitMsg 'xxx'；默认带时间戳。
+#------------------------------------------------------------------------------
+Step '3/4 git commit (local rollback point)'
+$gitExe = Get-Command git -ErrorAction SilentlyContinue
+if (-not $gitExe) {
+    Warn '  git 不可用，跳过提交'
 } else {
-	Warn ("  config.cfg not found: {0}" -f $cfg)
+    $dirty = & git -C $root status --porcelain 2>$null
+    if ($dirty) {
+        $msg = if ($CommitMsg) { $CommitMsg } else { "部署提交 $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" }
+        & git -C $root add -A
+        & git -C $root commit -m $msg
+        if ($LASTEXITCODE -eq 0) { Ok '  git 本地提交完成' }
+        else { Warn '  git commit 返回非 0，提交可能失败（不影响部署）' }
+    } else {
+        Info '  工作区干净，没有可提交的改动'
+    }
 }
 
 #------------------------------------------------------------------------------
