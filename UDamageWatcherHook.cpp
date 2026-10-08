@@ -7765,7 +7765,7 @@ static void WriteDefaultIni()
         "; native_chain: 引擎伤害函数入口被别人挂钩时（WFE 的伤害数字、平台 JAPI 都会先钩它），\r\n",
         ";               是否改用【链式挂钩】：用唯一的“尾部序言”认出函数 -> 钩别人装上去的处理函数\r\n",
         ";               -> 跳板转发回它的原代码（它的伤害系统照旧）。默认 1=开；0=老行为（直接安全退出）。\r\n",
-        "; pick   : Ctrl+Alt+R/T「记录当前选中的单位」怎么取选区。\r\n",
+        "; pick   : Ctrl+Alt+R「记录当前选中的单位」怎么取选区。\r\n",
         ";          实实测：多人联机时用 CreateGroup/GroupEnumUnitsSelected 会导致平台报“不同步/异常”，\r\n",
         ";          所以默认优先用【纯内存读选区】（不建组、不调选区 native、不分配句柄，联机也安全）。\r\n",
         ";          auto  =先用内存读；内存读不可用（游戏版本不符）才降级：单人用建组枚举、多人跳过（默认）\r\n",
@@ -8139,7 +8139,7 @@ static void DoInitializeNative()
 static void DoInitialize()
 {
     LogLine("================================================================");
-    LogLine("UDamageWatcherHook v1.4.22（热键吞键，阻止传播给游戏）");
+    LogLine("UDamageWatcherHook v1.4.23（热键吞键，阻止传播给游戏）");
     LogLine("本 DLL  : %s", g_dllDir);
     LogLine("日志    : %s", g_logPath);
     LogLine("配置    : %s", g_iniPath);

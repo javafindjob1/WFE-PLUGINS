@@ -111,7 +111,7 @@ track_min_damage=5
 ; hotkeys: 1=启用热键（Ctrl+Alt+数字/R/Q/S）。热键不走聊天，命令不会发给别人。
 hotkeys=1
 
-; pick: auto(default)|memory|on|off|reuse -- Ctrl+Alt+R/T selection pick.
+; pick: auto(default)|memory|on|off|reuse -- Ctrl+Alt+R selection pick.
 ;   auto = memory-read first (safe in multiplayer); falls back to group-enum in single player.
 pick=auto
 ; ---- 后端（从哪儿取"伤害事件"）----
