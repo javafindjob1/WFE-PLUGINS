@@ -1,8 +1,8 @@
-前提是你要用过wfe这个扩展，会用！
+前提是你要用过Warcraft Feature Extender这个扩展！
 
 接着：
 1. 勾选启动器中的加载附加库
-2. 最后将本项目release中的dll和ini文件放到wfe的Libaries中
+2. 然后将本项目release中的dll和ini文件放到wfe的Libaries中
 
 
 游戏中记录单位受到的伤害，随时查看。可视化伤害。
