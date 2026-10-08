@@ -108,6 +108,7 @@ struct DamageSnapshot {
     uint32_t source_obj;      // 来源的【单位对象指针】：栈参〔?〕raw_sourceUnit 优先，否〔?〕ptr->source_unit
     uint32_t source_handle;   // object_to_handle(source_obj)
     float    amount;          // from_real(amount_real)
+    float    after_amount;    // 地图伤害事件处理后的实际伤害（目标 HP 差值）；读不到时 = amount
 };
 
 //------------------------------------------------------------------------------
@@ -1829,7 +1830,7 @@ static int  g_textEncKnown = 0; // 编码是否已确定（强制或探测到票
 
 // 标签（UTF-8 〔?〕〔?〕〔?〕g_textCp 转好，只转标签，不碰游戏给的单位名）
 static char L_PREFIX[64], L_SRC[32], L_TGT[32], L_ATK[16], L_RNG[16];
-static char L_ATYPE[40], L_DTYPE[40], L_DMG[16], L_WEP[16], L_HP[16], L_OWN[16];
+static char L_ATYPE[40], L_DTYPE[40], L_DMG[16], L_AFTER[16], L_WEP[16], L_HP[16], L_OWN[16];
 
 static void LoadLabelsAscii()
 {
@@ -1841,6 +1842,7 @@ static void LoadLabelsAscii()
     strcpy_s(L_ATYPE,  sizeof(L_ATYPE),  "ATYPE");
     strcpy_s(L_DTYPE,  sizeof(L_DTYPE),  "DTYPE");
     strcpy_s(L_DMG,    sizeof(L_DMG),    "DMG");
+    strcpy_s(L_AFTER,  sizeof(L_AFTER),  "AFTER");
     strcpy_s(L_WEP,    sizeof(L_WEP),    "WEP");
     strcpy_s(L_HP,     sizeof(L_HP),     "HP");
     strcpy_s(L_OWN,    sizeof(L_OWN),    "OWN");
@@ -1858,6 +1860,7 @@ static void LoadLabelsChinese(UINT cp)
         { L_ATYPE,  sizeof(L_ATYPE),  "攻击类型" },
         { L_DTYPE,  sizeof(L_DTYPE),  "伤害类型" },
         { L_DMG,    sizeof(L_DMG),    "伤害" },
+        { L_AFTER,  sizeof(L_AFTER),  "实际" },
         { L_WEP,    sizeof(L_WEP),    "武器" },
         { L_HP,     sizeof(L_HP),     "生命" },
         { L_OWN,    sizeof(L_OWN),    "所有" },
@@ -2636,7 +2639,8 @@ static const int kMaxPrintSources = 10;  // 来源单位最多打印多少行
 struct TrackBucket {
     int      atk, rng, atype, dtype;
     uint32_t cnt;
-    double   dmg;
+    double   dmg;       // 前部分（引擎伤害事件）
+    double   dmgAfter;  // 后部分（地图伤害事件处理后）
 };
 
 // 按来源【单位类型】统计的一条（同一〔?〕ID 的多个实例合并在一起）
@@ -2646,7 +2650,8 @@ struct SourceStat {
     char     label[128];              // 第一次看到时缓存下来的名字（游戏编码〔?〕
     char     code[16];                // 第一次看到时缓存下来的四字符类型〔?〕
     uint32_t cnt;
-    double   dmg;
+    double   dmg;       // 前部分（引擎伤害事件）
+    double   dmgAfter;  // 后部分（地图伤害事件处理后）
     int      merged;                  // 1 = 这是"其他来源"合并〔?〕
 };
 
@@ -2655,7 +2660,8 @@ struct TrackStat {
     char     label[128];              // 记录时取的名字（游戏编码，可能带颜色代码〔?〕
     char     code[16];                // 记录时取的四字符类型〔?〕
     uint32_t events;
-    double   total;
+    double   total;       // 前部分合计（引擎伤害事件）
+    double   totalAfter;  // 后部分合计（地图伤害事件处理后）
     TrackBucket joint[kMaxBuckets];   // 【联合】统计，不再按维度分别统〔?〕
     int         nJoint;
     SourceStat  src[kMaxSources];     // 按来源单位统计（末尾输出百分比）
@@ -2799,10 +2805,10 @@ static int TrackMatch(uint32_t handle)
 }
 
 // 按来源累加：同一个【单位类〔?〕ID】的多个实例合并成一条（取不到类型才按实例句柄分开〔?〕
-static void AddSource(TrackStat& t, uint32_t handle, double amount)
+static void AddSource(TrackStat& t, uint32_t handle, double amount, double afterAmount)
 {
     if (!handle) {                                   // 无来源（环境伤害之类〔?〕
-        ++t.srcOther.cnt; t.srcOther.dmg += amount; t.srcOther.merged = 1;
+        ++t.srcOther.cnt; t.srcOther.dmg += amount; t.srcOther.dmgAfter += afterAmount; t.srcOther.merged = 1;
         return;
     }
 
@@ -2810,7 +2816,10 @@ static void AddSource(TrackStat& t, uint32_t handle, double amount)
     if (!key) key = handle;                          // 类型拿不〔?〕-> 退回按实例分组
 
     for (int i = 0; i < t.nSrc; ++i) {
-        if (t.src[i].key == key) { ++t.src[i].cnt; t.src[i].dmg += amount; return; }
+        if (t.src[i].key == key) {
+            ++t.src[i].cnt; t.src[i].dmg += amount; t.src[i].dmgAfter += afterAmount;
+            return;
+        }
     }
     if (t.nSrc < kMaxSources) {
         SourceStat& s = t.src[t.nSrc];
@@ -2819,29 +2828,31 @@ static void AddSource(TrackStat& t, uint32_t handle, double amount)
         s.handle = handle;
         s.cnt    = 1;
         s.dmg    = amount;
+        s.dmgAfter = afterAmount;
         // 名字/类型码在这里（单位还活着）就缓存下来，结算时它可能已经死〔?〕被移除了
         GetUnitLabelClean(handle, s.label, sizeof(s.label));
         GetUnitShortId(handle, s.code, sizeof(s.code));
         ++t.nSrc;
         return;
     }
-    ++t.srcOther.cnt; t.srcOther.dmg += amount; t.srcOther.merged = 1;
+    ++t.srcOther.cnt; t.srcOther.dmg += amount; t.srcOther.dmgAfter += afterAmount; t.srcOther.merged = 1;
 }
 
 // 联合累加：四个维度作为一个键
-static void AddJoint(TrackBucket* arr, int& n, int atk, int rng, int atype, int dtype, double amount)
+static void AddJoint(TrackBucket* arr, int& n, int atk, int rng, int atype, int dtype, double amount, double afterAmount)
 {
     for (int i = 0; i < n; ++i) {
         if (arr[i].atk == atk && arr[i].rng == rng &&
             arr[i].atype == atype && arr[i].dtype == dtype) {
             ++arr[i].cnt;
             arr[i].dmg += amount;
+            arr[i].dmgAfter += afterAmount;
             return;
         }
     }
     if (n < kMaxBuckets) {
         arr[n].atk = atk; arr[n].rng = rng; arr[n].atype = atype; arr[n].dtype = dtype;
-        arr[n].cnt = 1;   arr[n].dmg = amount;
+        arr[n].cnt = 1;   arr[n].dmg = amount;   arr[n].dmgAfter = afterAmount;
         ++n;
     }
 }
@@ -2911,10 +2922,10 @@ static void PrintTrackSummary(int idx, int died)
         AppUtf8(l, sizeof(l), " ");
         if (cn) {
             AppUtf8(l, sizeof(l), died ? "死亡结算 " : "当前统计 ");
-            AppFmt (l, sizeof(l), "%u 次 / %.1f", t.events, t.total);
+            AppFmt (l, sizeof(l), "%u 次 / %.1f", t.events, t.totalAfter);
         } else {
             AppUtf8(l, sizeof(l), died ? "DEAD " : "NOW ");
-            AppFmt (l, sizeof(l), "%u/%.1f", t.events, t.total);
+            AppFmt (l, sizeof(l), "%u/%.1f", t.events, t.totalAfter);
         }
         if (onScreen) ShowMessage(l);
     }
@@ -2925,7 +2936,7 @@ static void PrintTrackSummary(int idx, int died)
     for (int i = 0; i < n; ++i) order[i] = i;
     for (int i = 0; i < n; ++i) {
         for (int j = i + 1; j < n; ++j) {
-            if (t.joint[order[j]].dmg > t.joint[order[i]].dmg) {
+            if (t.joint[order[j]].dmgAfter > t.joint[order[i]].dmgAfter) {
                 int tmp = order[i]; order[i] = order[j]; order[j] = tmp;
             }
         }
@@ -2935,7 +2946,7 @@ static void PrintTrackSummary(int idx, int died)
     const int show = (n < kMaxPrintBuckets) ? n : kMaxPrintBuckets;
     for (int k = 0; k < show; ++k) {
         TrackBucket& b = t.joint[order[k]];
-        const double pct = (t.total > 0.0) ? (b.dmg * 100.0 / t.total) : 0.0;
+        const double pct = (t.totalAfter > 0.0) ? (b.dmgAfter * 100.0 / t.totalAfter) : 0.0;
         char l[256] = { 0 };
         // v1.3.17：和明细行同一套字段写法（中文字段〔?〕+ 原始数字），方便一行一行对着看〔?〕
         //   中文：`  是否攻击:1 是否远程:1 攻击类型:2 伤害类型:4  1 〔?〕6.9 (100.0%)`
@@ -2945,8 +2956,8 @@ static void PrintTrackSummary(int idx, int died)
         AppRaw (l, sizeof(l), L_RNG);   AppFmt (l, sizeof(l), ":%d ", b.rng);
         AppRaw (l, sizeof(l), L_ATYPE); AppFmt (l, sizeof(l), ":%d ", b.atype);
         AppRaw (l, sizeof(l), L_DTYPE); AppFmt (l, sizeof(l), ":%d  ", b.dtype);
-        if (cn) AppFmt(l, sizeof(l), "%u 次 %.1f (%.1f%%)", b.cnt, b.dmg, pct);
-        else    AppFmt(l, sizeof(l), "%u %.1f %.1f%%",      b.cnt, b.dmg, pct);
+        if (cn) AppFmt(l, sizeof(l), "%u 次 %.1f %.1f (%.1f%%)", b.cnt, b.dmg, b.dmgAfter, pct);
+        else    AppFmt(l, sizeof(l), "%u %.1f %.1f %.1f%%",      b.cnt, b.dmg, b.dmgAfter, pct);
         if (onScreen) ShowMessage(l);
     }
     if (n > show) {
@@ -2967,8 +2978,8 @@ static void PrintTrackSummary(int idx, int died)
         // 按伤害降〔?〕
         for (int i = 0; i < sN; ++i) {
             for (int j = i + 1; j < sN; ++j) {
-                const double dj = (sIdx[j] == kMaxSources) ? t.srcOther.dmg : t.src[sIdx[j]].dmg;
-                const double di = (sIdx[i] == kMaxSources) ? t.srcOther.dmg : t.src[sIdx[i]].dmg;
+                const double dj = (sIdx[j] == kMaxSources) ? t.srcOther.dmgAfter : t.src[sIdx[j]].dmgAfter;
+                const double di = (sIdx[i] == kMaxSources) ? t.srcOther.dmgAfter : t.src[sIdx[i]].dmgAfter;
                 if (dj > di) { int tmp = sIdx[i]; sIdx[i] = sIdx[j]; sIdx[j] = tmp; }
             }
         }
@@ -2977,7 +2988,7 @@ static void PrintTrackSummary(int idx, int died)
         for (int k = 0; k < sShow; ++k) {
             const int id = sIdx[k];
             SourceStat& s = (id == kMaxSources) ? t.srcOther : t.src[id];
-            const double pct = (t.total > 0.0) ? (s.dmg * 100.0 / t.total) : 0.0;
+            const double pct = (t.totalAfter > 0.0) ? (s.dmgAfter * 100.0 / t.totalAfter) : 0.0;
             char l2[512] = { 0 };
             AppUtf8(l2, sizeof(l2), cn ? "  来自 " : "  from ");
         // v1.3.70 修：来源行原来把中文写在 AppFmt 的【格式串】里，而那两个汉字在
@@ -2992,9 +3003,9 @@ static void PrintTrackSummary(int idx, int died)
             // 和组合行同一种形状：中文行是 `：次数 次 伤害 (占比%)`，ASCII 行保持裸数字
             if (cn) {
                 AppUtf8(l2, sizeof(l2), " 次 ");
-                AppFmt (l2, sizeof(l2), "%u %.1f (%.1f%%)", s.cnt, s.dmg, pct);
+                AppFmt (l2, sizeof(l2), "%u %.1f %.1f (%.1f%%)", s.cnt, s.dmg, s.dmgAfter, pct);
             } else {
-                AppFmt (l2, sizeof(l2), " %u %.1f %.1f%%", s.cnt, s.dmg, pct);
+                AppFmt (l2, sizeof(l2), " %u %.1f %.1f %.1f%%", s.cnt, s.dmg, s.dmgAfter, pct);
             }
             if (onScreen) ShowMessage(l2);
         }
@@ -3008,25 +3019,25 @@ static void PrintTrackSummary(int idx, int died)
     // 日志里也留一份（我们自己的中文是 UTF-8 字面量，单位名是游戏编码，按各自原样写）
     LogLine("统计 %s (%s #%08X) %s: 次数=%u 总计=%.1f（联合统计 攻击/远程/攻击类型/伤害类型）"
             "；开账至今全局伤害事件=%u",
-            t.label, t.code, t.handle, died ? "死亡结算" : "当前", t.events, t.total,
+            t.label, t.code, t.handle, died ? "死亡结算" : "当前", t.events, t.totalAfter,
             (unsigned)(g_seenEvents - t.seen0));
     for (int k = 0; k < n; ++k) {
         TrackBucket& b = t.joint[order[k]];
-        const double pct = (t.total > 0.0) ? (b.dmg * 100.0 / t.total) : 0.0;
-        LogLine("   %d/%d/%d/%d: %u 次 / %.1f (%.1f%%)",
-                b.atk, b.rng, b.atype, b.dtype, b.cnt, b.dmg, pct);
+        const double pct = (t.totalAfter > 0.0) ? (b.dmgAfter * 100.0 / t.totalAfter) : 0.0;
+        LogLine("   %d/%d/%d/%d: %u 次 / %.1f %.1f (%.1f%%)",
+                b.atk, b.rng, b.atype, b.dtype, b.cnt, b.dmg, b.dmgAfter, pct);
     }
     if (sN > 0) {
         LogLine("   按来源单位类型（伤害占比）：");
         for (int k = 0; k < sN; ++k) {
             const int id = sIdx[k];
             SourceStat& s = (id == kMaxSources) ? t.srcOther : t.src[id];
-            const double pct = (t.total > 0.0) ? (s.dmg * 100.0 / t.total) : 0.0;
+            const double pct = (t.totalAfter > 0.0) ? (s.dmgAfter * 100.0 / t.totalAfter) : 0.0;
             if (id == kMaxSources || s.merged)
-                LogLine("     其他来源: %u 次 / %.1f (%.1f%%)", s.cnt, s.dmg, pct);
+                LogLine("     其他来源: %u 次 / %.1f %.1f (%.1f%%)", s.cnt, s.dmg, s.dmgAfter, pct);
             else
-                LogLine("     %s (%s #%08X): %u 次 / %.1f (%.1f%%)",
-                        s.label, s.code[0] ? s.code : "?", s.handle, s.cnt, s.dmg, pct);
+                LogLine("     %s (%s #%08X): %u 次 / %.1f %.1f (%.1f%%)",
+                        s.label, s.code[0] ? s.code : "?", s.handle, s.cnt, s.dmg, s.dmgAfter, pct);
         }
     }
 }
@@ -3110,7 +3121,7 @@ static int BuildChatLine(int onlyIdx)
     for (int i = iFrom; i <= iTo && i < g_trackCount; ++i) {
         if (i < 0) break;
         TrackStat& t = g_tracks[i];
-        if (t.events == 0 && !(t.total > 0.0)) continue;
+        if (t.events == 0 && !(t.totalAfter > 0.0)) continue;
 
         // ---- v1.3.23（用户指定格式）：`[DMG] O018 68%, H027 17%, OTH 15%` ----
         //   比上一版更短：**不带**被记录单位的类型码〔?〕*不带** DEAD/CUR，条目之间用逗号 + 空格〔?〕
@@ -3124,14 +3135,14 @@ static int BuildChatLine(int onlyIdx)
         if (t.srcOther.cnt > 0) sIdx[sN++] = kMaxSources;
         for (int a = 0; a < sN; ++a)
             for (int b = a + 1; b < sN; ++b) {
-                const double db = (sIdx[b] == kMaxSources) ? t.srcOther.dmg : t.src[sIdx[b]].dmg;
-                const double da = (sIdx[a] == kMaxSources) ? t.srcOther.dmg : t.src[sIdx[a]].dmg;
+                const double db = (sIdx[b] == kMaxSources) ? t.srcOther.dmgAfter : t.src[sIdx[b]].dmgAfter;
+                const double da = (sIdx[a] == kMaxSources) ? t.srcOther.dmgAfter : t.src[sIdx[a]].dmgAfter;
                 if (db > da) { const int tmp = sIdx[a]; sIdx[a] = sIdx[b]; sIdx[b] = tmp; }
             }
         for (int k = 0; k < sN; ++k) {
             const int id = sIdx[k];
             SourceStat& s = (id == kMaxSources) ? t.srcOther : t.src[id];
-            const double pct = (t.total > 0.0) ? (s.dmg * 100.0 / t.total) : 0.0;
+            const double pct = (t.totalAfter > 0.0) ? (s.dmgAfter * 100.0 / t.totalAfter) : 0.0;
             if (id == kMaxSources || s.merged)
                 _snprintf_s(part, sizeof(part), _TRUNCATE, ascii ? "OTH %.0f%%" : "其他 %.0f%%", pct);
             else if (ascii) {
@@ -3331,13 +3342,14 @@ static void TrackOnDamage(const struct DamageSnapshot& snap)
 
     if (big) {
         ++t.events;
-        t.total += snap.amount;
+        t.total      += snap.amount;
+        t.totalAfter += snap.after_amount;
 
         const int atk = (int)((snap.flag >> 8) & 1u);
         const int rng = (int)(snap.flag & 1u);
         AddJoint(t.joint, t.nJoint, atk, rng,
-                 (int)snap.attack_type, (int)MaskToIndex3(snap.damage_type), snap.amount);
-        AddSource(t, snap.source_handle, snap.amount);
+                 (int)snap.attack_type, (int)MaskToIndex3(snap.damage_type), snap.amount, snap.after_amount);
+        AddSource(t, snap.source_handle, snap.amount, snap.after_amount);
     }
 
     // 死亡结算：我们的快照是在原伤害函数跑完之后取的，所以这里已经是扣血后的血〔?〕
@@ -7379,6 +7391,14 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
     // 之后无论快照/日志/显示出什么问题（都会〔?〕__try 吞掉），伤害本身不受影响〔?〕
     if (!g_gameThreadId) g_gameThreadId = (LONG)GetCurrentThreadId();   // 这就是游戏线〔?〕
     ++g_seenEvents;                    // v1.3.13：全局事件计数（结算日志用它当"分母"
+    // ---- 读【前】血量：要在原伤害函数跑之前读，跑完之后再读一次，差值 = 地图伤害事件
+    //      处理后的【实际伤害】（后部分）。读不到就当 0，后面会兜底成"前后相等"。----
+    float    hpBefore  = 0.0f;
+    uint32_t tgtBefore = ObjToHandle(_this);
+    if (tgtBefore) {
+        __try { hpBefore = GetUnitStateSafe(tgtBefore, JASS_UNIT_STATE_LIFE); }
+        __except (EXCEPTION_EXECUTE_HANDLER) { hpBefore = 0.0f; }
+    }
     uint32_t retval = 0;
     if (ORIG_DAMAGE) {
         __try {
@@ -7431,6 +7451,16 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
         else              snap.amount = (snap.ptrOK && g_from_real) ? g_from_real(snap.amount_real) : 0.0f;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         snap.ptrOK = 0;
+    }
+
+    // ---- 后部分伤害 = 原伤害函数跑完之后的目标 HP 差值（地图伤害事件同步处理）----
+    snap.after_amount = snap.amount;   // 兜底：读不到 HP 差值就当"前后相等"
+    if (snap.target_handle) {
+        __try {
+            const float hpAfter = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_LIFE);
+            const float delta   = hpBefore - hpAfter;
+            if (delta > 0.0f) snap.after_amount = delta;
+        } __except (EXCEPTION_EXECUTE_HANDLER) { }
     }
 
     // ---- 〔?〕日志 + 显示（用快照，出什么问题都不影〔?〕retval〔?〕----
@@ -7638,6 +7668,8 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
                 AppRaw (msg, sizeof(msg), L_DTYPE); AppFmt (msg, sizeof(msg), ":%u", (unsigned)dmgTypeNo);
                 AppUtf8(msg, sizeof(msg), " ");
                 AppRaw (msg, sizeof(msg), L_DMG);   AppFmt (msg, sizeof(msg), ":%.1f", snap.amount);
+                AppUtf8(msg, sizeof(msg), " ");
+                AppRaw (msg, sizeof(msg), L_AFTER); AppFmt (msg, sizeof(msg), ":%.1f", snap.after_amount);
                 AppRaw (msg, sizeof(msg), tail);
                 if (g_cfg.color) AppUtf8(msg, sizeof(msg), "|r");
 
