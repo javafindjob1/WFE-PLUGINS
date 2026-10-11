@@ -2688,6 +2688,7 @@ static int       g_trackByHotkey = 0;
 // 用途：结算日志里带〔?〕记账期间全局伤害事件=N"，一眼判〔?〕
 //       "这个单位的伤害是没被抓到" vs "抓到了但被我们自己过滤了"
 static uint32_t  g_seenEvents = 0;
+static volatile LONG g_damageDepth = 0;   // 伤害事件嵌套深度：只由【最外层】算 HP 差值（内层子效果折叠进外层）
 
 // 去掉单位名里的颜色代码（|cxxxxxxxx / |r），便于玩家〔?〕看到的名〔?〕直接匹配
 static void StripColorCodes(char* s)
@@ -7418,13 +7419,20 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
     // 之后无论快照/日志/显示出什么问题（都会〔?〕__try 吞掉），伤害本身不受影响〔?〕
     if (!g_gameThreadId) g_gameThreadId = (LONG)GetCurrentThreadId();   // 这就是游戏线〔?〕
     ++g_seenEvents;                    // v1.3.13：全局事件计数（结算日志用它当"分母"
+    // ---- 伤害事件嵌套保护：地图的伤害系统常在【本次攻击】里再嵌套触发子效果（DOT/追加伤害），
+    //      这些内层事件的 HP 变化已经包含在最外层的 HP 差值里，再各自算一次会把子效果伤害重复计入。
+    //      所以只由最外层（depth==1）读【前/后】血量并算差值，内层事件 after 记 0。----
+    const LONG damageDepth = InterlockedIncrement(&g_damageDepth);
+    const int  outer       = (damageDepth == 1);
     // ---- 读【前】血量：要在原伤害函数跑之前读，跑完之后再读一次，差值 = 地图伤害事件
     //      处理后的【实际伤害】（后部分）。读不到就当 0，后面会兜底成"前后相等"。----
     float    hpBefore  = 0.0f;
-    uint32_t tgtBefore = ObjToHandle(_this);
-    if (tgtBefore) {
-        __try { hpBefore = GetUnitStateSafe(tgtBefore, JASS_UNIT_STATE_LIFE); }
-        __except (EXCEPTION_EXECUTE_HANDLER) { hpBefore = 0.0f; }
+    if (outer) {
+        uint32_t tgtBefore = ObjToHandle(_this);
+        if (tgtBefore) {
+            __try { hpBefore = GetUnitStateSafe(tgtBefore, JASS_UNIT_STATE_LIFE); }
+            __except (EXCEPTION_EXECUTE_HANDLER) { hpBefore = 0.0f; }
+        }
     }
     uint32_t retval = 0;
     if (ORIG_DAMAGE) {
@@ -7481,18 +7489,22 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
     }
 
     // ---- 后部分伤害 = 原伤害函数跑完之后的目标 HP 差值（地图伤害事件同步处理）----
+    //   只由【最外层】事件计算（内层子效果的 HP 变化已含在最外层差值里，此处记 0 防重复）。
     //   HP 读数可信时（hpBefore/hpAfter 至少一个 > 0）直接取差值：
     //     差值 > 0  = 实际掉血；差值 <= 0 = 被格挡/吸收/回血，按 0 记（不再误填成"前部分"）。
     //   只有 GetUnitState 读不到（两者都是 0）才退回"前后相等"兜底。
-    snap.after_amount = snap.amount;   // 兜底
-    if (snap.target_handle) {
-        __try {
-            const float hpAfter = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_LIFE);
-            if (hpBefore > 0.0f || hpAfter > 0.0f) {
-                const float delta = hpBefore - hpAfter;
-                snap.after_amount = (delta > 0.0f) ? delta : 0.0f;
-            }
-        } __except (EXCEPTION_EXECUTE_HANDLER) { }
+    snap.after_amount = 0.0f;
+    if (outer) {
+        snap.after_amount = snap.amount;   // 兜底
+        if (snap.target_handle) {
+            __try {
+                const float hpAfter = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_LIFE);
+                if (hpBefore > 0.0f || hpAfter > 0.0f) {
+                    const float delta = hpBefore - hpAfter;
+                    snap.after_amount = (delta > 0.0f) ? delta : 0.0f;
+                }
+            } __except (EXCEPTION_EXECUTE_HANDLER) { }
+        }
     }
 
     // ---- 〔?〕日志 + 显示（用快照，出什么问题都不影〔?〕retval〔?〕----
@@ -7703,6 +7715,7 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
     }
 
     // ---- 〔?〕原样返回 JAPI 的返回〔?〕----
+    InterlockedDecrement(&g_damageDepth);
     return retval;
 }
 
