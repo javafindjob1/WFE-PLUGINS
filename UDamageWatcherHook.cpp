@@ -7378,6 +7378,33 @@ static void InitHotkeys()
 }
 
 //------------------------------------------------------------------------------
+// 判断当前伤害事件是否符合显示/日志模式（日志 H 行与屏幕明细共用同一判断）：
+//   0=只显示自己（来源/目标是本地玩家自己的单位，不含友军）
+//   1=只显示来源是自己/友方
+//   2=只显示来源是敌人
+//   3=关闭（返回 0；是否强制记录由调用方决定）
+//------------------------------------------------------------------------------
+static int ModeFilterPass(const DamageSnapshot& snap, int mode)
+{
+    if (mode == 0) {
+        const int selfSrc = IsRelatedToLocalPlayer(snap.source_handle);
+        const int selfTgt = IsRelatedToLocalPlayer(snap.target_handle);
+        if (g_cfg.filter_side == 0)      return selfSrc;            // 默认：看来源
+        else if (g_cfg.filter_side == 1) return selfTgt;            // 看目标
+        else                             return selfSrc || selfTgt; // 任一方
+    }
+    if (mode == 1 || mode == 2) {
+        const int want = (mode == 2) ? 2 : 1;   // 1=自己/友方 2=敌方
+        const int tgtCamp = UnitCamp(snap.target_handle);
+        const int srcCamp = UnitCamp(snap.source_handle);
+        if (g_cfg.filter_side == 0)      return (srcCamp == want);   // 默认：看来源
+        else if (g_cfg.filter_side == 1) return (tgtCamp == want);   // 看目标
+        else                             return (srcCamp == want) || (tgtCamp == want);
+    }
+    return 0;
+}
+
+//------------------------------------------------------------------------------
 // 8. 主钩子实〔?〕
 //    参数〔?〕EventDamageData.cpp 〔?〕FakeUnitDamageFunc 一一对应〔?〕
 //    用普〔?〕__fastcall，编译器自会生成 ret 10h（见上面的说明）〔?〕
@@ -7528,30 +7555,34 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
             //    事后只翻日志就能完整复核每一笔伤〔?〕—〔?〕不依赖屏幕上有没有显示〔?〕
             //    它在 wantEventLog 里：native 下【无条件】写；JAPI 下跟随明细开关（〔?〕log_events=1）〔?〕
             if (snap.ptrOK) {
-                char sName[128] = { 0 }, tName[128] = { 0 };
-                GetUnitLabelClean(snap.source_handle, sName, sizeof(sName));
-                GetUnitLabelClean(snap.target_handle, tName, sizeof(tName));
+                // mode 0/1/2：日志也只写符合当前模式的明细；mode 3 强制记录（log_events/log_only）时全写
+                const int modeMatch = (mode == 3) ? 1 : ModeFilterPass(snap, mode);
+                if (modeMatch) {
+                    char sName[128] = { 0 }, tName[128] = { 0 };
+                    GetUnitLabelClean(snap.source_handle, sName, sizeof(sName));
+                    GetUnitLabelClean(snap.target_handle, tName, sizeof(tName));
 
-                const float hpCur = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_LIFE);
-                const float hpMax = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_MAXLIFE);
+                    const float hpCur = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_LIFE);
+                    const float hpMax = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_MAXLIFE);
 
-                // 拥有者（两种后端都能取：native 走引擎直调，JAPI 〔?〕g_call〔?〕
-                uint32_t ownerH = 0;
-                if (g_nativeMode) {
-                    ownerH = Wc3GetOwningPlayer(snap.target_handle);
-                } else if (g_call) {
-                    __try { ownerH = (uint32_t)g_call("GetOwningPlayer", snap.target_handle); }
-                    __except (EXCEPTION_EXECUTE_HANDLER) { ownerH = 0; }
+                    // 拥有者（两种后端都能取：native 走引擎直调，JAPI 〔?〕g_call〔?〕
+                    uint32_t ownerH = 0;
+                    if (g_nativeMode) {
+                        ownerH = Wc3GetOwningPlayer(snap.target_handle);
+                    } else if (g_call) {
+                        __try { ownerH = (uint32_t)g_call("GetOwningPlayer", snap.target_handle); }
+                        __except (EXCEPTION_EXECUTE_HANDLER) { ownerH = 0; }
+                    }
+                    const char* ownerName = ownerH ? PlayerNameText(ownerH) : NULL;
+
+                    LogLine("H 来源:%s(%08X) 目标:%s(%08X) 拥有者:%s 攻击:%u 远程:%u 攻击类型:%u 伤害类型:%u"
+                            " 伤害:%.1f 实际:%.1f 武器:%u 生命:%.1f/%.1f",
+                            sName, snap.source_handle, tName, snap.target_handle,
+                            (ownerName && ownerName[0]) ? ownerName : "?",
+                            (snap.flag >> 8) & 1u, snap.flag & 1u, snap.attack_type,
+                            MaskToIndex3(snap.damage_type), snap.amount, snap.after_amount, snap.weapon_type,
+                            hpCur, hpMax);
                 }
-                const char* ownerName = ownerH ? PlayerNameText(ownerH) : NULL;
-
-                LogLine("H 来源:%s(%08X) 目标:%s(%08X) 拥有者:%s 攻击:%u 远程:%u 攻击类型:%u 伤害类型:%u"
-                        " 伤害:%.1f 武器:%u 生命:%.1f/%.1f",
-                        sName, snap.source_handle, tName, snap.target_handle,
-                        (ownerName && ownerName[0]) ? ownerName : "?",
-                        (snap.flag >> 8) & 1u, snap.flag & 1u, snap.attack_type,
-                        MaskToIndex3(snap.damage_type), snap.amount, snap.weapon_type,
-                        hpCur, hpMax);
             }
         }
 
@@ -7573,29 +7604,9 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
                     !IsRelatedToLocalPlayer(snap.source_handle)) skip = 1;
             }
 
-            // ---- 模式 0：只显示自己（伤害来源/目标必须是本地玩家自己的单位，不含友军）----
-            if (!skip && mode == 0) {
-                const int selfSrc = IsRelatedToLocalPlayer(snap.source_handle);
-                const int selfTgt = IsRelatedToLocalPlayer(snap.target_handle);
-                int hit = 0;
-                if (g_cfg.filter_side == 0)      hit = selfSrc;            // 默认：看来源
-                else if (g_cfg.filter_side == 1) hit = selfTgt;            // 看目标
-                else                             hit = selfSrc || selfTgt; // 任一方
-                if (!hit) skip = 1;
-            }
-
-            // ---- 模式过滤（按【来源方】判定：看伤害来源是谁）----
-            //   @1 〔?〕来源是自〔?〕友方（want 1〔?〕@2 〔?〕来源是敌人（want 2〔?〕
-            //   filter_side 可改成按目标方或任一方判定（〔?〕ini〔?〕
-            if (!skip && (mode == 1 || mode == 2)) {
-                const int want = (mode == 2) ? 2 : 1;   // 1=自己/友方 2=敌方
-                int tgtCamp = UnitCamp(snap.target_handle);
-                int srcCamp = UnitCamp(snap.source_handle);
-                int hit = 0;
-                if (g_cfg.filter_side == 0)      hit = (srcCamp == want);   // 默认：看来源
-                else if (g_cfg.filter_side == 1) hit = (tgtCamp == want);   // 看目〔?〕
-                else                             hit = (srcCamp == want) || (tgtCamp == want);
-                if (!hit) skip = 1;
+            // ---- 模式过滤（0=自己 / 1=自己+友方 / 2=敌人；与日志 H 行共用 ModeFilterPass）----
+            if (!skip && (mode == 0 || mode == 1 || mode == 2)) {
+                if (!ModeFilterPass(snap, mode)) skip = 1;
             }
 
             // 节流
