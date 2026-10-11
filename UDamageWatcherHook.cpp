@@ -2691,7 +2691,7 @@ static int       g_trackByHotkey = 0;
 static uint32_t  g_seenEvents = 0;
 static volatile LONG g_damageDepth = 0;   // 伤害事件嵌套深度（同一线程内嵌套触发）
 #define UDW_DMG_MAXDEPTH 16
-static float g_dmgNested[UDW_DMG_MAXDEPTH];    // 每层已累计的【内层子效果】掉血（外层算自己那部分时扣掉）
+static float g_dmgNested[UDW_DMG_MAXDEPTH];    // 每层已累计的【内层整段掉血】(含更深层内层)，外层算自己那部分时扣掉
 
 // 去掉单位名里的颜色代码（|cxxxxxxxx / |r），便于玩家〔?〕看到的名〔?〕直接匹配
 static void StripColorCodes(char* s)
@@ -7503,10 +7503,12 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
             __try {
                 const float hpAfter = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_LIFE);
                 if (hpBefore > 0.0f || hpAfter > 0.0f) {
-                    float own = (hpBefore - hpAfter) - g_dmgNested[D];   // 本层自己的掉血
+                    const float gross = hpBefore - hpAfter;   // 本层整段掉血（含更深层内层）
+                    float own = gross - g_dmgNested[D];        // 本层自己的掉血
                     if (own < 0.0f) own = 0.0f;
                     snap.after_amount = own;
-                    if (D > 1) g_dmgNested[D - 1] += own;   // 报给父层，父层算自己那部分时扣掉
+                    // 报给父层的是【本层整段掉血】（含内层+更深层），这样多层嵌套也正确扣除
+                    if (D > 1) g_dmgNested[D - 1] += (gross > 0.0f) ? gross : 0.0f;
                 }
             } __except (EXCEPTION_EXECUTE_HANDLER) { }
         }
