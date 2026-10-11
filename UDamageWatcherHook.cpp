@@ -109,6 +109,7 @@ struct DamageSnapshot {
     uint32_t source_handle;   // object_to_handle(source_obj)
     float    amount;          // from_real(amount_real)
     float    after_amount;    // 地图伤害事件处理后的实际伤害（目标 HP 差值）；读不到时 = amount
+    float    hp_before;       // 攻击前目标 HP（读【前】血量，供明细日志展示）
 };
 
 //------------------------------------------------------------------------------
@@ -7454,6 +7455,7 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
     snap.raw_ptr        = (uint32_t)(uintptr_t)ptr;
     snap.raw_isPhysical = is_physical;
     snap.raw_sourceUnit = source_unit;
+    snap.hp_before      = hpBefore;   // 攻击前血量（嵌套时也是本层进入时的 HP）
 
     __try {
         if (ptr && Readable(ptr, sizeof(war3_event_damage_data))) {
@@ -7585,23 +7587,27 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
                     const float hpCur = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_LIFE);
                     const float hpMax = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_MAXLIFE);
 
-                    // 拥有者（两种后端都能取：native 走引擎直调，JAPI 〔?〕g_call〔?〕
-                    uint32_t ownerH = 0;
-                    if (g_nativeMode) {
-                        ownerH = Wc3GetOwningPlayer(snap.target_handle);
-                    } else if (g_call) {
-                        __try { ownerH = (uint32_t)g_call("GetOwningPlayer", snap.target_handle); }
-                        __except (EXCEPTION_EXECUTE_HANDLER) { ownerH = 0; }
-                    }
-                    const char* ownerName = ownerH ? PlayerNameText(ownerH) : NULL;
+                    // 目标已死（攻击前血量 <= 0 且最大生命可读）→ 尸体继续挨打不写明细
+                    const int deadSkip = (hpMax > 0.0f && snap.hp_before <= 0.0f);
+                    if (!deadSkip) {
+                        // 拥有者（两种后端都能取：native 走引擎直调，JAPI 〔?〕g_call〔?〕
+                        uint32_t ownerH = 0;
+                        if (g_nativeMode) {
+                            ownerH = Wc3GetOwningPlayer(snap.target_handle);
+                        } else if (g_call) {
+                            __try { ownerH = (uint32_t)g_call("GetOwningPlayer", snap.target_handle); }
+                            __except (EXCEPTION_EXECUTE_HANDLER) { ownerH = 0; }
+                        }
+                        const char* ownerName = ownerH ? PlayerNameText(ownerH) : NULL;
 
-                    LogLine("H 来源:%s(%08X) 目标:%s(%08X) 拥有者:%s 攻击:%u 远程:%u 攻击类型:%u 伤害类型:%u"
-                            " 伤害:%.1f 实际:%.1f 武器:%u 生命:%.1f/%.1f",
-                            sName, snap.source_handle, tName, snap.target_handle,
-                            (ownerName && ownerName[0]) ? ownerName : "?",
-                            (snap.flag >> 8) & 1u, snap.flag & 1u, snap.attack_type,
-                            MaskToIndex3(snap.damage_type), snap.amount, snap.after_amount, snap.weapon_type,
-                            hpCur, hpMax);
+                        LogLine("H 来源:%s(%08X) 目标:%s(%08X) 拥有者:%s 攻击:%u 远程:%u 攻击类型:%u 伤害类型:%u"
+                                " 伤害:%.1f 实际:%.1f 前血:%.1f 武器:%u 生命:%.1f/%.1f",
+                                sName, snap.source_handle, tName, snap.target_handle,
+                                (ownerName && ownerName[0]) ? ownerName : "?",
+                                (snap.flag >> 8) & 1u, snap.flag & 1u, snap.attack_type,
+                                MaskToIndex3(snap.damage_type), snap.amount, snap.after_amount, snap.hp_before, snap.weapon_type,
+                                hpCur, hpMax);
+                    }
                 }
             }
         }
@@ -7615,6 +7621,11 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
             int skip = 0;
             if (g_cfg.filter_zero && !(snap.amount > 0.0f)) skip = 1;
             if (!skip && snap.amount < g_cfg.min_amount) skip = 1;
+            // 目标已死（攻击前血量 <= 0 且最大生命可读）→ 尸体继续挨打不显示
+            if (!skip) {
+                const float dhpMax = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_MAXLIFE);
+                if (dhpMax > 0.0f && snap.hp_before <= 0.0f) skip = 1;
+            }
             // 蝗虫过滤默认关闭（见配置默认值）。开启时两侧都查〔?〕
             // 来源或目标带 'Aloc' 都算（马甲既有当靶子的也有当攻击者的）〔?〕
             if (!skip && g_cfg.skip_locust &&
