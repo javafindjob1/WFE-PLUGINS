@@ -8184,7 +8184,7 @@ static void DoInitializeNative()
 static void DoInitialize()
 {
     LogLine("================================================================");
-    LogLine("UDamageWatcherHook v1.4.23（热键吞键，阻止传播给游戏）");
+    LogLine("UDamageWatcherHook v1.4.24（热键吞键，阻止传播给游戏）");
     LogLine("本 DLL  : %s", g_dllDir);
     LogLine("日志    : %s", g_logPath);
     LogLine("配置    : %s", g_iniPath);
