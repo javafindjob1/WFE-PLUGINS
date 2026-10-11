@@ -7481,12 +7481,17 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
     }
 
     // ---- 后部分伤害 = 原伤害函数跑完之后的目标 HP 差值（地图伤害事件同步处理）----
-    snap.after_amount = snap.amount;   // 兜底：读不到 HP 差值就当"前后相等"
+    //   HP 读数可信时（hpBefore/hpAfter 至少一个 > 0）直接取差值：
+    //     差值 > 0  = 实际掉血；差值 <= 0 = 被格挡/吸收/回血，按 0 记（不再误填成"前部分"）。
+    //   只有 GetUnitState 读不到（两者都是 0）才退回"前后相等"兜底。
+    snap.after_amount = snap.amount;   // 兜底
     if (snap.target_handle) {
         __try {
             const float hpAfter = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_LIFE);
-            const float delta   = hpBefore - hpAfter;
-            if (delta > 0.0f) snap.after_amount = delta;
+            if (hpBefore > 0.0f || hpAfter > 0.0f) {
+                const float delta = hpBefore - hpAfter;
+                snap.after_amount = (delta > 0.0f) ? delta : 0.0f;
+            }
         } __except (EXCEPTION_EXECUTE_HANDLER) { }
     }
 
