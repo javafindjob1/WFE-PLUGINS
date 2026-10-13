@@ -7602,12 +7602,12 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
                         }
                         const char* ownerName = ownerH ? PlayerNameText(ownerH) : NULL;
 
-                        LogLine("H 来源:%s(%08X) 目标:%s(%08X) 拥有者:%s 攻击:%u 远程:%u 攻击类型:%u 伤害类型:%u"
-                                " 伤害:%.1f 实际:%.1f 前血:%.1f 武器:%u 生命:%.1f/%.1f",
+                        LogLine("H 来源:%s(%08X) 目标:%s(%08X) 拥有者:%s 攻击:%u 远程:%u 攻击类型:%u 伤害类型:%u 武器:%u"
+                                " 伤害:%.2f 实际:%.2f 前血:%.2f 生命:%.2f/%.2f",
                                 sName, snap.source_handle, tName, snap.target_handle,
                                 (ownerName && ownerName[0]) ? ownerName : "?",
                                 (snap.flag >> 8) & 1u, snap.flag & 1u, snap.attack_type,
-                                MaskToIndex3(snap.damage_type), snap.amount, snap.after_amount, snap.hp_before, snap.weapon_type,
+                                MaskToIndex3(snap.damage_type), snap.weapon_type, snap.amount, snap.after_amount, snap.hp_before,
                                 hpCur, hpMax);
                     }
                 }
@@ -7666,7 +7666,7 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
                     const float cur = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_LIFE);
                     const float max = GetUnitStateSafe(snap.target_handle, JASS_UNIT_STATE_MAXLIFE);
                     char hpPart[128] = { 0 };
-                    _snprintf_s(hpPart, sizeof(hpPart), _TRUNCATE, " %s:%.1f/%.1f", L_HP, cur, max);
+                    _snprintf_s(hpPart, sizeof(hpPart), _TRUNCATE, " %s:%.2f/%.2f", L_HP, cur, max);
                     strncat_s(tail, sizeof(tail), hpPart, _TRUNCATE);
                 }
                 if (g_cfg.show_owner) {
@@ -7711,9 +7711,9 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
                 AppUtf8(msg, sizeof(msg), " ");
                 AppRaw (msg, sizeof(msg), L_DTYPE); AppFmt (msg, sizeof(msg), ":%u", (unsigned)dmgTypeNo);
                 AppUtf8(msg, sizeof(msg), " ");
-                AppRaw (msg, sizeof(msg), L_DMG);   AppFmt (msg, sizeof(msg), ":%.1f", snap.amount);
+                AppRaw (msg, sizeof(msg), L_DMG);   AppFmt (msg, sizeof(msg), ":%.2f", snap.amount);
                 AppUtf8(msg, sizeof(msg), " ");
-                AppRaw (msg, sizeof(msg), L_AFTER); AppFmt (msg, sizeof(msg), ":%.1f", snap.after_amount);
+                AppRaw (msg, sizeof(msg), L_AFTER); AppFmt (msg, sizeof(msg), ":%.2f", snap.after_amount);
                 AppRaw (msg, sizeof(msg), tail);
                 if (g_cfg.color) AppUtf8(msg, sizeof(msg), "|r");
 
