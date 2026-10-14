@@ -1271,6 +1271,7 @@ static uint32_t g_natGetOwningPlayer = 0;
 static uint32_t g_natIsPlayerAlly    = 0;
 static uint32_t g_natGetUnitState    = 0;
 static uint32_t g_natGetUnitTypeId   = 0;
+static uint32_t g_natGetEventDamage  = 0;
 static uint32_t g_natHandleToUnit    = 0;
 static uint32_t g_natObjToHandle     = 0;
 static uint32_t g_natMgrFromCtx      = 0;
@@ -1284,6 +1285,7 @@ static void Wc3PrepareNatives()
     Wc3ResolveNative("IsPlayerAlly",    "IsPlayerAlly",    0x001E8040u, &g_natIsPlayerAlly);
     Wc3ResolveNative("GetUnitState",    "GetUnitState",    0x001E6600u, &g_natGetUnitState);
     Wc3ResolveNative("GetUnitTypeId",   "GetUnitTypeId",   0x001E6670u, &g_natGetUnitTypeId);
+    Wc3ResolveNative("GetEventDamage",  "GetEventDamage",  0x001E21D0u, &g_natGetEventDamage);
     // 上屏用不〔?〕native 〔?〕DTTTP：显示只〔?〕JAPI 路径做（native 模式不显示，〔?〕§7）〔?〕
     Wc3ResolveNative("GetUnitName",     "GetUnitName",     0x001E6340u, &g_natGetUnitName);
     Wc3ResolveNative("GetPlayerName",   "GetPlayerName",   0x001E3D40u, &g_natGetPlayerName);
@@ -1382,6 +1384,22 @@ static float Wc3GetUnitStateValue(uint32_t hunit, uint32_t which)
     static volatile LONG s_dbg = 0;
     if (InterlockedIncrement(&s_dbg) <= 4)
         LogDebug("native GetUnitState(%08X, %u) = bits %08X -> %.2f", hunit, which, r, v);
+    return v;
+}
+
+// 引擎"真实伤害"（GetEventDamage）：伤害事件期间的"当前伤害"（结算后真正生效值，与地图 GetEventDamage() 对齐）。
+// 注意：GetEventDamage 只在伤害事件内有效；事件结束（原伤害函数返回）后引擎可能已清空，此时返回 0 —— 调用方退回 info+0x10 兜底。
+static float Wc3GetEventDamage()
+{
+    uint32_t fn = Wc3ResolveNative("GetEventDamage", "GetEventDamage", 0x001E21D0u, &g_natGetEventDamage);
+    if (!fn) return 0.0f;
+    uint32_t r = 0;
+    __try { r = ((uint32_t (__cdecl*)(void))(uintptr_t)fn)(); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { r = 0; }
+    const float v = Wc3RealBits(r);
+    static volatile LONG s_dbg = 0;
+    if (InterlockedIncrement(&s_dbg) <= 8)
+        LogDebug("GetEventDamage() = bits %08X -> %.4f", r, v);
     return v;
 }
 
@@ -2692,6 +2710,146 @@ static uint32_t  g_seenEvents = 0;
 static volatile LONG g_damageDepth = 0;   // 伤害事件嵌套深度（同一线程内嵌套触发）
 #define UDW_DMG_MAXDEPTH 16
 static float g_dmgNested[UDW_DMG_MAXDEPTH];    // 每层已累计的【内层整段掉血】(含更深层内层)，外层算自己那部分时扣掉
+static uint32_t g_realGetEventDamage = 0;           // 引擎原 GetEventDamage（名表实现指针的原值）
+static float    g_capturedDamage[UDW_DMG_MAXDEPTH]; // 每层在事件进行中抓到的 GetEventDamage 真实伤害
+static volatile LONG g_gedAttempts = 0;             // 懒挂 GetEventDamage 钩子的重试次数
+
+// 我们的 GetEventDamage 钩子：地图在伤害事件里一调 GetEventDamage，我们就抓返回值。
+// 关键：只抓【第一次】调用（= 地图伤害事件增伤前的值）；地图后面再调（增伤后/EXSetEventDamage 后）不覆盖。
+static uint32_t __cdecl OurFakeGetEventDamage()
+{
+    uint32_t r = 0;
+    if (g_realGetEventDamage) {
+        __try { r = ((uint32_t (__cdecl*)())(uintptr_t)g_realGetEventDamage)(); }
+        __except (EXCEPTION_EXECUTE_HANDLER) { r = 0; }
+    }
+    const LONG D = g_damageDepth;
+    if (D >= 1 && D < UDW_DMG_MAXDEPTH) {
+        if (g_capturedDamage[D] == 0.0f) {   // 只记第一次（增伤前）
+            g_capturedDamage[D] = Wc3RealBits(r);
+        }
+    }
+    return r;
+}
+
+// ---- string_hash：照搬 YDWE detail/string_hash.cpp（native 函数哈希表查找用）----
+static uint32_t Wc3HashRead4(const unsigned char* p)
+{
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+static uint32_t Wc3StringHash(const char* str)
+{
+    char buf[0x400];
+    size_t len = 0;
+    while (str[len] != '\0' && len < 0x3FF) {
+        char c = str[len];
+        if (c >= 'a' && c <= 'z') c = (char)(c - 'a' + 'A');
+        else if (c == '/') c = '\\';
+        buf[len++] = c;
+    }
+    const unsigned char* p = (const unsigned char*)buf;
+    size_t rem = len;
+    uint32_t A = 0x9E3779B9u, B = 0x9E3779B9u, C = 0u;
+    if (rem >= 12) {
+        size_t step = rem / 12;
+        do {
+            A += Wc3HashRead4(p + 0);
+            B += Wc3HashRead4(p + 4);
+            C += Wc3HashRead4(p + 8);
+            A = (C >> 13) ^ (A - B - C); B = (A << 8)  ^ (B - C - A); C = (B >> 13) ^ (C - A - B);
+            A = (C >> 12) ^ (A - B - C); B = (A << 16) ^ (B - C - A); C = (B >> 5)  ^ (C - A - B);
+            A = (C >> 3)  ^ (A - B - C); B = (A << 10) ^ (B - C - A); C = (B >> 15) ^ (C - A - B);
+            p += 12; rem -= 12;
+        } while (--step != 0);
+    }
+    C = C + (uint32_t)len;
+    switch (rem) {
+        case 11: C += (uint32_t)p[10] << 24;
+        case 10: C += (uint32_t)p[9]  << 16;
+        case 9:  C += (uint32_t)p[8]  << 8;
+        case 8:  B += (uint32_t)p[7]  << 24;
+        case 7:  B += (uint32_t)p[6]  << 16;
+        case 6:  B += (uint32_t)p[5]  << 8;
+        case 5:  B += (uint32_t)p[4];
+        case 4:  A += (uint32_t)p[3]  << 24;
+        case 3:  A += (uint32_t)p[2]  << 16;
+        case 2:  A += (uint32_t)p[1]  << 8;
+        case 1:  A += (uint32_t)p[0];
+            break;
+        default: break;
+    }
+    A = (C >> 13) ^ (A - B - C); B = (A << 8)  ^ (B - C - A); C = (B >> 13) ^ (C - A - B);
+    A = (C >> 12) ^ (A - B - C); B = (A << 16) ^ (B - C - A); C = (B >> 5)  ^ (C - A - B);
+    A = (C >> 3)  ^ (A - B - C); B = (A << 10) ^ (B - C - A); C = (B >> 15) ^ (C - A - B);
+    return C;
+}
+
+// 安装 GetEventDamage 钩子：运行时遍历 native 函数哈希表，找到 "GetEventDamage" 节点的 func_address_（+0x1C）并替换。
+//   native 下 = 引擎真实实现 0x1E21D0；JAPI 下 = yd_jass_api 的 FakeGetEventDamage（单机/平台各自不同，运行时读）。
+static void Wc3HookGetEventDamage()
+{
+    uint32_t base = Wc3GameBase();
+    if (!base) return;
+
+    // 1) get_instance(5)：RVA 0x4EFB0 的 _fastcall 函数，ecx=index
+    typedef uint32_t (__fastcall* fn_get_instance_t)(uint32_t index);
+    fn_get_instance_t fnGetInstance = (fn_get_instance_t)(uintptr_t)(base + 0x004EFB0u);
+    uint32_t instance = 0;
+    __try { instance = fnGetInstance(5); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { instance = 0; }
+    if (!instance) { LogLine("GetEventDamage 钩子：get_instance(5)=0，跳过"); return; }
+
+    // 2) native_func_table = instance + 0x18；buckets(+0x1C) / mask(+0x24)
+    const uint32_t tbl = instance + 0x18u;
+    uint32_t buckets = 0, mask = 0;
+    if (!Wc3PeekU32(tbl + 0x1Cu, &buckets) || !Wc3PeekU32(tbl + 0x24u, &mask)) {
+        LogLine("GetEventDamage 钩子：读哈希表头失败（tbl=%08X）", tbl);
+        return;
+    }
+    if (mask == 0xFFFFFFFFu || !buckets) {
+        LogLine("GetEventDamage 钩子：哈希表为空（mask=%08X buckets=%08X）", mask, buckets);
+        return;
+    }
+
+    // 3) hash + 桶
+    const uint32_t hash = Wc3StringHash("GetEventDamage");   // 期望 0xFE0D75A1
+    const uint32_t entry = buckets + (hash & mask) * 12u;
+    uint32_t node = 0;
+    if (!Wc3PeekU32(entry + 8u, &node)) { LogLine("GetEventDamage 钩子：读桶失败（entry=%08X）", entry); return; }
+
+    // 4) 沿 prev_ 链找
+    int guard = 0;
+    while (node > 0x10000u && guard++ < 64) {
+        uint32_t h = 0, key = 0;
+        Wc3PeekU32(node + 0x04u, &h);
+        Wc3PeekU32(node + 0x18u, &key);
+        if (h == hash && key && Readable((const void*)(uintptr_t)key, 2)) {
+            char name[64] = { 0 };
+            if (Wc3Peek(key, name, sizeof(name) - 1) && _stricmp(name, "GetEventDamage") == 0) {
+                uint32_t cur = 0;
+                Wc3PeekU32(node + 0x1Cu, &cur);
+                if (cur == (uint32_t)(uintptr_t)&OurFakeGetEventDamage) {
+                    LogLine("GetEventDamage 钩子：已挂（节点 %08X）", node);
+                    return;
+                }
+                g_realGetEventDamage = cur;
+                uint32_t* func = (uint32_t*)(uintptr_t)(node + 0x1Cu);
+                DWORD oldProt = 0;
+                if (VirtualProtect(func, 4, PAGE_READWRITE, &oldProt)) {
+                    *func = (uint32_t)(uintptr_t)&OurFakeGetEventDamage;
+                    VirtualProtect(func, 4, oldProt, &oldProt);
+                    LogLine("GetEventDamage 钩子：已挂（节点 %08X，hash=%08X），原实现 %08X -> 我们的 %08X",
+                            node, hash, cur, (uint32_t)(uintptr_t)&OurFakeGetEventDamage);
+                } else {
+                    LogLine("GetEventDamage 钩子：VirtualProtect 失败 err=%lu", GetLastError());
+                }
+                return;
+            }
+        }
+        Wc3PeekU32(node + 0x0Cu, &node);   // prev_
+    }
+    LogLine("GetEventDamage 钩子：未找到 GetEventDamage 节点（hash=%08X mask=%08X buckets=%08X）", hash, mask, buckets);
+}
 
 // 去掉单位名里的颜色代码（|cxxxxxxxx / |r），便于玩家〔?〕看到的名〔?〕直接匹配
 static void StripColorCodes(char* s)
@@ -7409,6 +7567,58 @@ static int ModeFilterPass(const DamageSnapshot& snap, int mode)
 }
 
 //------------------------------------------------------------------------------
+// 调试探针（debug=1）：定位 JAPI 伤害事件里"实际伤害"存在哪个偏移
+//   背景：技能基础伤害(DataA)=0.24，但引擎伤害记录 info+0x10=0.17、实际掉血=0.24，三者对不上。
+//   这里通过 J+0x928D0/928C4/928C8/928CC 哈希表找到当前事件记录，把 rec/info 原始 dword 全 dump 出来。
+//   参考：0.24 的 float 位模式=0x3E75C28F；0.17=0x3E2E147B；0.25=0x3E800000。
+//------------------------------------------------------------------------------
+static void DumpJapiEventRecord(const struct DamageSnapshot& snap)
+{
+    // native 模式（backend=2）下 g_japiBase 不会被设置（跳过了 ydbase 等待），
+    // 但平台仍可能加载 yd_jass_api.dll；这里直接自己取一次模块基址。
+    uint32_t J = g_japiBase;
+    if (!J) J = (uint32_t)(uintptr_t)GetModuleHandleA("yd_jass_api.dll");
+    if (!J) return;   // 进程里确实没有 JAPI，跳过
+
+    uint32_t key = 0, table = 0, size = 0, keybase = 0;
+    if (!Wc3PeekU32(J + 0x928D0, &key) ||
+        !Wc3PeekU32(J + 0x928C4, &table) ||
+        !Wc3PeekU32(J + 0x928C8, &size) ||
+        !Wc3PeekU32(J + 0x928CC, &keybase)) {
+        LogDebug("DJ japi 读哈希表头失败（J=%08X）", J);
+        return;
+    }
+    if (!key) { LogDebug("DJ japi 无当前伤害事件（key=0）"); return; }
+    if (!table || !size || (size & (size - 1u))) {
+        LogDebug("DJ japi 哈希表异常 table=%08X size=%u", table, size);
+        return;
+    }
+
+    const uint32_t index = (key + keybase - 1u) & (size - 1u);
+    uint32_t entry = 0, rec = 0, info = 0;
+    Wc3PeekU32(table + index * 4u, &entry);
+    if (entry) Wc3PeekU32(entry + 4u, &rec);
+    if (rec)   Wc3PeekU32(rec + 4u, &info);
+    if (!rec || !info) {
+        LogDebug("DJ japi key=%u idx=%u entry=%08X rec=%08X info=%08X（链断了）",
+                 key, index, entry, rec, info);
+        return;
+    }
+
+    uint32_t r[5]  = {0,0,0,0,0};
+    uint32_t i[11] = {0,0,0,0,0,0,0,0,0,0,0};
+    Wc3Peek(rec,  r, sizeof(r));
+    Wc3Peek(info, i, sizeof(i));
+
+    LogDebug("DJ japi 原始info10=%.4f 实际HP差=%.4f 前血=%.4f | key=%u idx=%u entry=%08X rec=%08X info=%08X",
+             snap.amount, snap.after_amount, snap.hp_before,
+             key, index, entry, rec, info);
+    LogDebug("DJ   rec[0..4] = %08X %08X %08X %08X %08X", r[0], r[1], r[2], r[3], r[4]);
+    LogDebug("DJ   info[0..5]= %08X %08X %08X %08X %08X %08X", i[0], i[1], i[2], i[3], i[4], i[5]);
+    LogDebug("DJ   info[6..A]= %08X %08X %08X %08X %08X", i[6], i[7], i[8], i[9], i[10]);
+}
+
+//------------------------------------------------------------------------------
 // 8. 主钩子实〔?〕
 //    参数〔?〕EventDamageData.cpp 〔?〕FakeUnitDamageFunc 一一对应〔?〕
 //    用普〔?〕__fastcall，编译器自会生成 ret 10h（见上面的说明）〔?〕
@@ -7430,11 +7640,17 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
     float    hpBefore  = 0.0f;
     if (D < UDW_DMG_MAXDEPTH) {
         g_dmgNested[D] = 0.0f;         // 本层还没累计子效果
+        g_capturedDamage[D] = 0.0f;    // 本层还没抓到 GetEventDamage 真实伤害
         uint32_t tgtBefore = ObjToHandle(_this);
         if (tgtBefore) {
             __try { hpBefore = GetUnitStateSafe(tgtBefore, JASS_UNIT_STATE_LIFE); }
             __except (EXCEPTION_EXECUTE_HANDLER) { hpBefore = 0.0f; }
         }
+    }
+    // 首次伤害时（地图已加载、JASS VM 已就绪）补挂 GetEventDamage 钩子——初始化时 get_instance 可能还是 0
+    if (g_realGetEventDamage == 0 && g_gedAttempts < 64) {
+        InterlockedIncrement(&g_gedAttempts);
+        Wc3HookGetEventDamage();
     }
     uint32_t retval = 0;
     if (ORIG_DAMAGE) {
@@ -7485,8 +7701,8 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
         //   native 模式：结构体里的 amount 是【float 的位模式】（〔?〕Wc3RealBits 的说明）—〔?〕
         //                以前当指针解引用，所以永远是 0.0〔?〕
         //   JAPI  模式：ydbase 〔?〕from_real 是恒等函数，等价于直接按位读〔?〕
-        if (g_nativeMode) snap.amount = snap.ptrOK ? Wc3RealBits(snap.amount_real) : 0.0f;
-        else              snap.amount = (snap.ptrOK && g_from_real) ? g_from_real(snap.amount_real) : 0.0f;
+        // 初始伤害（前部分）= 地图伤害事件【增伤前】的值（GetEventDamage 第一次调用时抓到）
+        snap.amount = (D < UDW_DMG_MAXDEPTH) ? g_capturedDamage[D] : 0.0f;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         snap.ptrOK = 0;
     }
@@ -7512,6 +7728,11 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
                 }
             } __except (EXCEPTION_EXECUTE_HANDLER) { }
         }
+    }
+
+    // ---- 初始伤害兜底：GetEventDamage 没抓到（钩子没挂/读不到）时，退回 HP 差值（实际掉血）----
+    if (snap.amount <= 0.0f && snap.after_amount > 0.0f) {
+        snap.amount = snap.after_amount;
     }
 
     // ---- 〔?〕日志 + 显示（用快照，出什么问题都不影〔?〕retval〔?〕----
@@ -7573,6 +7794,9 @@ static uint32_t __fastcall OurDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
                             snap.raw_this, snap.raw_ptr);
                 }
             }
+
+            // ---- JAPI 伤害事件记录探针（debug=1）：定位"实际伤害"存哪个偏移 ----
+            if (g_cfg.debug) DumpJapiEventRecord(snap);
             // ★★ v1.3.1：屏幕上的明细精简〔?〕只有数字"了，所以【日志必须保留完整信息】〔?〕
             //    这一行把"人看得懂"的字段补齐：来源〔?〕/ 目标〔?〕/ 拥有〔?〕/ 五项数字 / 伤害 / 武器 / 生命〔?〕
             //    再配合上面的 D 行（原始字段）与 DN 行（native 结构〔?〕8 〔?〕dword）与句柄〔?〕
@@ -8093,6 +8317,7 @@ static void DoInitializeNative()
                                                    "取名字/上屏会退化成只写日志");
     }
     Wc3PrepareNatives();     // 每个 native 一行日志（基址 + RVA + 序言 + 校验结论〔?〕
+    Wc3HookGetEventDamage(); // 钩 GetEventDamage：在事件进行中抓真实伤害（0.24）
 
     // 〔?〕常规〔?〕6 字节入口序言〔?〕.text 内唯一命中 -> 直接钩入〔?〕
     uint32_t nativeTarget = Wc3FindDamageFunc(base);
@@ -8184,7 +8409,7 @@ static void DoInitializeNative()
 static void DoInitialize()
 {
     LogLine("================================================================");
-    LogLine("UDamageWatcherHook v1.4.24（热键吞键，阻止传播给游戏）");
+    LogLine("UDamageWatcherHook v1.4.25（伤害列=地图增伤前值，实际列=增伤后HP差值）");
     LogLine("本 DLL  : %s", g_dllDir);
     LogLine("日志    : %s", g_logPath);
     LogLine("配置    : %s", g_iniPath);
@@ -8523,6 +8748,8 @@ static void DoInitialize()
             (g_cfg.filter_side == 0) ? "来源方" : ((g_cfg.filter_side == 1) ? "目标方" : "任一方"));
     InitChatHook();
     InitHotkeys();          // 热键：完全不走聊天，命令不会发给别人
+
+    Wc3HookGetEventDamage(); // 钩 GetEventDamage：在事件进行中抓真实伤害（0.24）
 
     LogLine("初始化完成。进游戏打一次怪即可看到日志与消息。");
     LogLine("================================================================");

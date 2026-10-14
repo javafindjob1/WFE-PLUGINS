@@ -98,7 +98,7 @@ encoding=2
 debug=0
 ;               上屏规则（v1.3.14）：结算只有【Ctrl+Alt+R 选中的单位】才上屏；聊天命令记的单位只写日志。
 ; ydbase_wait: 等 ydbase 注入的最长秒数。【本项目当前设 0 = 只探一次，没有就立刻转 native】
-ydbase_wait=0
+ydbase_wait=10
 ; native_chain: 引擎伤害函数入口被别人挂钩时（WFE 伤害数字/平台 JAPI）是否改用链式挂钩。1=开（默认）；0=老行为（直接安全退出）
 native_chain=1
 log_events=0
@@ -119,4 +119,4 @@ pick=auto
 ;          代价：不加载 ydbase，于是聊天命令 @0/@1/@2/@3/@名字/@?/@! 不可用，改用热键 Ctrl+Alt+数字/R/Q/S。
 ; auto   = 有 ydbase 就走原 JAPI 路径，没有则自动转 native
 ; japi   = 强制原 JAPI 路径（没有 ydbase 就什么都不挂）
-backend=2
+backend=0
