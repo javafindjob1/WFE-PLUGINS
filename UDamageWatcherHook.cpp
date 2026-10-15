@@ -6070,6 +6070,8 @@ static void InitDirectChat();   // v1.4.1：直投聊天的地址校验（定义
 
 static void InitChatHook()
 {
+    InitDirectChat();   // v1.4.1：直投聊天的地址校验（只校验序言）——native/JAPI 都要、与 chat_cmd 无关，死亡结算无框直投依赖它
+
     if (!g_cfg.chat_cmd) {
         LogLine("聊天命令：已按 ini 关闭（chat_cmd=0），当前模式=%d(%s)",
                 (int)g_mode, ModeNameAscii((int)g_mode));
@@ -6092,7 +6094,6 @@ static void InitChatHook()
         LogLine("聊天命令：命令前缀 \"%s\"（调用链会打在 C 聊天 那行下面）", g_cfg.chat_prefix);
         InitChatPostDiag();     // v1.3.39：只读诊断，dump 游戏投递的"聊天事件对象"
         InitProbeHooks();       // v1.3.45：签名无关探针（只在 chat_diag=1 时安装）
-        InitDirectChat();       // v1.4.1：直投聊天的地址校验（只校验序言，不做任何调用）
         InitMarkerScan();       // v1.3.50：扫标记定位聊天输入框，并给它的虚表方法挂探〔?〕
         return;
     }
@@ -7263,16 +7264,18 @@ static void InitDirectChat()
     LogLine("直投聊天：6 个地址序言校验全部通过，已启用（Game.dll 基址 %08X）", base);
 }
 
-// 取聊天 UI 对象：get_unit(0,0) -> [obj+0x3FC]
+// 取聊天 UI 对象：get_unit(1,0) -> [obj+0x3FC]
+//   第一参数 ECX=1 表示"不存在则创建"（与游戏 EnableSelect / 启动初始化 0x236B4 一致）；
+//   传 0 是"只读不建"，CGameUI 单例还没建时直接返回 0 -> 死亡结算拿不到 UI。
 static uint32_t DirectChatUiObject()
 {
     if (!g_chatGetUnit) return 0;
     uint32_t obj = 0, ui = 0;
     __try {
-        obj = ((fn_chat_getunit_t)g_chatGetUnit)(0, 0);
+        obj = ((fn_chat_getunit_t)g_chatGetUnit)(1, 0);
         if (obj) ui = *(const uint32_t*)(uintptr_t)(obj + WC3_OFF_UI_FROM_OBJ);
     } __except (EXCEPTION_EXECUTE_HANDLER) { obj = 0; ui = 0; }
-    if (g_cfg.debug) LogLine("直投聊天：get_unit(0,0)=%08X -> UI 对象=%08X", obj, ui);
+    LogLine("直投聊天：get_unit(1,0)=%08X -> UI 对象=%08X", obj, ui);
     return ui;
 }
 

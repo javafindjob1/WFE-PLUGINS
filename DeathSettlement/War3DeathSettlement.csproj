@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <Platforms>x64</Platforms>
+    <AssemblyName>War3DeathSettlement</AssemblyName>
+    <RootNamespace>War3DeathSettlement</RootNamespace>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Product>War3DeathSettlement</Product>
+    <AssemblyTitle>魔兽死亡结算 (War3 Death Settlement)</AssemblyTitle>
+    <Company>wfe-library-demagewatcher</Company>
+    <Copyright>Copyleft</Copyright>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <NeutralLanguage>zh-Hans</NeutralLanguage>
+    <DebugType>none</DebugType>
+    <ErrorReport>none</ErrorReport>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+</Project>

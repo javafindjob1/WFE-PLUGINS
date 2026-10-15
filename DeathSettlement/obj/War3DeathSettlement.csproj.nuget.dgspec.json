@@ -1,0 +1,70 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\3rd\\war5-jass\\jass_plugin\\魔兽启动器（可启动带japi的地图）\\wfe-library-demagewatcher\\DeathSettlement\\War3DeathSettlement.csproj": {}
+  },
+  "projects": {
+    "C:\\3rd\\war5-jass\\jass_plugin\\魔兽启动器（可启动带japi的地图）\\wfe-library-demagewatcher\\DeathSettlement\\War3DeathSettlement.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\3rd\\war5-jass\\jass_plugin\\魔兽启动器（可启动带japi的地图）\\wfe-library-demagewatcher\\DeathSettlement\\War3DeathSettlement.csproj",
+        "projectName": "War3DeathSettlement",
+        "projectPath": "C:\\3rd\\war5-jass\\jass_plugin\\魔兽启动器（可启动带japi的地图）\\wfe-library-demagewatcher\\DeathSettlement\\War3DeathSettlement.csproj",
+        "packagesPath": "C:\\Users\\76769\\.nuget\\packages\\",
+        "outputPath": "C:\\3rd\\war5-jass\\jass_plugin\\魔兽启动器（可启动带japi的地图）\\wfe-library-demagewatcher\\DeathSettlement\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\76769\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0-windows"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0-windows7.0": {
+            "targetAlias": "net9.0-windows",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0-windows7.0": {
+          "targetAlias": "net9.0-windows",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WindowsForms": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
