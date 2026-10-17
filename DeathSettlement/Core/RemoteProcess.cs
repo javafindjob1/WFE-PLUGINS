@@ -125,6 +125,30 @@ public sealed class RemoteProcess : IDisposable
             finally { Native.CloseHandle(snap); }
         }
 
+        // Toolhelp 没给出完整列表时，用 .NET 的 EnumProcessModulesEx 再试一次
+        // （x64 宿主读 x86 目标时，快照偶尔会漏掉 game.dll）
+        if (list.Count == 0 || !list.Any(m => string.Equals(m.Name, "game.dll", StringComparison.OrdinalIgnoreCase)))
+        {
+            try
+            {
+                var p = Process.GetProcessById(Pid);
+                foreach (ProcessModule m in p.Modules)
+                {
+                    ulong b = (ulong)m.BaseAddress.ToInt64();
+                    if (list.Any(x => x.Base == b)) continue;
+                    list.Add(new ModuleInfo
+                    {
+                        Name = m.ModuleName,
+                        Path = m.FileName,
+                        Base = b,
+                        Size = (uint)m.ModuleMemorySize
+                    });
+                }
+                MainModulePath ??= p.MainModule?.FileName;
+            }
+            catch { /* 拿不到就算了 */ }
+        }
+
         if (list.Count == 0)
         {
             // 退化：至少把主模块放进去（x64 宿主进程读 x86 目标时快照偶尔会空）
@@ -174,24 +198,36 @@ public sealed class RemoteProcess : IDisposable
 
     public IReadOnlyList<MemRegion> Regions => _regions ??= new List<MemRegion>();
 
+    /// <summary>二分找“地址落在哪个区域”（区域按地址有序）。返回最后一个 Base&lt;=addr 的下标，找不到返回 -1。</summary>
+    private int FindRegionIndex(ulong addr)
+    {
+        var regs = Regions;
+        int lo = 0, hi = regs.Count - 1, best = -1;
+        while (lo <= hi)
+        {
+            int mid = (lo + hi) >> 1;
+            if (regs[mid].Base <= addr) { best = mid; lo = mid + 1; }
+            else hi = mid - 1;
+        }
+        return best;
+    }
+
     /// <summary>地址区间是否落在某个已提交且可读的区域里（用于避免无效读取 & 扫描）。</summary>
     public bool IsReadable(ulong addr, int size)
     {
         if (size <= 0) return false;
-        ulong end = addr + (ulong)size;
-        foreach (var r in Regions)
-        {
-            if (addr >= r.Base && end <= r.End) return true;
-            if (r.Base > addr) break;
-        }
-        return false;
+        int i = FindRegionIndex(addr);
+        if (i < 0) return false;
+        var r = Regions[i];
+        return addr + (ulong)size <= r.End;
     }
 
     public MemRegion? RegionOf(ulong addr)
     {
-        foreach (var r in Regions)
-            if (addr >= r.Base && addr < r.End) return r;
-        return null;
+        int i = FindRegionIndex(addr);
+        if (i < 0) return null;
+        var r = Regions[i];
+        return addr < r.End ? r : null;
     }
 
     /// <summary>读一段字节；返回实际读到的长度（0 表示失败）。</summary>
@@ -303,8 +339,7 @@ public sealed class RemoteProcess : IDisposable
         if (buf == null || buf.Length == 0) return "";
         int n = Array.IndexOf(buf, (byte)0);
         if (n < 0) n = buf.Length;
-        try { return Encoding.GetEncoding(936).GetString(buf, 0, n); }
-        catch { return Encoding.ASCII.GetString(buf, 0, n); }
+        return Gbk.Decode(buf, 0, n);
     }
 
     public void Dispose()

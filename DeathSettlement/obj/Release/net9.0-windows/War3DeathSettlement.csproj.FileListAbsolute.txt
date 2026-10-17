@@ -10,3 +10,7 @@ C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-
 C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\obj\Release\net9.0-windows\refint\War3DeathSettlement.dll
 C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\obj\Release\net9.0-windows\War3DeathSettlement.genruntimeconfig.cache
 C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\obj\Release\net9.0-windows\ref\War3DeathSettlement.dll
+C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\bin\Dev\War3DeathSettlement.exe
+C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\bin\Dev\War3DeathSettlement.deps.json
+C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\bin\Dev\War3DeathSettlement.runtimeconfig.json
+C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\bin\Dev\War3DeathSettlement.dll

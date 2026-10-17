@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 namespace War3DeathSettlement.Core;
 
@@ -13,9 +13,9 @@ namespace War3DeathSettlement.Core;
 /// </summary>
 public static class Probe
 {
-    public static int Run(string[] args)
+    public static int Run(CliOptions opt)
     {
-        bool deep = args.Any(a => a.Equals("--deep", StringComparison.OrdinalIgnoreCase));
+        bool deep = opt.Deep;
         var sb = new StringBuilder();
         void W(string s = "")
         {
@@ -25,10 +25,12 @@ public static class Probe
 
         W("=== War3DeathSettlement 实机诊断 " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " ===");
         W("说明：全部为只读内存访问（OpenProcess + ReadProcessMemory），不注入、不写内存。");
-        W();
+        if (opt.Pid is int pid) W($"目标：指定 PID {pid}");
+        if (opt.ForceVersion != null) W($"强制版本：{opt.ForceVersion}");
+        W("");
 
         W("---- 1. 候选进程 ----");
-        var cands = Wc3Game.FindCandidates();
+        var cands = Wc3Game.FindCandidates(opt.Name);
         if (cands.Count == 0) W("  （没有找到 war3 / game.dll / dzwar3 进程）");
         foreach (var p in cands)
         {
@@ -36,20 +38,65 @@ public static class Probe
             try { path = p.MainModule?.FileName ?? ""; } catch { path = "(无权限读取路径)"; }
             W($"  PID {p.Id,-6} {p.ProcessName,-16} {path}");
         }
-        W();
+        W("");
+
+        // ---- 1.5 全部进程（专治“War3Trainer 看得到、我们看不到”这种问题） ----
+        W("---- 1.5 进程盘点（我们到底能不能看到魔兽） ----");
+        {
+            int total = 0, withGame = 0, unknownMods = 0, nameLike = 0;
+            foreach (var p in System.Diagnostics.Process.GetProcesses())
+            {
+                total++;
+                try
+                {
+                    string dll = "", ver = "";
+                    bool unknown = false;
+                    try
+                    {
+                        foreach (System.Diagnostics.ProcessModule m in p.Modules)
+                        {
+                            if (!string.Equals(m.ModuleName, "game.dll", StringComparison.OrdinalIgnoreCase)) continue;
+                            dll = "0x" + m.BaseAddress.ToInt64().ToString("X8");
+                            try
+                            {
+                                var fv = System.Diagnostics.FileVersionInfo.GetVersionInfo(m.FileName);
+                                ver = (!string.IsNullOrWhiteSpace(fv.ProductVersion) ? fv.ProductVersion : fv.FileVersion) ?? "";
+                            }
+                            catch { }
+                            break;
+                        }
+                    }
+                    catch { if (p.Id > 4) { unknown = true; unknownMods++; } }
+
+                    bool nameish = ProcessMatch.LooksLikeGame(p.ProcessName);
+                    if (nameish) nameLike++;
+                    if (dll.Length == 0 && !nameish && !unknown) continue;
+
+                    if (dll.Length > 0) withGame++;
+                    W($"  PID {p.Id,-6} {p.ProcessName,-24} game.dll={(dll.Length > 0 ? dll : (unknown ? "读不到(权限?)" : "没有")),-14}" +
+                      $"版本={ver,-20}{(nameish ? " 名字像魔兽" : "")}");
+                }
+                catch { /* 进程已退出 */ }
+            }
+            W($"  合计 {total} 个进程：加载了 game.dll 的 {withGame} 个，名字像魔兽的 {nameLike} 个，模块列表读不到的 {unknownMods} 个");
+            if (withGame == 0 && nameLike == 0)
+                W("  ⇒ 此刻没有魔兽进程（或它叫了完全不相干的名字且我们没权限看它的模块）。" +
+                  "War3Trainer 那种“检测到游戏(旧PID)”可能是它记住了上一次的结果 —— 它不会自动重新校验。");
+        }
+        W("");
 
         W("---- 2. 连接 ----");
-        using var game = Wc3Game.Attach();
+        using var game = Wc3Game.Attach(opt.ToAttach());
         W("  状态: " + game.State);
         W("  消息: " + game.Message);
         if (!game.IsReady)
         {
-            W();
+            W("");
             W("（没连上/还没进地图：以上即为全部可用信息。若提示权限不足，请以管理员身份运行本软件。）");
             return Flush(sb);
         }
 
-        Report(game, deep, W);
+        Report(game, deep, W, opt);
         W("=== 诊断结束 ===");
         return Flush(sb);
     }
@@ -60,7 +107,7 @@ public static class Probe
         var sb = new StringBuilder();
         void W(string s = "") => sb.AppendLine(s);
         W("=== War3DeathSettlement 界面诊断 " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " ===");
-        W();
+        W("");
         Report(game, deep, W);
         W("=== 诊断结束 ===");
         string text = sb.ToString();
@@ -69,25 +116,31 @@ public static class Probe
     }
 
     // ==================================================================
-    private static void Report(Wc3Game game, bool deep, Action<string> W)
+    private static void Report(Wc3Game game, bool deep, Action<string> W, CliOptions? opt = null)
     {
         W("  game.dll 基址: 0x" + ((uint)game.GameDllBase).ToString("X8") +
           $"  大小 {game.GameDll.Size / 1024}KB  路径 {game.GameDll.Path}");
         W("  版本: " + game.Version.Version);
         W("  ThisGameRva=0x" + game.Version.ThisGameRva.ToString("X8") +
           "  UnitListRva=0x" + game.Version.UnitListRva.ToString("X8"));
-        W();
+        W("");
         W("---- 3. 全局对象 ----");
         W($"  ctx        = 0x{game.Ctx:X8}");
         W($"  ThisGame   = 0x{game.ThisGame:X8}");
         W($"  GameMemory = 0x{game.GameMemory:X8}");
+        W($"  游戏内存表容量（ThisGame+0x1C，引擎自己也这么判）= {game.GameMemoryCapacity}" +
+          (game.CapacityIsSane ? "（可信，会用它卡索引上限）" : "（不可信，不卡上限）"));
         W("  本地玩家索引 = " + game.LocalPlayerIndex);
         var players = game.ReadPlayerObjects();
         for (int i = 0; i < players.Length; i++)
             if (players[i] != 0) W($"  CPlayer[{i}] = 0x{players[i]:X8}");
-        W();
+        W("");
 
-        var scanner = new UnitScanner(game);
+        var scanner = new UnitScanner(game)
+        {
+            EnableHandleTable = opt?.NoHandleTable != true,
+            EnableSelection = opt?.NoSelection != true
+        };
 
         // ---- 句柄表 ----
         W("---- 4. 句柄表候选（ctx+0xF4 句柄管理器） ----");
@@ -119,7 +172,7 @@ public static class Probe
             }
             W($"    前 {buf.Length / 12} 槽：非空 {nonZero}，像单位 {valid}");
         }
-        W();
+        W("");
 
         // ---- 选区链 ----
         W("---- 5. 选区链（本仓库已实机验证过的路径，可作锚点） ----");
@@ -145,7 +198,7 @@ public static class Probe
                 }
             }
         }
-        W();
+        W("");
 
         // ---- 游戏内存表 ----
         W("---- 6. 游戏内存表（ThisGame+0x0C；单位的生命就存在这里） ----");
@@ -176,7 +229,7 @@ public static class Probe
                 W($"  前 {buf.Length / 8} 项：非空 {nz}，像‘生命状态’对象 {plausible}");
             }
         }
-        W();
+        W("");
 
         // ---- 深度扫描 ----
         W("---- 7. 全堆深度扫描（找 CUnit：4 字符类型码 + 生命链自洽） ----");
@@ -184,8 +237,49 @@ public static class Probe
         else
         {
             var stats = scanner.Scan(forceDeep: true);
+            // 新单位要“连续几轮都出现”才会被正式收下（稳定性过滤），所以单次扫描可能什么都看不到。
+            // 这里多扫几轮，让过滤条件满足之后再出报告。
+            for (int i = 0; i < 3 && stats.Known == 0; i++)
+            {
+                W($"  （第 {i + 2} 轮扫描：稳定性过滤需要连续几轮，稍等）");
+                Thread.Sleep(150);
+                stats = scanner.Scan(forceDeep: true);
+            }
             W($"  用时 {stats.ElapsedMs} ms，扫描 {stats.DeepMb} MB，发现单位 {stats.Known} 个");
+            W("  当前使用的字段偏移：生命索引 0x" + scanner.HpIndexOffset.ToString("X") +
+              "，当前HP 0x" + scanner.StateCurOffset.ToString("X") +
+              "，最大HP 0x" + scanner.StateMaxOffset.ToString("X") +
+              "，拥有者 " + (scanner.OwnerOffset >= 0 ? "0x" + scanner.OwnerOffset.ToString("X") : "未发现"));
+            if (scanner.CalibrationInfo.Length > 0) W("  " + scanner.CalibrationInfo);
             foreach (var n in stats.Notes) W("   · " + n);
+
+            // 一个单位都没认出来 → 把“漏斗样本”的原始头部打出来，人工也能看出布局哪里不对
+            if (stats.Known == 0 && stats.SigSamples.Count > 0)
+            {
+                W("  一个单位都没认下来。下面是几个“类型码像单位、但生命链没通过”的候选，看它们的头部字节：");
+                foreach (var cand in stats.SigSamples)
+                {
+                    var hdr = game.Mem.ReadBytes(cand, 0x200);
+                    if (hdr == null) { W($"    0x{cand:X8} 读不到"); continue; }
+                    int t = (int)Wc3UnitOffset.TypeCode;
+                    string tc = "" + (char)hdr[t] + (char)hdr[t + 1] + (char)hdr[t + 2] + (char)hdr[t + 3];
+                    uint hpIdx = BitConverter.ToUInt32(hdr, (int)scanner.HpIndexOffset);
+                    uint posIdx = BitConverter.ToUInt32(hdr, (int)scanner.PositionIndexOffset);
+                    uint mpIdx = BitConverter.ToUInt32(hdr, (int)scanner.MpIndexOffset);
+                    W($"    0x{cand:X8} 类型码='{tc}' 生命索引@0x{scanner.HpIndexOffset:X}={hpIdx} " +
+                      $"魔法索引@0x{scanner.MpIndexOffset:X}={mpIdx} 坐标索引@0x{scanner.PositionIndexOffset:X}={posIdx}");
+                    W("      0x00-0x40: " + BitConverter.ToString(hdr, 0, 0x40).Replace("-", " "));
+                    W("      0x80-0xC8: " + BitConverter.ToString(hdr, 0x80, 0x48).Replace("-", " "));
+                    W("      0x160-0x1A0: " + BitConverter.ToString(hdr, 0x160, 0x40).Replace("-", " "));
+
+                    uint st1 = game.GameMemoryLookup(hpIdx);
+                    W($"      → 表[{hpIdx}] = 0x{st1:X8}" +
+                      (st1 != 0 && game.Mem.IsReadable(st1, 0x100)
+                          ? "，对象 +0x78/+0x84 = " +
+                            $"{game.Mem.F32((ulong)st1 + 0x78):0.###}/{game.Mem.F32((ulong)st1 + 0x84):0.###}"
+                          : "（不可读）"));
+                }
+            }
             var list = scanner.Known.Values.OrderBy(u => u.TypeCode, StringComparer.Ordinal).ToList();
             W($"  单位清单（最多列 60 个，共 {list.Count}）：");
             foreach (var u in list.Take(60))
@@ -231,3 +325,5 @@ public static class Probe
         }
     }
 }
+
+

@@ -1,0 +1,13 @@
+﻿=== War3DeathSettlement 实机诊断 2026-10-16 00:24:14 ===
+说明：全部为只读内存访问（OpenProcess + ReadProcessMemory），不注入、不写内存。
+
+---- 1. 候选进程 ----
+  PID 19656  war3             C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\_test\fakegame\war3.exe
+
+---- 2. 连接 ----
+  状态: UnsupportedVersion
+  消息: 检测到游戏（PID 19656），但版本（）不被支持。
+
+（没连上/还没进地图：以上即为全部可用信息。若提示权限不足，请以管理员身份运行本软件。）
+报告已写入: C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\publish\logs\probe-20261016-002414.txt
+

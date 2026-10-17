@@ -1,0 +1,12 @@
+﻿=== War3DeathSettlement 实机诊断 2026-10-17 00:12:57 ===
+说明：全部为只读内存访问（OpenProcess + ReadProcessMemory），不注入、不写内存。
+目标：指定 PID 5152
+
+---- 1. 候选进程 ----
+  （没有找到 war3 / game.dll / dzwar3 进程）
+
+---- 2. 连接 ----
+  状态: UnsupportedVersion
+  消息: 已连接 PID 5152（1.27.0.52240），但游戏还没进地图（ctx=0x00000000 thisGame=0x00000000 gameMemory=0x00000000）。
+
+（没连上/还没进地图：以上即为全部可用信息。若提示权限不足，请以管理员身份运行本软件。）

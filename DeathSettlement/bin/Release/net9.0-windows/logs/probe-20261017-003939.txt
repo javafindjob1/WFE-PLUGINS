@@ -1,0 +1,115 @@
+﻿=== War3DeathSettlement 界面诊断 2026-10-17 00:39:28 ===
+
+  game.dll 基址: 0x7BF50000  大小 13152KB  路径 C:\Program Files (x86)\kkduizhan\config\gpatch\game\1.27.0\Game.dll
+  版本: 1.27.0.52240
+  ThisGameRva=0x00BE40A8  UnitListRva=0x00BE4238
+
+---- 3. 全局对象 ----
+  ctx        = 0x0F9200D8
+  ThisGame   = 0x177500D0
+  GameMemory = 0x4BD20010
+  游戏内存表容量（ThisGame+0x1C，引擎自己也这么判）= 187827（可信，会用它卡索引上限）
+  本地玩家索引 = 0
+  CPlayer[0] = 0x1EE82BFC
+  CPlayer[1] = 0x1EE851DC
+  CPlayer[2] = 0x1EE8560C
+  CPlayer[3] = 0x1EE85A3C
+  CPlayer[4] = 0x1EE85E6C
+  CPlayer[5] = 0x1EE8629C
+  CPlayer[6] = 0x1EE866CC
+  CPlayer[7] = 0x1EE86AFC
+  CPlayer[8] = 0x1EE86F2C
+  CPlayer[9] = 0x1EE8735C
+  CPlayer[10] = 0x1EE8778C
+  CPlayer[11] = 0x1EE87BBC
+  CPlayer[12] = 0x1EE87FEC
+  CPlayer[13] = 0x1EE8841C
+  CPlayer[14] = 0x1EE8884C
+  CPlayer[15] = 0x1EE88C7C
+
+---- 4. 句柄表候选（ctx+0xF4 句柄管理器） ----
+  mgr+0x19C          = 0x00000000（空）
+  mgr+0x198          = 0x00000000（空）
+  ctx+0xF4           = 0x00000000（空）
+
+---- 5. 选区链（本仓库已实机验证过的路径，可作锚点） ----
+  CPlayer 0x1EE82BFC → sel 0x1FEE0088
+    sel+0x1F0: first=0x4A8824F0 count=1
+      节点 0x4A8824F0 → 单位 0x1F0A9284 类型=J40E HP=16386/16686
+    sel+0x08: first=0x4A881740 count=1
+      节点 0x4A881740 → 单位 0x1F0A9284 类型=J40E HP=16386/16686
+  CPlayer 0x1EE851DC → sel 0x1FEE02A0
+    sel+0x1F0: first=0x4A880438 count=1
+      节点 0x4A880438 → 单位 0x1F0A2444 类型=F00U HP=27208/27208
+    sel+0x08: first=0x4A880480 count=1
+      节点 0x4A880480 → 单位 0x1F0A2444 类型=F00U HP=27208/27208
+  CPlayer 0x1EE8560C → sel 0x1FEE04B8
+    sel+0x1F0: first=0x1FEE06A8 count=0
+    sel+0x08: first=0x1FEE04C0 count=0
+  CPlayer 0x1EE85A3C → sel 0x1FEE06D0
+    sel+0x1F0: first=0x4A882730 count=1
+      节点 0x4A882730 → 单位 0x1F0A8024 类型=620H HP=9205.4/14686
+    sel+0x08: first=0x4A881200 count=1
+      节点 0x4A881200 → 单位 0x1F0A8024 类型=620H HP=9205.4/14686
+  CPlayer 0x1EE85E6C → sel 0x1FEE08E8
+    sel+0x1F0: first=0x1FEE0AD8 count=0
+    sel+0x08: first=0x1FEE08F0 count=0
+  CPlayer 0x1EE8629C → sel 0x1FEE0B00
+    sel+0x1F0: first=0x1FEE0CF0 count=0
+    sel+0x08: first=0x1FEE0B08 count=0
+  CPlayer 0x1EE866CC → sel 0x1FEE0D18
+    sel+0x1F0: first=0x1FEE0F08 count=0
+    sel+0x08: first=0x1FEE0D20 count=0
+  CPlayer 0x1EE86AFC → sel 0x1FEE0F30
+    sel+0x1F0: first=0x1FEE1120 count=0
+    sel+0x08: first=0x1FEE0F38 count=0
+  CPlayer 0x1EE86F2C → sel 0x1FEE1148
+    sel+0x1F0: first=0x1FEE1338 count=0
+    sel+0x08: first=0x1FEE1150 count=0
+  CPlayer 0x1EE8735C → sel 0x1FEE1360
+    sel+0x1F0: first=0x1FEE1550 count=0
+    sel+0x08: first=0x1FEE1368 count=0
+  CPlayer 0x1EE8778C → sel 0x1FEE1578
+    sel+0x1F0: first=0x1FEE1768 count=0
+    sel+0x08: first=0x1FEE1580 count=0
+  CPlayer 0x1EE87BBC → sel 0x1FEE1790
+    sel+0x1F0: first=0x1FEE1980 count=0
+    sel+0x08: first=0x1FEE1798 count=0
+  CPlayer 0x1EE87FEC → sel 0x1FEE19A8
+    sel+0x1F0: first=0x1FEE1B98 count=0
+    sel+0x08: first=0x1FEE19B0 count=0
+  CPlayer 0x1EE8841C → sel 0x1FEE1BC0
+    sel+0x1F0: first=0x1FEE1DB0 count=0
+    sel+0x08: first=0x1FEE1BC8 count=0
+  CPlayer 0x1EE8884C → sel 0x1FEE1DD8
+    sel+0x1F0: first=0x1FEE1FC8 count=0
+    sel+0x08: first=0x1FEE1DE0 count=0
+  CPlayer 0x1EE88C7C → sel 0x1FEE1FF0
+    sel+0x1F0: first=0x1FEE21E0 count=0
+    sel+0x08: first=0x1FEE1FF8 count=0
+
+---- 6. 游戏内存表（ThisGame+0x0C；单位的生命就存在这里） ----
+    索引    644 obj=0x202A0098 当前=0 最大=24
+    索引   1073 obj=0x45EA3500 当前=-0 最大=1
+    索引   3577 obj=0x3ABA6284 当前=-0 最大=2048
+    索引   3869 obj=0x3AB86588 当前=-0 最大=1
+    索引   4007 obj=0x3AB6CD6C 当前=-0 最大=1
+    索引   4156 obj=0x45E9C658 当前=-0 最大=2048
+    索引   4158 obj=0x45E9C6E4 当前=-0 最大=1
+  前 8192 项：非空 8182，像‘生命状态’对象 7
+
+---- 7. 全堆深度扫描（找 CUnit：4 字符类型码 + 生命链自洽） ----
+  用时 10125 ms，扫描 506 MB，发现单位 1 个
+  当前使用的字段偏移：生命索引 0xA0，当前HP 0x78，最大HP 0x84，拥有者 未发现
+   · 句柄表：所有候选地址都无效（改由深度扫描发现单位）
+   · 深度扫描：块 506 MB，命中 2154 个，热区 69 个
+   · 漏斗：类型码特征 2373760 → 生命索引合理 0 → 状态对象可读 0 → HP 像样 0（= 认下来的单位数）
+   · 降噪：同一生命对象重复 2513 个、置信度不足 1266 个（已丢弃）
+  单位清单（最多列 60 个，共 1）：
+    0x1F0A9284 类型=J40E   HP=   16386/16686    坐标=(  951.6,  567.5) 拥有者=? 来源=选区(sel+0x1F0)
+  自发现的拥有者字段偏移：未发现
+  0x1F0A9284 头部 0x00-0x40：
+    04 A7 99 7C F2 01 00 00 AC 94 2D 34 58 18 01 00 58 18 01 00 1C 65 8A 7C 01 00 00 00 B4 94 2D 34 46 06 00 00 00 00 00 00 1C 25 7B 3A FF 8F 00 00 4A 34 30 45 00 00 00 00 FF FF FF FF 00 00 00 00
+     0x90-0xE8：
+    C7 16 2A 00 C7 16 2A 00 60 FD 8B 7C 01 00 00 00 5C 18 01 00 5C 18 01 00 B0 9B 6C 45 80 FD 8B 7C 00 00 80 3F F8 E6 D0 45 60 FD 8B 7C 01 00 00 00 5D 18 01 00 5D 18 01 00 80 FD 8B 7C 00 00 00 00 80 FD 8B 7C 0B D7 23 3C E0 43 D1 45 80 FD 8B 7C 70 E0 F2 42 05 00 00 00
+=== 诊断结束 ===

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute("Copyleft")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ba3a9e51542c87a27c7c653dbcdf1b7de795742d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2ce0cd0378a34a9a69d646a501921a139729f997")]
 [assembly: System.Reflection.AssemblyProductAttribute("War3DeathSettlement")]
 [assembly: System.Reflection.AssemblyTitleAttribute("魔兽死亡结算 (War3 Death Settlement)")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

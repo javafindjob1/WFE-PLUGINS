@@ -1,0 +1,13 @@
+﻿=== War3DeathSettlement 实机诊断 2026-10-16 00:15:47 ===
+说明：全部为只读内存访问（OpenProcess + ReadProcessMemory），不注入、不写内存。
+目标：指定 PID 13588
+强制版本：1.27.0.52240
+
+---- 1. 候选进程 ----
+  （没有找到 war3 / game.dll / dzwar3 进程）
+
+---- 2. 连接 ----
+  状态: NoProcess
+  消息: 指定的进程 13588 打不开：Process with an Id of 13588 is not running.
+
+（没连上/还没进地图：以上即为全部可用信息。若提示权限不足，请以管理员身份运行本软件。）

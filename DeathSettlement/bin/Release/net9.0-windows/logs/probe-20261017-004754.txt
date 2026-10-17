@@ -1,0 +1,17 @@
+﻿=== War3DeathSettlement 实机诊断 2026-10-17 00:47:54 ===
+说明：全部为只读内存访问（OpenProcess + ReadProcessMemory），不注入、不写内存。
+目标：指定 PID 3712
+
+---- 1. 候选进程 ----
+  PID 3712   realattach_host  C:\3rd\war5-jass\jass_plugin\魔兽启动器（可启动带japi的地图）\wfe-library-demagewatcher\DeathSettlement\_test\realattach\realattach_host.exe
+
+---- 1.5 进程盘点（我们到底能不能看到魔兽） ----
+  PID 3712   realattach_host          game.dll=0x79C60000    版本=1.27.0.52240 (f7ba2a3)
+  PID 3328   War3DeathSettlement      game.dll=没有            版本=                     名字像魔兽
+  合计 13 个进程：加载了 game.dll 的 1 个，名字像魔兽的 1 个，模块列表读不到的 0 个
+
+---- 2. 连接 ----
+  状态: NotInGame
+  消息: 已连接 PID 3712（1.27.0.52240），但游戏还没进地图（ctx=0x00000000 thisGame=0x00000000 gameMemory=0x00000000）。
+
+（没连上/还没进地图：以上即为全部可用信息。若提示权限不足，请以管理员身份运行本软件。）

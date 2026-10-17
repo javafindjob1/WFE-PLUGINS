@@ -1,0 +1,15 @@
+﻿=== War3DeathSettlement 实机诊断 2026-10-17 00:30:41 ===
+说明：全部为只读内存访问（OpenProcess + ReadProcessMemory），不注入、不写内存。
+
+---- 1. 候选进程 ----
+  （没有找到 war3 / game.dll / dzwar3 进程）
+
+---- 1.5 进程盘点（我们到底能不能看到魔兽） ----
+  PID 10512  War3DeathSettlement      game.dll=没有            版本=                     名字像魔兽
+  合计 13 个进程：加载了 game.dll 的 0 个，名字像魔兽的 1 个，模块列表读不到的 0 个
+
+---- 2. 连接 ----
+  状态: NoProcess
+  消息: 按进程名也没找到魔兽（找过：war3 / War3 / game.dll / dzwar3 / Warcraft III / Frozen Throne）—— 先启动游戏；启动后点【选择进程…】，列表里绿色那一行（加载了 game.dll 的）就是魔兽。
+
+（没连上/还没进地图：以上即为全部可用信息。若提示权限不足，请以管理员身份运行本软件。）

@@ -14,14 +14,12 @@
         "outputPath": "C:\\3rd\\war5-jass\\jass_plugin\\魔兽启动器（可启动带japi的地图）\\wfe-library-demagewatcher\\DeathSettlement\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
+          "C:\\3rd\\war5-jass\\jass_plugin\\魔兽启动器（可启动带japi的地图）\\wfe-library-demagewatcher\\DeathSettlement\\NuGet.Config",
           "C:\\Users\\76769\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0-windows"
         ],
-        "sources": {
-          "https://api.nuget.org/v3/index.json": {}
-        },
         "frameworks": {
           "net9.0-windows7.0": {
             "targetAlias": "net9.0-windows",

@@ -14,6 +14,8 @@ public sealed class DamageTracker
 {
     private readonly UnitScanner? _scanner;
     private readonly Dictionary<uint, UnitTrack> _tracks = new();
+    /// <summary>生命对象索引 → 账本。用它当“单位身份”：地址可能变，生命对象不会。</summary>
+    private readonly Dictionary<uint, UnitTrack> _byHpIndex = new();
 
     public DamageTracker(UnitScanner? scanner = null) => _scanner = scanner;
 
@@ -33,10 +35,26 @@ public sealed class DamageTracker
 
     public UnitTrack? GetTrack(uint addr) => _tracks.TryGetValue(addr, out var t) ? t : null;
 
+    /// <summary>把旧的结算历史搬过来（换局/重连时保留整场会话的记录，新账本照样从零开始）。</summary>
+    public void SeedHistory(IEnumerable<Settlement> previous)
+    {
+        Settlements.AddRange(previous);
+        while (Settlements.Count > MaxSettlements) Settlements.RemoveAt(0);
+    }
+
     public void Clear()
     {
         _tracks.Clear();
+        _byHpIndex.Clear();
         Settlements.Clear();
+    }
+
+    /// <summary>彻底忘掉这个单位（连生命对象索引映射一起清掉）。</summary>
+    private void Forget(UnitTrack t)
+    {
+        if (t.HpIndex != 0 && _byHpIndex.TryGetValue(t.HpIndex, out var cur) && ReferenceEquals(cur, t))
+            _byHpIndex.Remove(t.HpIndex);
+        _tracks.Remove(t.Addr);
     }
 
     /// <summary>吃一轮扫描结果，更新账本并结算。</summary>
@@ -48,24 +66,56 @@ public sealed class DamageTracker
             var u = kv.Value;
             if (!_tracks.TryGetValue(u.Addr, out var t))
             {
-                t = new UnitTrack { Addr = u.Addr };
-                t.ResetForNewInstance(now, u);
-                _tracks[u.Addr] = t;
-                continue;
+                // 地址没见过，但生命对象见过 → 就是同一个单位换了地址（复活/对象搬迁/候选漂移），
+                // 跟着它继续记账，而不是当成新单位（否则会多出一条莫名其妙的结算）。
+                if (u.HpIndex != 0 && _byHpIndex.TryGetValue(u.HpIndex, out var same) && !same.Gone)
+                {
+                    uint oldAddr = same.Addr;
+                    _tracks.Remove(oldAddr);
+                    same.Addr = u.Addr;
+                    _tracks[u.Addr] = same;
+                    t = same;
+                    Log.Write($"单位（{same.TypeCode} 生命对象 {u.HpIndex}）地址 0x{oldAddr:X8} → 0x{u.Addr:X8}，按同一个单位继续记账");
+                }
+                else
+                {
+                    t = new UnitTrack { Addr = u.Addr };
+                    t.ResetForNewInstance(now, u);
+                    _tracks[u.Addr] = t;
+                    if (u.HpIndex != 0) _byHpIndex[u.HpIndex] = t;
+                    continue;
+                }
             }
 
-            if (t.Gone) continue;
+            if (t.Gone)
+            {
+                // 已经结算过的实例。尸体还留在地图上（血 ≤ 0）就继续忽略；
+                // 血回到正数（复活/重建），或者地址被新单位复用（满血）→ 当作新的一条命。
+                if (u.Hp > 0f) t.ResetForNewInstance(now, u);
+                else t.LastSeen = now;
+                continue;
+            }
 
             // 同一地址换了类型码 → 认为旧单位已被销毁、这是新单位的实例
             if (!string.Equals(t.TypeCode, u.TypeCode, StringComparison.Ordinal))
             {
+                if (t.HpIndex != 0 && _byHpIndex.TryGetValue(t.HpIndex, out var me) && ReferenceEquals(me, t))
+                    _byHpIndex.Remove(t.HpIndex);
                 t.ResetForNewInstance(now, u);
+                if (t.HpIndex != 0) _byHpIndex[t.HpIndex] = t;
                 continue;
             }
 
             // 死亡后血量回到正数 → 复活 / 重生 → 开新账
+            // （掉到 0/负 之后又回到接近满血，更可能是“重生”而不是被治疗 —— 治疗一般不会恰好回满）
             if (t.Dead && u.Hp > 0f)
             {
+                t.ResetForNewInstance(now, u);
+                continue;
+            }
+            if (t.LastHp <= 0f && u.Hp > 0f && u.HpMax > 0f && u.Hp >= u.HpMax * 0.99f)
+            {
+                Log.Write($"单位 0x{u.Addr:X8}（{u.TypeCode}）血量从 0 直接回到满血 {u.Hp:0.#} —— 按“重生”开新账");
                 t.ResetForNewInstance(now, u);
                 continue;
             }
@@ -104,13 +154,36 @@ public sealed class DamageTracker
 
         // ---- 2. 扫描结果里没了的单位：确认真没了再结算 ----------------
         List<uint>? missing = null;
+        List<uint>? purge = null;
         foreach (var kv in _tracks)
         {
-            if (kv.Value.Gone || scan.ContainsKey(kv.Key)) continue;
+            if (kv.Value.Gone)
+            {
+                // 已结算的实例：地图早就没它了（比如尸体烂掉）就回收，避免账本无限膨胀
+                if (now - kv.Value.LastSeen > TimeSpan.FromMinutes(10)) (purge ??= new List<uint>()).Add(kv.Key);
+                continue;
+            }
+            if (scan.ContainsKey(kv.Key)) continue;
             if (now - kv.Value.LastSeen < GoneGrace) continue;
             (missing ??= new List<uint>()).Add(kv.Key);
         }
+
+        if (purge != null)
+            foreach (uint a in purge)
+                if (_tracks.TryGetValue(a, out var pt)) Forget(pt);
+
         if (missing == null) return;
+
+        // 大面积同时“消失”（超过一半、且不止一两个）通常是地图结束/退游戏/重开局，
+        // 不是被打死 —— 这种情况只丢账，不出结算，免得刷一堆假的“消失”。
+        int liveTracks = _tracks.Count - (_tracks.Values.Count(t => t.Gone));
+        if (missing.Count >= 3 && liveTracks > 0 && missing.Count * 2 > liveTracks)
+        {
+            Log.Warn($"检测到 {missing.Count}/{liveTracks} 个单位同时消失 —— 按“地图结束/退游戏”处理，不生成结算");
+            foreach (uint a in missing)
+                if (_tracks.TryGetValue(a, out var mt)) Forget(mt);
+            return;
+        }
 
         foreach (uint addr in missing)
         {
@@ -160,10 +233,15 @@ public sealed class DamageTracker
             Kind = kind,
             Events = t.Events.ToArray(),
             Peak1s = Peak(t.Events, 1.0),
+            HpAtFirstSeen = t.HpAtFirstSeen,
         };
 
+        // 保留这条 track（标记 Gone）：尸体还留在地图上时不能重复结算；
+        // 10 分钟没再见到会自动回收（见 Update 里的 purge）。
+        // 生命对象索引的映射要摘掉：以后再有单位占用同一个索引，那就是新的账本。
         t.Gone = true;
-        _tracks.Remove(t.Addr);
+        if (t.HpIndex != 0 && _byHpIndex.TryGetValue(t.HpIndex, out var owner) && ReferenceEquals(owner, t))
+            _byHpIndex.Remove(t.HpIndex);
 
         Settlements.Add(s);
         while (Settlements.Count > MaxSettlements) Settlements.RemoveAt(0);

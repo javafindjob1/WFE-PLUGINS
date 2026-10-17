@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 namespace War3DeathSettlement.Core;
 
@@ -25,6 +25,13 @@ public static class Log
             Directory.CreateDirectory(baseDir);
             _path = System.IO.Path.Combine(baseDir, $"dss-{DateTime.Now:yyyyMMdd-HHmmss}.log");
             Write("=== War3DeathSettlement 启动 " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " ===");
+            try
+            {
+                var asm = System.Reflection.Assembly.GetExecutingAssembly();
+                string loc = asm.Location;
+                Write($"程序集 {asm.GetName().Version}　构建 {File.GetLastWriteTime(loc):yyyy-MM-dd HH:mm:ss}　位置 {loc}");
+            }
+            catch { }
         }
         catch { _path = ""; }
     }
@@ -58,3 +65,4 @@ public static class Log
         lock (Gate) return string.Join(Environment.NewLine, Tail);
     }
 }
+
