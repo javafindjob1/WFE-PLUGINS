@@ -18,7 +18,7 @@ internal sealed class DesktopRuntime : IDisposable
         _engine.ReadPluginLog = _settings.ReadPluginLog;
         _engine.PluginLogPath = _settings.PluginLogPath;
         _engine.HookEnabled = _settings.HookEnabled;
-        _engine.HookSharedMemory = false;
+        _engine.HookSharedMemory = true;
         _engine.HookDllPath = _settings.HookDll;
         _engine.HookInjectorPath = _settings.HookInjector;
         _engine.AutoAttach = _settings.AutoAttach;
