@@ -11330,6 +11330,70 @@ static void DdhPanelHide(void)
            还没有任何结算数据时 -> 弹一条提示，告诉用户打完一仗再来
    · 关闭：环境变量 DDH_NO_BUTTON=1（调试用）
    =========================================================================== */
+static bool DdhWebDirectoryValid(const char* dir)
+{
+    if (!dir || !dir[0]) return false;
+    const DWORD attrs = GetFileAttributesA(dir);
+    if (attrs == INVALID_FILE_ATTRIBUTES || !(attrs & FILE_ATTRIBUTE_DIRECTORY)) return false;
+
+    char path[MAX_PATH] = { 0 };
+    DdhSprintf(path, sizeof(path), "%s\\ddh_web.exe", dir);
+    const DWORD exe = GetFileAttributesA(path);
+    if (exe == INVALID_FILE_ATTRIBUTES || (exe & FILE_ATTRIBUTE_DIRECTORY)) return false;
+
+    DdhSprintf(path, sizeof(path), "%s\\dss.html", dir);
+    const DWORD html = GetFileAttributesA(path);
+    return html != INVALID_FILE_ATTRIBUTES && !(html & FILE_ATTRIBUTE_DIRECTORY);
+}
+
+extern "C" int DdhWebUiAvailable(void)
+{
+    static volatile LONG lastCheckTick = 0;
+    static volatile LONG available = 0;
+    const DWORD now = GetTickCount();
+    const LONG last = InterlockedCompareExchange(&lastCheckTick, 0, 0);
+    if (last && (DWORD)(now - (DWORD)last) < 1000)
+        return InterlockedCompareExchange(&available, 0, 0);
+
+    bool ok = false;
+    char envDir[MAX_PATH] = { 0 };
+    const DWORD envLen = GetEnvironmentVariableA("DDH_WEB_DIR", envDir, (DWORD)sizeof(envDir));
+    if (envLen > 0 && envLen < (DWORD)sizeof(envDir))
+        ok = DdhWebDirectoryValid(envDir);
+
+    if (!ok) ok = DdhWebDirectoryValid("C:\\launch\\ddh_web");
+
+    if (!ok && g_self)
+    {
+        char modulePath[MAX_PATH] = { 0 };
+        if (GetModuleFileNameA(g_self, modulePath, (DWORD)sizeof(modulePath)) > 0)
+        {
+            char* slash = strrchr(modulePath, '\\');
+            if (slash)
+            {
+                slash[1] = 0;
+                char candidate[MAX_PATH] = { 0 };
+                const char* relatives[] =
+                {
+                    "ddh_web",
+                    "..\\ddh_web",
+                    "..\\Game\\ddh_web",
+                    "..\\..\\Game\\ddh_web"
+                };
+                for (const char* relative : relatives)
+                {
+                    DdhSprintf(candidate, sizeof(candidate), "%s%s", modulePath, relative);
+                    if (DdhWebDirectoryValid(candidate)) { ok = true; break; }
+                }
+            }
+        }
+    }
+
+    InterlockedExchange(&available, ok ? 1 : 0);
+    InterlockedExchange(&lastCheckTick, (LONG)now);
+    return ok ? 1 : 0;
+}
+
 static void DdhButtonReadEnvOnce(void)
 {
     if (g_ddhBtnEnvRead) return;
@@ -11401,6 +11465,7 @@ static int DdhButtonEnsure(void)
 {
     DdhButtonReadEnvOnce();
     if (g_ddhBtnDisabled || g_ddhPanelDisabled || g_ddhUiBroken) return 0;
+    if (!DdhWebUiAvailable()) return 0;
 
     if (DdhImGuiActive())
     {

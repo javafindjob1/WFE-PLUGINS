@@ -28,6 +28,7 @@ extern "C" void DdhOverlaySetHtml(const char* html);
 extern "C" void DdhOverlayRestartHtml(const char* html);
 extern "C" const char* DdhOverlayMarkerText(void);
 extern "C" int DdhOverlayEnsureHtmlMapping(void);
+extern "C" int DdhWebUiAvailable(void);
 
 #define DDH_PANEL_HTML_PATH "C:\\launch\\ddh_web\\dss.html"
 #define DDH_PANEL_HEADER 64
@@ -353,10 +354,19 @@ static void DrawOverlay(void)
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    /* Keep the settlement button left of KK's three top-right buttons. */
-    g_buttonMin = ImVec2((float)width - 142.0f, 4.0f);
-    g_buttonMax = ImVec2(g_buttonMin.x + 30.0f, g_buttonMin.y + 30.0f);
-    const bool buttonHovered =
+    const bool buttonAvailable = DdhWebUiAvailable() != 0;
+    if (buttonAvailable)
+    {
+        /* Keep the settlement button left of KK's three top-right buttons. */
+        g_buttonMin = ImVec2((float)width - 142.0f, 4.0f);
+        g_buttonMax = ImVec2(g_buttonMin.x + 30.0f, g_buttonMin.y + 30.0f);
+    }
+    else
+    {
+        g_buttonMin = ImVec2(0, 0);
+        g_buttonMax = ImVec2(0, 0);
+    }
+    const bool buttonHovered = buttonAvailable &&
         io.MousePos.x >= g_buttonMin.x && io.MousePos.x < g_buttonMax.x &&
         io.MousePos.y >= g_buttonMin.y && io.MousePos.y < g_buttonMax.y;
     if (buttonHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
@@ -405,13 +415,16 @@ static void DrawOverlay(void)
     }
 
     /* Draw after the panel so its header can never cover the button. */
-    foreground->AddRectFilled(g_buttonMin, g_buttonMax,
-                              buttonHovered ? IM_COL32(76, 62, 30, 245)
-                                            : IM_COL32(32, 28, 18, 238), 4.0f);
-    foreground->AddRect(g_buttonMin, g_buttonMax, IM_COL32(205, 162, 72, 255), 4.0f);
-    foreground->AddText(ImGui::GetFont(), 16.0f,
-                        ImVec2(g_buttonMin.x + 7.0f, g_buttonMin.y + 5.0f),
-                        IM_COL32(255, 210, 100, 255), DdhOverlayMarkerText());
+    if (buttonAvailable)
+    {
+        foreground->AddRectFilled(g_buttonMin, g_buttonMax,
+                                  buttonHovered ? IM_COL32(76, 62, 30, 245)
+                                                : IM_COL32(32, 28, 18, 238), 4.0f);
+        foreground->AddRect(g_buttonMin, g_buttonMax, IM_COL32(205, 162, 72, 255), 4.0f);
+        foreground->AddText(ImGui::GetFont(), 16.0f,
+                            ImVec2(g_buttonMin.x + 7.0f, g_buttonMin.y + 5.0f),
+                            IM_COL32(255, 210, 100, 255), DdhOverlayMarkerText());
+    }
 
     ImGui::Render();
     ImDrawData* drawData = ImGui::GetDrawData();
