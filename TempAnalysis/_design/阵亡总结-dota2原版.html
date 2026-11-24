@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>伤害总结 · Dota2 原版 Death Summary 复刻（War3DeathSettlement）</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    background:#05070a;color:#d9dcdf;
+    font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;overflow:auto;
+  }
+  .serif{font-family:"Radiance","Trajan Pro",Georgia,"Times New Roman","SimSun",serif}
+
+  /* ---------- 假背景：模糊的战场景 ---------- */
+  .scene{
+    position:fixed;inset:0;
+    background:
+      radial-gradient(55% 45% at 26% 32%, #33422c 0%, rgba(30,38,26,0) 70%),
+      radial-gradient(45% 40% at 72% 68%, #3d3a28 0%, rgba(35,32,22,0) 70%),
+      radial-gradient(70% 70% at 50% 110%, #16201a 0%, rgba(0,0,0,0) 70%),
+      linear-gradient(155deg,#1a231d 0%,#0d1210 55%,#121619 100%);
+    filter:blur(3px) saturate(.7);
+    transform:scale(1.04);
+  }
+  .veil{
+    position:relative;min-height:100%;
+    background:radial-gradient(120% 100% at 50% 40%, rgba(3,5,7,.62) 0%, rgba(3,5,7,.9) 62%, rgba(2,3,4,.96) 100%);
+    padding:28px 0;
+  }
+  .veil .panel{margin:0 auto}
+
+  /* ---------- 面板 ---------- */
+  .panel{
+    width:1180px;max-height:100%;
+    background:linear-gradient(180deg,rgba(23,28,33,.985),rgba(15,19,23,.99));
+    border:1px solid rgba(150,175,195,.16);
+    box-shadow:0 0 0 1px rgba(0,0,0,.9), 0 0 40px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.045);
+    clip-path:polygon(0 10px,10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px));
+  }
+
+  .bar{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 18px;border-bottom:1px solid rgba(150,175,195,.12);
+    background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,0));
+  }
+  .bar .ttl{display:flex;align-items:baseline;gap:10px}
+  .bar .ttl b{font-size:19px;letter-spacing:.16em;color:#e7e2d6;font-weight:600}
+  .bar .ttl span{font-size:9px;letter-spacing:.26em;color:#7d878f}
+  .bar .grow{flex:1}
+  .bar .hint{font-size:10px;letter-spacing:.18em;color:#6f7981}
+  .bar .x{
+    width:22px;height:22px;line-height:20px;text-align:center;font-size:11px;color:#98a2aa;
+    border:1px solid rgba(150,175,195,.22);background:rgba(255,255,255,.03);
+  }
+
+  .content{display:grid;grid-template-columns:250px 1fr}
+
+  /* ---------- 左：英雄卡 ---------- */
+  .hero{
+    padding:14px 16px 18px;border-right:1px solid rgba(150,175,195,.10);
+    background:linear-gradient(180deg,rgba(0,0,0,.20),rgba(0,0,0,.45));
+  }
+  .goldbtn{
+    display:block;width:100%;margin:0 0 10px;
+    font:inherit;font-size:11px;letter-spacing:.22em;color:#1a1408;
+    background:linear-gradient(180deg,#e8c987,#c8a054 55%,#a8803c);
+    border:1px solid #f0d79f;padding:7px 0;text-align:center;cursor:default;
+    box-shadow:0 1px 0 rgba(255,240,200,.35) inset, 0 2px 10px rgba(200,160,84,.25);
+  }
+  .portrait{
+    position:relative;width:100%;aspect-ratio:1/1;background:#0a0c0e;
+    border:1px solid rgba(200,165,95,.45);
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.8), 0 6px 18px rgba(0,0,0,.6);
+  }
+  .portrait svg{display:block;width:100%;height:100%}
+  .portrait .mask{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(120,20,10,.10) 0%,rgba(5,6,8,.55) 62%,rgba(5,6,8,.9) 100%);
+  }
+  .portrait .code{
+    position:absolute;left:0;right:0;bottom:9px;text-align:center;
+    font-family:Georgia,"Times New Roman",serif;font-size:27px;letter-spacing:.14em;color:#e9dcc0;
+    text-shadow:0 2px 12px #000;
+  }
+  .plate{margin-top:10px;display:flex;align-items:baseline;gap:7px}
+  .plate b{font-size:17px;color:#efe9dc;letter-spacing:.05em}
+  .plate em{font-style:normal;font-family:Consolas,monospace;font-size:11px;color:#828c94}
+  .pinfo{margin-top:5px;font-size:11px;color:#7f8991;display:flex;align-items:center;gap:6px}
+  .pdot{width:8px;height:8px;background:#3f7cc0;border-radius:50%}
+  .hpwrap{margin-top:12px}
+  .hpbar{height:9px;background:#1a1f23;border:1px solid rgba(0,0,0,.7);box-shadow:inset 0 1px 2px rgba(0,0,0,.8);position:relative}
+  .hpbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#4f8c33,#79b34a);opacity:.22}
+  .hpbar .dead{position:absolute;inset:0;background:linear-gradient(90deg,rgba(194,59,34,.55),rgba(194,59,34,.15))}
+  .hptext{display:flex;justify-content:space-between;font-family:Consolas,monospace;font-size:10px;color:#7f8991;margin-top:4px}
+  .kinds{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+  .tag{font-size:10px;letter-spacing:.12em;padding:2px 7px;border:1px solid rgba(194,59,34,.5);color:#e09b8c;background:rgba(194,59,34,.12)}
+  .tag.n{border-color:rgba(150,175,195,.22);color:#98a2aa;background:rgba(255,255,255,.03)}
+
+  /* ---------- 右：看板 ---------- */
+  .board{padding:14px 20px 18px;min-width:0}
+  .tot{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+  .tot .lbl{font-size:10px;letter-spacing:.24em;color:#7f8991;padding-bottom:5px}
+  .tot .num{font-family:Georgia,"Times New Roman",serif;font-size:44px;line-height:1;color:#f2ece0;letter-spacing:.02em}
+  .tot .meta{font-size:11px;color:#8b959d;padding-bottom:6px;display:flex;gap:14px;flex-wrap:wrap}
+  .tot .meta b{color:#cfd6dc;font-weight:600}
+
+  .stack{display:flex;height:16px;margin-top:12px;border:1px solid rgba(0,0,0,.75);box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
+  .stack i{display:block;height:100%;box-shadow:inset -1px 0 0 rgba(0,0,0,.45)}
+
+  .rows{margin-top:6px}
+  .srow{display:grid;grid-template-columns:1fr 74px 64px;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(150,175,195,.08)}
+  .srow:last-child{border-bottom:0}
+  .who{display:flex;align-items:center;gap:9px;min-width:0}
+  .who .sw{width:3px;height:26px;flex:0 0 auto}
+  .who .txt{min-width:0}
+  .who .nm{font-size:13px;color:#e4e8ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .who .nm em{font-style:normal;font-family:Consolas,monospace;font-size:10px;color:#78838b;margin-left:6px}
+  .who .sub{font-size:10px;color:#7c8791;margin-top:2px;letter-spacing:.04em}
+  .who .track{height:5px;margin-top:5px;background:#12171b;box-shadow:inset 0 1px 2px rgba(0,0,0,.9)}
+  .who .track i{display:block;height:100%}
+  .dmg{font-family:Georgia,"Times New Roman",serif;font-size:16px;color:#eae3d5;text-align:right;font-variant-numeric:tabular-nums}
+  .pct{font-family:Consolas,monospace;font-size:11px;color:#8d97a0;text-align:right}
+
+  .sect{margin-top:16px}
+  .sect-h{display:flex;align-items:center;gap:10px;font-size:10px;letter-spacing:.24em;color:#8e98a0;margin-bottom:9px}
+  .sect-h b{color:#cfd6dc;font-weight:600;letter-spacing:.2em}
+  .sect-h .rule{flex:1;height:1px;background:linear-gradient(90deg,rgba(150,175,195,.20),transparent)}
+
+  /* 按秒承伤 */
+  .secchart{display:flex;align-items:flex-end;gap:5px;height:78px;padding:0 2px;border-bottom:1px solid rgba(150,175,195,.16)}
+  .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative}
+  .col i{display:block;background:linear-gradient(180deg,#8c2c1c,#c23b22);box-shadow:inset 0 1px 0 rgba(255,190,170,.28)}
+  .col.peak i{background:linear-gradient(180deg,#e8c987,#c8a054)}
+  .col u{position:absolute;top:-13px;left:50%;transform:translateX(-50%);text-decoration:none;
+         font-family:Consolas,monospace;font-size:9px;color:#d9c08a;white-space:nowrap}
+  .axis{display:flex;gap:5px;padding:3px 2px 0}
+  .axis span{flex:1;text-align:center;font-family:Consolas,monospace;font-size:9px;color:#6f7981}
+
+  /* 构成 */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px}
+  .mini{display:grid;grid-template-columns:74px 1fr 96px;align-items:center;gap:9px;font-size:11px;padding:2px 0}
+  .mini .k{color:#a8b2ba;letter-spacing:.06em}
+  .mini .t{height:4px;background:#12171b;box-shadow:inset 0 1px 2px rgba(0,0,0,.9)}
+  .mini .t i{display:block;height:100%;background:linear-gradient(90deg,#3d6ea8,#6fa8dc)}
+  .mini .t.g i{background:linear-gradient(90deg,#3f7a4a,#79c48c)}
+  .mini .t.o i{background:linear-gradient(90deg,#7a5a1e,#d0a44e)}
+  .mini .v{font-family:Consolas,monospace;font-size:10px;color:#8d97a0;text-align:right}
+
+  .foot{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    padding:9px 20px 11px;border-top:1px solid rgba(150,175,195,.10);
+    background:rgba(0,0,0,.28);font-size:10px;color:#6f7981;letter-spacing:.06em;
+  }
+  .foot .mono{font-family:Consolas,monospace;color:#8b959d}
+  .note{color:#5d666d}
+</style>
+</head>
+<body>
+
+<div class="scene"></div>
+
+<div class="veil">
+  <div class="panel">
+
+    <div class="bar">
+      <div class="ttl"><b class="serif">伤害总结</b><span>DAMAGE SUMMARY</span></div>
+      <div class="grow"></div>
+      <div class="hint">ESC 关闭</div>
+      <div class="x">✕</div>
+    </div>
+
+    <div class="content">
+
+      <!-- ============ 左：阵亡英雄 ============ -->
+      <aside class="hero">
+        <button class="goldbtn">伤 害 总 结</button>
+
+        <div class="portrait">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="hp1" cx="50%" cy="30%" r="78%">
+                <stop offset="0" stop-color="#40301c"/>
+                <stop offset=".6" stop-color="#1a1512"/>
+                <stop offset="1" stop-color="#0a0a0b"/>
+              </radialGradient>
+            </defs>
+            <rect width="100" height="100" fill="url(#hp1)"/>
+            <g stroke="#c8a054" fill="none" stroke-opacity=".45">
+              <circle cx="50" cy="46" r="30" stroke-width="1"/>
+              <circle cx="50" cy="46" r="22" stroke-width=".8" stroke-dasharray="2 4"/>
+            </g>
+            <path d="M50 18 L58 44 L50 74 L42 44 Z" fill="#c8a054" fill-opacity=".13" stroke="#c8a054" stroke-opacity=".7"/>
+            <path d="M50 26 L54 44 L50 62 L46 44 Z" fill="#e8c987" fill-opacity=".2"/>
+          </svg>
+          <div class="mask"></div>
+          <div class="code">Obla</div>
+        </div>
+
+        <div class="plate"><b>剑圣</b><em>Obla</em></div>
+        <div class="pinfo"><span class="pdot"></span>玩家 1 · 第 2 条命</div>
+
+        <div class="hpwrap">
+          <div class="hpbar"><i></i><span class="dead"></span></div>
+          <div class="hptext"><span>0 / 3,200</span><span>00:46:13.561</span></div>
+        </div>
+
+        <div class="kinds">
+          <span class="tag">死亡</span>
+          <span class="tag n">战斗 10.0s</span>
+          <span class="tag n">存活 62.4s</span>
+        </div>
+      </aside>
+
+      <!-- ============ 右：看板 ============ -->
+      <main class="board">
+
+        <div class="tot">
+          <div class="lbl">承受伤害<br>DAMAGE TAKEN</div>
+          <div class="num">3,200</div>
+          <div class="meta">
+            <span><b>18</b> 笔</span>
+            <span>最惨 1 秒 <b>1,746</b></span>
+            <span>秒伤 <b>320.0</b></span>
+            <span>最大单次 <b>812</b></span>
+          </div>
+        </div>
+
+        <div class="stack">
+          <i style="width:45.9%;background:#c23b22"></i>
+          <i style="width:28.5%;background:#3f7cc0"></i>
+          <i style="width:19.4%;background:#c9a25a"></i>
+          <i style="width:6.3%;background:#6f8f5a"></i>
+        </div>
+
+        <div class="rows">
+          <div class="srow">
+            <div class="who">
+              <span class="sw" style="background:#c23b22"></span>
+              <div class="txt">
+                <div class="nm">山丘之王<em>Hmkg</em></div>
+                <div class="sub">6 笔 · 普攻 5 / 技能 1 · 最大 812 · 致命一击</div>
+                <div class="track"><i style="width:45.9%;background:linear-gradient(90deg,#8c2c1c,#c23b22)"></i></div>
+              </div>
+            </div>
+            <div class="dmg">1,468</div>
+            <div class="pct">45.9%</div>
+          </div>
+
+          <div class="srow">
+            <div class="who">
+              <span class="sw" style="background:#3f7cc0"></span>
+              <div class="txt">
+                <div class="nm">大法师<em>Hamg</em></div>
+                <div class="sub">5 笔 · 普攻 3 / 技能 2 · 最大 354</div>
+                <div class="track"><i style="width:28.5%;background:linear-gradient(90deg,#26507f,#3f7cc0)"></i></div>
+              </div>
+            </div>
+            <div class="dmg">912</div>
+            <div class="pct">28.5%</div>
+          </div>
+
+          <div class="srow">
+            <div class="who">
+              <span class="sw" style="background:#c9a25a"></span>
+              <div class="txt">
+                <div class="nm">火枪手<em>hrif</em></div>
+                <div class="sub">4 笔 · 普攻 4 / 技能 0 · 最大 240</div>
+                <div class="track"><i style="width:19.4%;background:linear-gradient(90deg,#8a6c34,#c9a25a)"></i></div>
+              </div>
+            </div>
+            <div class="dmg">620</div>
+            <div class="pct">19.4%</div>
+          </div>
+
+          <div class="srow">
+            <div class="who">
+              <span class="sw" style="background:#6f8f5a"></span>
+              <div class="txt">
+                <div class="nm">步兵<em>hfoo</em></div>
+                <div class="sub">3 笔 · 普攻 2 / 技能 1 · 最大 96</div>
+                <div class="track"><i style="width:6.3%;background:linear-gradient(90deg,#465c39,#6f8f5a)"></i></div>
+              </div>
+            </div>
+            <div class="dmg">200</div>
+            <div class="pct">6.3%</div>
+          </div>
+        </div>
+
+        <div class="sect">
+          <div class="sect-h"><b>按秒承伤</b><span>DAMAGE BY SECOND</span><span class="rule"></span></div>
+          <div class="secchart">
+            <div class="col"><u>276</u><i style="height:15.8%"></i></div>
+            <div class="col peak"><u>1,746</u><i style="height:100%"></i></div>
+            <div class="col"><u>184</u><i style="height:10.5%"></i></div>
+            <div class="col"><u>360</u><i style="height:20.6%"></i></div>
+            <div class="col"><u>226</u><i style="height:12.9%"></i></div>
+            <div class="col"><u>180</u><i style="height:10.3%"></i></div>
+            <div class="col"><u>90</u><i style="height:5.2%"></i></div>
+            <div class="col"><u>62</u><i style="height:3.6%"></i></div>
+            <div class="col"><u>74</u><i style="height:4.2%"></i></div>
+            <div class="col"><i style="height:1px"></i></div>
+            <div class="col"><i style="height:1px"></i></div>
+          </div>
+          <div class="axis">
+            <span>0s</span><span>1s</span><span>2s</span><span>3s</span><span>4s</span><span>5s</span><span>6s</span><span>7s</span><span>8s</span><span>9s</span><span>10s</span>
+          </div>
+        </div>
+
+        <div class="sect">
+          <div class="sect-h"><b>构成</b><span>BREAKDOWN</span><span class="rule"></span></div>
+          <div class="grid2">
+            <div>
+              <div class="mini"><span class="k">普攻</span><span class="t"><i style="width:81.4%"></i></span><span class="v">2,606 · 81.4%</span></div>
+              <div class="mini"><span class="k">技能</span><span class="t"><i style="width:18.6%"></i></span><span class="v">594 · 18.6%</span></div>
+              <div class="mini"><span class="k">近战</span><span class="t g"><i style="width:52.1%"></i></span><span class="v">1,668 · 52.1%</span></div>
+              <div class="mini"><span class="k">远程</span><span class="t g"><i style="width:47.9%"></i></span><span class="v">1,532 · 47.9%</span></div>
+            </div>
+            <div>
+              <div class="mini"><span class="k">攻类型 0</span><span class="t o"><i style="width:58.6%"></i></span><span class="v">1,876 · 58.6%</span></div>
+              <div class="mini"><span class="k">攻类型 1</span><span class="t o"><i style="width:21.9%"></i></span><span class="v">700 · 21.9%</span></div>
+              <div class="mini"><span class="k">攻类型 2</span><span class="t o"><i style="width:13.3%"></i></span><span class="v">424 · 13.3%</span></div>
+              <div class="mini"><span class="k">攻类型 4</span><span class="t o"><i style="width:6.3%"></i></span><span class="v">200 · 6.3%</span></div>
+              <div class="mini"><span class="k">伤类型 4</span><span class="t o"><i style="width:59.4%"></i></span><span class="v">1,900 · 59.4%</span></div>
+              <div class="mini"><span class="k">伤类型 5</span><span class="t o"><i style="width:34.4%"></i></span><span class="v">1,100 · 34.4%</span></div>
+              <div class="mini"><span class="k">伤类型 0</span><span class="t o"><i style="width:6.3%"></i></span><span class="v">200 · 6.3%</span></div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <div class="foot">
+      <span class="note">类型号 = 引擎枚举，与工具输出一致；占比 = 净掉血 ÷ Σ净掉血。示例数据，仅用于确认排版。</span>
+      <span class="mono">0x0010586D · 实例 2 · 死亡 00:46:13.561</span>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ASCII ONLY. Keep this file pure ASCII: csc and mt read the manifest as ANSI on a
+  zh-CN machine, so non-ASCII comments get mangled.
+
+  ALSO: an XML comment must never contain a double hyphen. A double hyphen inside a
+  comment is illegal XML, the manifest then fails to parse, and the exe refuses to
+  start with "side-by-side configuration is incorrect" (ERROR_SXS_CANT_GEN_ACTCTX).
+-->
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity version="1.0.0.0" name="War3DeathSettlement.app" />
+
+  <!--
+    requireAdministrator: Windows elevates at launch and Explorer draws the UAC
+    shield on the exe. Needed because the damage hook injects ddh.dll into war3.exe,
+    and a non-elevated process cannot even query a platform-launched game
+    (OpenProcess returns ERROR_ACCESS_DENIED 5).
+
+    Side effects:
+      1) every subcommand (probe, selftest, monitor, migrate) also runs elevated;
+      2) launching this exe with CreateProcess (for example the PowerShell call
+         operator) fails with 740 ERROR_ELEVATION_REQUIRED. Use Start-Process,
+         which goes through ShellExecute, instead.
+  -->
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+
+  <!-- High DPI: declared explicitly so replacing the SDK default manifest does not blur the UI. -->
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2, PerMonitor</dpiAwareness>
+    </windowsSettings>
+  </application>
+
+  <!-- Declare supported OS versions. -->
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />  <!-- Windows 10 / 11 -->
+      <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}" />  <!-- 8.1 -->
+      <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}" />  <!-- 8 -->
+      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}" />  <!-- 7 -->
+    </application>
+  </compatibility>
+</assembly>

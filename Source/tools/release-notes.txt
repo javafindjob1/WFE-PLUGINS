@@ -1,0 +1,82 @@
+War3DeathSettlement 发布包
+==========================
+
+版本：2.1.7
+构建形式：.NET 10 自包含 x64，包内携带运行桌面程序和 WebHost 所需的 .NET 运行时。
+
+运行前置条件：
+  - Microsoft Edge WebView2 Runtime
+
+一、包内内容
+------------
+Desktop\War3DeathSettlement.exe
+  独立桌面版 .NET 10 自包含单文件程序，无需另装 .NET。
+
+Game\WFE-Libraries\
+  WFE 需要加载的单个完整 ddh.dll；不再包含 ddh_core.bin。
+
+Game\ddh_web\
+  ddh_web.exe、完整 .NET 10 运行时、dss.html 和 dss-assets。
+
+Game\ddh_web_launcher.cmd / .ps1
+  游戏内覆盖层在特殊权限环境下的固定启动器。
+
+README.md
+  当前项目的架构、伤害口径、页面交互和发布说明。
+
+二、安装游戏内版本
+------------------
+1. 完全退出魔兽争霸和 WFE。
+2. 双击 install_release.cmd；如果系统阻止，请右键以管理员身份运行。
+3. 默认安装位置：
+   - C:\3rd\wc3gamesearcher\WFE\Application\Libraries
+   - C:\launch\ddh_web
+4. 重新启动 WFE，再启动魔兽并进入地图。
+
+也可以手动运行：
+
+  powershell -ExecutionPolicy Bypass -File .\install_release.ps1
+
+自定义路径：
+
+  powershell -ExecutionPolicy Bypass -File .\install_release.ps1 `
+    -WfeLibraries "D:\WFE\Application\Libraries" `
+    -LaunchDirectory "D:\War3Tools"
+
+三、桌面版
+----------
+直接运行 Desktop\War3DeathSettlement.exe。
+桌面版是 .NET 10 自包含单文件程序，无需另装 .NET；历史、日志和设置路径仍按程序配置
+写入用户目录。
+
+四、升级注意事项
+----------------
+1. 更新 ddh 后必须完整重启 WFE，不能只重启魔兽。
+2. 如果 ddh_web.exe 正在运行，安装器会先结束该隐藏进程。
+3. 不要删除 WFE Application\Libraries 中原有的其它附加库。
+4. SQLite 数据位于：
+   %LOCALAPPDATA%\War3DeathSettlement\ddh\ddh-events.db
+5. 安装器会重建 `ddh_web` 目录并删除 WFE 附加库目录中旧版的
+   `dss.html`、`dss-assets` 和 `ddh_core.bin`，避免新旧组件混用。
+6. 已知限制：会话 ID 由 ctx + ThisGame 组成，后续对局可能复用旧 ID；
+   修复前仍可能看到少量上一局残留。
+
+五、当前界面要点
+----------------
+- 游戏内结算页默认按 1200×760 显示，小窗口自动等比缩放。
+- 游戏内结算页默认贴近客户区右上角，顶部、右侧和底部各保留 8 像素。
+- 死亡结算、伤害事件和战场单位的空状态固定在可视区域中央，不随滚动条移动。
+- 游戏内结算页使用归一化坐标和 WebView2 原生鼠标事件，按钮点击、
+  滚动条拖动和列宽拖动不依赖页面固定的 900×600 CSS 尺寸。
+- 伤害事件每页 500 条，最新事件在上。
+- 固定前三列：时间、触发单位、伤害来源。
+- 点击触发单位或伤害来源中的名称，按“类型码 + 镜像”筛选。
+- 画面捕获 60 fps；常规数据刷新 2 Hz。
+- 伤害事件只有位于第 1 页且 scrollTop < 50 时自动跟随新事件。
+- “地图伤害 > 0、净掉血 = 0”是允许的：伤害可能被同帧回血抵消。
+
+六、校验
+--------
+SHA256SUMS.txt 包含包内所有文件的 SHA-256。
+`Game\ddh_web` 应包含 coreclr.dll、hostfxr.dll、hostpolicy.dll 和
+System.Private.CoreLib.dll；`Game\WFE-Libraries` 不应包含 dss.html 或 dss-assets。
