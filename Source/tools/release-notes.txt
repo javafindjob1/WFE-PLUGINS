@@ -1,7 +1,7 @@
 War3DeathSettlement 发布包
 ==========================
 
-版本：2.2.4
+版本：2.2.5
 构建形式：.NET 10 自包含 x64，包内携带运行桌面程序和 WebHost 所需的 .NET 运行时。
 
 运行前置条件：
@@ -11,6 +11,9 @@ War3DeathSettlement 发布包
 ------------
 Desktop\War3DeathSettlement.exe
   独立桌面版 .NET 10 自包含单文件程序，无需另装 .NET。
+Desktop\hook\ddh.dll
+Desktop\hook\ddh_inject.exe
+  不依赖 WFE 的独立注入文件。
 
 Game\WFE-Libraries\
   WFE 需要加载的单个完整 ddh.dll；不再包含 ddh_core.bin。
@@ -48,6 +51,13 @@ README.md
 直接运行 Desktop\War3DeathSettlement.exe。
 桌面版是 .NET 10 自包含单文件程序，无需另装 .NET；历史、日志和设置路径仍按程序配置
 写入用户目录。
+
+不依赖 WFE 独立运行：
+1. 不使用 WFE，正常启动魔兽并进入地图。
+2. 右键以管理员身份运行 Desktop\War3DeathSettlement.exe。
+3. 程序会连接游戏，使用 Desktop\hook\ddh_inject.exe 注入 Desktop\hook\ddh.dll，
+   并从包内 Game\ddh_web 启动页面宿主。
+4. 如果平台以管理员权限启动魔兽，桌面程序也必须以管理员身份运行。
 
 四、升级注意事项
 ----------------

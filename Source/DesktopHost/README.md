@@ -42,3 +42,27 @@ Vue 发送：
 - `open-settings`
 
 Vue 静态资源嵌入 exe，不依赖同目录网页文件。WebView2 Runtime 仍需系统已安装。
+
+## 不依赖 WFE 独立运行
+
+发布包中桌面独立运行所需文件：
+
+```text
+Desktop\
+  War3DeathSettlement.exe
+  hook\
+    ddh.dll
+    ddh_inject.exe
+Game\
+  ddh_web\
+```
+
+运行顺序：
+
+1. 不使用 WFE，正常启动魔兽并进入地图。
+2. 以管理员身份运行 `Desktop\War3DeathSettlement.exe`。
+3. 桌面程序会自动连接游戏、调用 `hook\ddh_inject.exe` 注入 `hook\ddh.dll`，
+   并从发布包的 `Game\ddh_web` 启动页面宿主。
+
+这种方式不读取 WFE 附加库目录，也不需要 WFE 进程。游戏进程是管理员权限时，
+桌面程序必须同样以管理员权限运行。

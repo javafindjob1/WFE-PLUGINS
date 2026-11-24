@@ -124,6 +124,15 @@ internal sealed class WebHostAutostart : IDisposable
 
     private string ResolveExe()
     {
+        // Portable release layout:
+        //   Desktop\War3DeathSettlement.exe
+        //   Game\ddh_web\ddh_web.exe
+        // Prefer the bundle so standalone operation does not depend on a prior
+        // installation into C:\launch or any WFE directory.
+        string bundled = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory, "..", "Game", "ddh_web", "ddh_web.exe"));
+        if (File.Exists(bundled)) return bundled;
+
         if (!string.IsNullOrWhiteSpace(_settings.WebHostExe) &&
             File.Exists(_settings.WebHostExe)) return _settings.WebHostExe;
         string preferred = @"C:\launch\ddh_web\ddh_web.exe";
