@@ -353,10 +353,8 @@ static void DrawOverlay(void)
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    /* Keep the settlement button below the left menu bar. The platform owns
-       the top-right button cluster, so placing our entry there can hide or
-       intercept its buttons. */
-    g_buttonMin = ImVec2(8.0f, 40.0f);
+    /* Keep the settlement button left of KK's three top-right buttons. */
+    g_buttonMin = ImVec2((float)width - 142.0f, 4.0f);
     g_buttonMax = ImVec2(g_buttonMin.x + 30.0f, g_buttonMin.y + 30.0f);
     const bool buttonHovered =
         io.MousePos.x >= g_buttonMin.x && io.MousePos.x < g_buttonMax.x &&
