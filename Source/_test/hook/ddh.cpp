@@ -404,6 +404,8 @@ struct DdhShared
 static HANDLE         g_map = NULL;
 static DdhShared*     g_shm = NULL;
 extern uint32_t       g_modBase;
+static HANDLE         g_instanceMutex = NULL;
+static bool           g_duplicateInstance = false;
 /* 事件完成标记：入口先清 0，出口字段全部补完后置 1。
    写库线程只认这个标记，不靠事件年龄猜。 */
 static volatile LONG  g_evReady[DDH_MAX_EVENTS];
@@ -16249,6 +16251,20 @@ BOOL APIENTRY DllMain(HMODULE mod, DWORD reason, LPVOID)
     {
         g_self = mod;
         DisableThreadLibraryCalls(mod);
+
+        char mutexName[96] = { 0 };
+        DdhSprintf(mutexName, sizeof(mutexName),
+                   "Local\\War3DeathSettlement.ddh.instance.%lu", GetCurrentProcessId());
+        SetLastError(ERROR_SUCCESS);
+        g_instanceMutex = CreateMutexA(NULL, FALSE, mutexName);
+        if (g_instanceMutex && GetLastError() == ERROR_ALREADY_EXISTS)
+        {
+            CloseHandle(g_instanceMutex);
+            g_instanceMutex = NULL;
+            g_duplicateInstance = true;
+            return TRUE;
+        }
+
         HANDLE thread = CreateThread(NULL, 0, DdhCoreAttachThread, NULL, 0, NULL);
         if (thread) CloseHandle(thread);
     }
@@ -16284,6 +16300,7 @@ BOOL APIENTRY DllMain(HMODULE mod, DWORD reason, LPVOID)
         }
         if (g_shm) { UnmapViewOfFile(g_shm); g_shm = NULL; }
         if (g_map) { CloseHandle(g_map); g_map = NULL; }
+        if (g_instanceMutex) { CloseHandle(g_instanceMutex); g_instanceMutex = NULL; }
     }
     return TRUE;
 }
