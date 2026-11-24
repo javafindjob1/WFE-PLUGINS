@@ -446,6 +446,7 @@ static uint8_t        g_saved[8];
 static bool           g_hooked = false;
 static uint32_t       g_foundRva = 0;
 static char           g_hookLastError[192] = { 0 };
+static char           g_hookKnownBytes[96] = { 0 };
 
 /* ---- v3：嵌套层次的状态（伤害只在游戏线程上发生，用栈式数组即可） ---- */
 static volatile LONG  g_depth = 0;                    /* 当前嵌套深度�? = 不在伤害函数里） */
@@ -15580,6 +15581,74 @@ static bool MakeTrampoline(uint8_t* at, uint8_t* tramp)
      开�?55 8B EC 83 EC 2C 56 57 8B F9，且函数�?~0x300 内同时出�?
      立即�?0x04000000 �?0x00400000（伤害类型掩码分支的魔法值）�?
 --------------------------------------------------------------------------- */
+static void DdhFormatHexBytes(char* out, size_t cap, const uint8_t* data, size_t count)
+{
+    if (!out || cap == 0) return;
+    out[0] = 0;
+    size_t used = 0;
+    for (size_t i = 0; i < count && used + 4 < cap; ++i)
+    {
+        const int n = DdhSprintf(out + used, cap - used, "%02X ", data[i]);
+        if (n <= 0) break;
+        used += (size_t)n;
+    }
+}
+
+/* Some platform/plugin damage hooks replace the function entry with jmp.
+   Their detour library keeps a trampoline containing the original six-byte
+   prologue followed by a jump back to entry+6. Hooking that trampoline lets
+   ddh observe the same calls without overwriting the other plugin's entry. */
+static uint8_t* FindExistingDamageTrampoline(uint8_t* gameBase)
+{
+    static const uint8_t pro[STEAL] = { 0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x2C };
+    uint8_t* expectedReturn = gameBase + HOOK_RVA + STEAL;
+
+    uintptr_t address = 0x10000;
+    const uintptr_t limit = 0x7FFF0000u;
+    while (address < limit)
+    {
+        MEMORY_BASIC_INFORMATION mbi;
+        if (VirtualQuery((LPCVOID)address, &mbi, sizeof(mbi)) == 0)
+        {
+            address += 0x1000;
+            continue;
+        }
+
+        uintptr_t regionBase = (uintptr_t)mbi.BaseAddress;
+        uintptr_t regionEnd = regionBase + mbi.RegionSize;
+        if (regionEnd <= regionBase) break;
+
+        const DWORD prot = mbi.Protect & 0xFFu;
+        const bool readableExecutable =
+            mbi.State == MEM_COMMIT &&
+            !(mbi.Protect & (PAGE_GUARD | PAGE_NOACCESS)) &&
+            (prot == PAGE_EXECUTE || prot == PAGE_EXECUTE_READ ||
+             prot == PAGE_EXECUTE_READWRITE || prot == PAGE_EXECUTE_WRITECOPY);
+        if (readableExecutable && mbi.RegionSize > STEAL + 5)
+        {
+            __try
+            {
+                const uint8_t* begin = (const uint8_t*)regionBase;
+                const uint8_t* end = (const uint8_t*)regionEnd;
+                for (const uint8_t* p = begin; p + STEAL + 5 <= end; ++p)
+                {
+                    if (memcmp(p, pro, STEAL) != 0 || p[STEAL] != 0xE9) continue;
+                    int32_t rel = 0;
+                    memcpy(&rel, p + STEAL + 1, sizeof(rel));
+                    const uint8_t* target = p + STEAL + 5 + rel;
+                    if (target != expectedReturn) continue;
+                    LogLine("检测到已有伤害钩子的原始跳板：%p（原入口 0x%08X）",
+                            (const void*)p, (unsigned)(uintptr_t)(gameBase + HOOK_RVA));
+                    return (uint8_t*)p;
+                }
+            }
+            __except (EXCEPTION_EXECUTE_HANDLER) { }
+        }
+        address = regionEnd;
+    }
+    return NULL;
+}
+
 static bool MatchPrologue(const uint8_t* p)
 {
     static const uint8_t pro[10] = { 0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x2C, 0x56, 0x57, 0x8B, 0xF9 };
@@ -15601,10 +15670,15 @@ static uint8_t* FindDamageFunc(uint8_t* base, size_t imageSize)
     /* 1) 先看已知 RVA 对不�?*/
     uint8_t* known = base + HOOK_RVA;
     if (MatchPrologue(known)) { LogLine("伤害函数就在已知 RVA 0x%X", HOOK_RVA); return known; }
+    DdhFormatHexBytes(g_hookKnownBytes, sizeof(g_hookKnownBytes), known, 16);
     LogLine("已知 RVA 0x%X 开头不是预期字节（%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X），改特征扫描",
             HOOK_RVA, known[0], known[1], known[2], known[3], known[4], known[5], known[6], known[7], known[8], known[9]);
 
-    /* 2) 特征扫描 */
+    /* 2) 已被其它插件挂钩时，优先串接它保存的原始跳板。 */
+    uint8_t* existingTrampoline = FindExistingDamageTrampoline(base);
+    if (existingTrampoline) return existingTrampoline;
+
+    /* 3) 特征扫描 */
     const size_t window = 0x300;
     size_t limit = imageSize > 10 + window ? imageSize - 10 - window : 0;
     for (size_t i = 0; i < limit; i++)
@@ -15667,8 +15741,19 @@ static bool InstallHook()
                   "damage function signature not found", _TRUNCATE);
         return false;
     }
-    g_foundRva = (uint32_t)((uintptr_t)g_hookAt - (uintptr_t)game);
-    LogLine("挂钩目标：RVA 0x%X（地址 0x%08X）", g_foundRva, (unsigned)(uintptr_t)g_hookAt);
+    {
+        const uintptr_t gameAddress = (uintptr_t)game;
+        const uintptr_t targetAddress = (uintptr_t)g_hookAt;
+        g_foundRva = targetAddress >= gameAddress && targetAddress < gameAddress + imageSize
+            ? (uint32_t)(targetAddress - gameAddress)
+            : HOOK_RVA;
+    }
+    const bool hookedExistingTrampoline =
+        (uintptr_t)g_hookAt < (uintptr_t)game ||
+        (uintptr_t)g_hookAt >= (uintptr_t)game + imageSize;
+    LogLine("挂钩目标：RVA 0x%X（地址 0x%08X；已有跳板=%d）",
+            g_foundRva, (unsigned)(uintptr_t)g_hookAt,
+            hookedExistingTrampoline ? 1 : 0);
 
     /* 新挂载方式：入口直接 jmp �?DdhDamageFunc（__fastcall，收�?ret 0x10），
        函数里先记前血 �?call 原函数（跳板）→ 返回后立刻记后血 �?算本层掉血�?
@@ -15746,9 +15831,9 @@ static void DdhWriteHookStatus(uint32_t attempt, bool ok)
     DdhSprintf(path, sizeof(path), "%s\\ddh-hook-%lu.log", dir, GetCurrentProcessId());
     FILE* f = NULL;
     if (fopen_s(&f, path, "w") != 0 || !f) return;
-    fprintf(f, "pid=%lu\nattempt=%lu\nok=%d\nlast_error=%s\ngame_dll_base=0x%08X\nhook_rva=0x%X\n",
+    fprintf(f, "pid=%lu\nattempt=%lu\nok=%d\nlast_error=%s\ngame_dll_base=0x%08X\nhook_rva=0x%X\nknown_rva_bytes=%s\n",
             GetCurrentProcessId(), attempt, ok ? 1 : 0, g_hookLastError,
-            (unsigned)g_modBase, g_foundRva);
+            (unsigned)g_modBase, g_foundRva, g_hookKnownBytes);
     fclose(f);
 }
 
@@ -15765,7 +15850,7 @@ static DWORD WINAPI DdhHookInstallThread(LPVOID)
             {
                 g_shm->hdr.reserved[0] = 1u;
                 g_shm->hdr.hookOk = 1;
-                g_shm->hdr.gameDllBase = (uint32_t)((uintptr_t)g_hookAt - g_foundRva);
+                g_shm->hdr.gameDllBase = g_modBase;
                 g_shm->hdr.hookRva = g_foundRva;
                 MemoryBarrier();
             }
@@ -15775,7 +15860,8 @@ static DWORD WINAPI DdhHookInstallThread(LPVOID)
         }
         if (attempt <= 3 || (attempt % 20) == 0)
             DdhWriteHookStatus(attempt, false);
-        Sleep(500);
+        const DWORD retryDelay = attempt <= 3 ? 500 : (attempt <= 10 ? 1000 : 5000);
+        Sleep(retryDelay);
     }
 }
 
