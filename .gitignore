@@ -27,3 +27,4 @@ lua_scan/
 debug.log
 logs/
 _verify_*
+_test/

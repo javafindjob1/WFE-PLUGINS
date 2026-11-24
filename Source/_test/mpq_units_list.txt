@@ -1,2 +1,0 @@
-Units\UnitData.slk
-Units\UnitStrings.txt
