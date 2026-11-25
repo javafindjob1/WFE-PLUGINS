@@ -298,7 +298,7 @@ War3DeathSettlement.exe --help
 
 - 只在**进图后**显示；主菜单 / 载入界面不显示（判定：能读到当前地图名）。
 - 实现走**引擎自己的帧**（`CBackdropFrame` + `CTextFrame` + MasterFont），**不 hook
-  渲染层**：GL/D3D 后端、分辨率、UI 缩放都不用管；点击由 ddh 的窗口过程命中测试处理，
+  渲染层**：图形后端、分辨率、UI 缩放都不用管；点击由 ddh 的窗口过程命中测试处理，
   命中时吞掉这次点击，不会顺手选中地面。
 - 位置/大小写死在 `ddh.cpp`：`DDH_BTN_X/Y/W/H`（UI 坐标 0.8×0.6，左上锚点）。
 - 关掉：环境变量 `DDH_NO_BUTTON=1`（调试用）。ini 里没有单独开关，跟 `hook_enable`
