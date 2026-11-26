@@ -521,20 +521,6 @@ static void DdhSummaryWindowText(char* out, size_t cap)
     DdhSprintf(out, cap, "%s–%s", start, end);
 }
 
-static void DdhSummarySourceLabel(const DdhSummaryChartSrc* source,
-                                  char* out, size_t cap)
-{
-    if (!out || cap == 0) return;
-    out[0] = 0;
-    if (!source) return;
-    if (source->label[0])
-        DdhUtf8SafeCopy(out, cap, source->label, 36);
-    else if (source->code)
-        DdhUtf8SafeCopy(out, cap, DdhCodeText(source->code), 36);
-    else
-        strncpy_s(out, cap, "未知", _TRUNCATE);
-}
-
 static void DdhSummaryApplyLayout(void)
 {
     const float fullW = 0.34f;
@@ -661,10 +647,12 @@ static void DdhSummaryChartRender(void)
         }
     }
 
-    float grand = 0.0f, typeMax = 0.0f;
+    float grand = 0.0f, typeMax = 0.0f, sourceMax = 0.0f;
     for (int b = 0; b < DDH_SUMMARY_CHART_SECONDS; ++b) grand += g_ddhSummaryChart.total[b];
     for (int t = 0; t < DDH_SUMMARY_CHART_TYPES; ++t)
         if (typeTotal[t] > typeMax) typeMax = typeTotal[t];
+    for (int s = 0; s < g_ddhSummaryChart.sourceCount; ++s)
+        if (sourceTotal[s] > sourceMax) sourceMax = sourceTotal[s];
     DdhSummaryKillerText(killer, sizeof(killer));
     DdhSummaryWindowText(window, sizeof(window));
 
@@ -675,38 +663,46 @@ static void DdhSummaryChartRender(void)
     DdhSummaryText(1, killer, g_ddhSummaryX + 0.035f,
                    g_ddhSummaryY - 0.017f, g_ddhSummaryFont * 0.52f,
                    0xFFD0D0D0u);
-    DdhSummaryFormatAmount(buffer, sizeof(buffer), grand);
-    {
-        char total[96] = { 0 };
-        DdhSprintf(total, sizeof(total), "总伤害 %s", buffer);
-        DdhSummaryText(2, total, g_ddhSummaryX + 0.238f, g_ddhSummaryY,
-                       g_ddhSummaryFont * 0.84f, 0xFFFFD080u);
-    }
-    DdhSummaryText(3, window, g_ddhSummaryX + 0.238f,
-                   g_ddhSummaryY - 0.017f, g_ddhSummaryFont * 0.48f,
+    DdhSummaryText(3, window, g_ddhSummaryX + 0.248f,
+                   g_ddhSummaryY - 0.002f, g_ddhSummaryFont * 0.46f,
                    0xFFA8A8A8u);
     DdhSummaryText(4, ">>>",
                    g_ddhSummaryX + g_ddhSummaryW - 0.030f,
                    g_ddhSummaryY - 0.003f,
                    g_ddhSummaryFont * 0.85f, 0xFFFFD080u);
 
+    DdhSummaryText(5, "伤害类型", g_ddhSummaryX + 0.008f,
+                   g_ddhSummaryY - 0.037f, g_ddhSummaryFont * 0.78f,
+                   0xFFE8E8E8u);
+    DdhSummaryText(6, "英雄伤害", g_ddhSummaryX + 0.196f,
+                   g_ddhSummaryY - 0.037f, g_ddhSummaryFont * 0.78f,
+                   0xFFE8E8E8u);
+
     for (int t = 0; t < DDH_SUMMARY_CHART_TYPES; ++t)
     {
-        const float rowY = g_ddhSummaryY - 0.042f - (float)t * 0.028f;
-        DdhSummaryText(10 + t, typeNames[t], g_ddhSummaryX + 0.004f, rowY + 0.0012f,
-                       g_ddhSummaryFont * 0.9f, typeColors[t]);
+        const float rowY = g_ddhSummaryY - 0.055f - (float)t * 0.0168f;
+        DdhSummaryFormatAmount(buffer, sizeof(buffer), typeTotal[t]);
+        DdhSummaryText(10 + t, buffer, g_ddhSummaryX + 0.008f, rowY + 0.0008f,
+                       g_ddhSummaryFont * 0.62f, 0xFFD8D8D8u);
         if (typeTotal[t] > 0.01f)
         {
-            float width = typeTotal[t] / (typeMax > 0.01f ? typeMax : 1.0f) * 0.085f;
-            if (width < 0.004f) width = 0.004f;
+            float width = typeTotal[t] / (typeMax > 0.01f ? typeMax : 1.0f) * 0.065f;
+            if (width < 0.003f) width = 0.003f;
             DdhSummarySetBar(20 + t, typeBars[t],
-                             g_ddhSummaryX + 0.040f, rowY,
-                             g_ddhSummaryX + 0.040f + width, rowY - 0.012f);
+                             g_ddhSummaryX + 0.050f, rowY + 0.001f,
+                             g_ddhSummaryX + 0.050f + width, rowY - 0.010f);
         }
-        const float pct = grand > 0.01f ? typeTotal[t] * 100.0f / grand : 0.0f;
-        DdhSprintf(buffer, sizeof(buffer), "%.0f%%", (double)pct);
-        DdhSummaryText(14 + t, buffer, g_ddhSummaryX + 0.134f, rowY + 0.0003f,
-                       g_ddhSummaryFont * 0.78f, 0xFFE0E0E0u);
+        DdhSummaryText(14 + t, typeNames[t], g_ddhSummaryX + 0.122f, rowY + 0.0008f,
+                       g_ddhSummaryFont * 0.66f, typeColors[t]);
+    }
+
+    {
+        const float totalY = g_ddhSummaryY - 0.125f;
+        DdhSummaryFormatAmount(buffer, sizeof(buffer), grand);
+        DdhSummaryText(2, buffer, g_ddhSummaryX + 0.008f, totalY,
+                       g_ddhSummaryFont * 0.66f, 0xFFF0D080u);
+        DdhSummaryText(7, "总伤害", g_ddhSummaryX + 0.052f, totalY,
+                       g_ddhSummaryFont * 0.66f, 0xFFF0E0C0u);
     }
 
     int order[DDH_SUMMARY_CHART_MAX_SRC];
@@ -726,34 +722,31 @@ static void DdhSummaryChartRender(void)
     for (int k = 0; k < mainSourceCount; ++k)
     {
         const int source = order[k];
-        const float rowY = g_ddhSummaryY - 0.044f - (float)k * 0.0185f;
+        const float rowY = g_ddhSummaryY - 0.055f - (float)k * 0.0148f;
         DdhSummaryIcon(k, g_ddhSummaryChart.source[source].code,
-                       g_ddhSummaryX + 0.198f, rowY + 0.0012f,
-                       0.010f, 0.012f);
-        DdhSummarySourceLabel(&g_ddhSummaryChart.source[source], buffer, sizeof(buffer));
-        DdhSummaryText(20 + k, buffer, g_ddhSummaryX + 0.213f, rowY + 0.0012f,
-                       g_ddhSummaryFont * 0.58f, 0xFFD8D8D8u);
-        float cursor = g_ddhSummaryX + 0.270f;
+                       g_ddhSummaryX + 0.193f, rowY + 0.001f,
+                       0.011f, 0.013f);
+        DdhSummaryFormatAmount(buffer, sizeof(buffer), sourceTotal[source]);
+        DdhSummaryText(20 + k, buffer, g_ddhSummaryX + 0.208f, rowY + 0.0008f,
+                       g_ddhSummaryFont * 0.62f, 0xFFD8D8D8u);
+        float cursor = g_ddhSummaryX + 0.242f;
+        const float totalWidth = sourceTotal[source] / (sourceMax > 0.01f ? sourceMax : 1.0f) * 0.073f;
         const float sourceDenominator = sourceTotal[source] > 0.01f
             ? sourceTotal[source] : 1.0f;
         for (int t = 0; t < DDH_SUMMARY_CHART_TYPES; ++t)
         {
             if (sourceType[source][t] <= 0.01f) continue;
-            float width = sourceType[source][t] / sourceDenominator * 0.040f;
+            float width = sourceType[source][t] / sourceDenominator * totalWidth;
             if (width < 0.002f) width = 0.002f;
             DdhSummarySetBar(30 + k * DDH_SUMMARY_CHART_TYPES + t, typeBars[t],
-                             cursor, rowY, cursor + width, rowY - 0.009f);
+                             cursor, rowY + 0.001f, cursor + width, rowY - 0.009f);
             cursor += width;
         }
-        const float pct = grand > 0.01f ? sourceTotal[source] * 100.0f / grand : 0.0f;
-        DdhSprintf(buffer, sizeof(buffer), "%.0f%%", (double)pct);
-        DdhSummaryText(27 + k, buffer, g_ddhSummaryX + 0.314f, rowY + 0.0003f,
-                       g_ddhSummaryFont * 0.58f, 0xFFE0E0E0u);
     }
 
     if (sourceCount > mainSourceCount)
     {
-        const float rowY = g_ddhSummaryY - 0.044f - (float)mainSourceCount * 0.0185f;
+        const float rowY = g_ddhSummaryY - 0.055f - (float)mainSourceCount * 0.0148f;
         float otherTotal = 0.0f;
         float otherType[DDH_SUMMARY_CHART_TYPES] = { 0, 0, 0, 0 };
         for (int i = mainSourceCount; i < sourceCount; ++i)
@@ -763,23 +756,23 @@ static void DdhSummaryChartRender(void)
             for (int t = 0; t < DDH_SUMMARY_CHART_TYPES; ++t)
                 otherType[t] += sourceType[source][t];
         }
-        DdhSummaryText(26, "其他", g_ddhSummaryX + 0.213f, rowY + 0.0012f,
+        DdhSummaryText(26, "其他", g_ddhSummaryX + 0.193f, rowY + 0.0008f,
                        g_ddhSummaryFont * 0.58f, 0xFFB8B8B8u);
-        float cursor = g_ddhSummaryX + 0.270f;
+        DdhSummaryFormatAmount(buffer, sizeof(buffer), otherTotal);
+        DdhSummaryText(27, buffer, g_ddhSummaryX + 0.208f, rowY + 0.0008f,
+                       g_ddhSummaryFont * 0.62f, 0xFFD8D8D8u);
+        float cursor = g_ddhSummaryX + 0.242f;
+        const float totalWidth = otherTotal / (sourceMax > 0.01f ? sourceMax : 1.0f) * 0.073f;
         const float denominator = otherTotal > 0.01f ? otherTotal : 1.0f;
         for (int t = 0; t < DDH_SUMMARY_CHART_TYPES; ++t)
         {
             if (otherType[t] <= 0.01f) continue;
-            float width = otherType[t] / denominator * 0.040f;
+            float width = otherType[t] / denominator * totalWidth;
             if (width < 0.002f) width = 0.002f;
             DdhSummarySetBar(54 + t, typeBars[t],
-                             cursor, rowY, cursor + width, rowY - 0.009f);
+                             cursor, rowY + 0.001f, cursor + width, rowY - 0.009f);
             cursor += width;
         }
-        const float pct = grand > 0.01f ? otherTotal * 100.0f / grand : 0.0f;
-        DdhSprintf(buffer, sizeof(buffer), "%.0f%%", (double)pct);
-        DdhSummaryText(33, buffer, g_ddhSummaryX + 0.314f, rowY + 0.0003f,
-                       g_ddhSummaryFont * 0.58f, 0xFFE0E0E0u);
     }
 
     const float base = g_ddhSummaryY - 0.262f;
