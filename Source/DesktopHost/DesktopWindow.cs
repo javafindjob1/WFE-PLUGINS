@@ -223,9 +223,7 @@ internal sealed class DesktopWindow : Form
                     WindowState = FormWindowState.Minimized;
                     break;
                 case "toggle-maximize":
-                    WindowState = WindowState == FormWindowState.Maximized
-                        ? FormWindowState.Normal
-                        : FormWindowState.Maximized;
+                    ToggleMaximize();
                     break;
                 case "close":
                     Close();
@@ -239,6 +237,18 @@ internal sealed class DesktopWindow : Form
             BeginInvoke(new Action(Execute));
         else
             Execute();
+    }
+
+    private void ToggleMaximize()
+    {
+        if (WindowState == FormWindowState.Maximized)
+        {
+            WindowState = FormWindowState.Normal;
+            return;
+        }
+
+        MaximizedBounds = Screen.FromControl(this).WorkingArea;
+        WindowState = FormWindowState.Maximized;
     }
 
     private void PostWindowState()
