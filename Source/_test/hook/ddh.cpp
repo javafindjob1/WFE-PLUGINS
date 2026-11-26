@@ -1560,6 +1560,29 @@ static void DdhCaptureUnitTypeIcon(uint32_t code)
         DdhUnitTypeIconStore(code, path);
 }
 
+/* 当前地图会话的游戏内单调时间起点。只读 CGame 会话标识，不创建游戏计时器。 */
+static volatile LONG g_ddhGameClockStart = 0;
+static uint32_t      g_ddhGameClockCtx = 0;
+static uint32_t      g_ddhGameClockGame = 0;
+static volatile LONG g_ddhGameClockLogged = 0;
+
+static void DdhGameClockPoll(void)
+{
+    if (!g_modBase) return;
+    const uint32_t ctx = SafeU32(g_modBase, 0x00BE4238u);
+    const uint32_t game = SafeU32(g_modBase, 0x00BE40A8u);
+    if (ctx < 0x10000u || game < 0x10000u) return;
+    if (ctx == g_ddhGameClockCtx && game == g_ddhGameClockGame) return;
+
+    g_ddhGameClockCtx = ctx;
+    g_ddhGameClockGame = game;
+    const DWORD now = GetTickCount();
+    InterlockedExchange(&g_ddhGameClockStart, (LONG)now);
+    if (InterlockedIncrement(&g_ddhGameClockLogged) <= 16)
+        LogLine("游戏时间：新地图会话起点 ctx=0x%08X game=0x%08X tick=%lu",
+                ctx, game, (unsigned long)now);
+}
+
 struct DdhLocustCacheEntry
 {
     uint32_t code;
@@ -3794,6 +3817,7 @@ static DWORD WINAPI DdhHotkeyThreadProc(LPVOID)
     while (!quit && InterlockedCompareExchange(&g_ddhHkStop, 0, 0) == 0)
     {
         const DWORD wait = MsgWaitForMultipleObjects(0, NULL, FALSE, 100, QS_ALLINPUT);
+        DdhGameClockPoll();
         if (wait == WAIT_OBJECT_0)
         {
             MSG msg;
