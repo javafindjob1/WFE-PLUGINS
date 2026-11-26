@@ -6,9 +6,10 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$root = Split-Path $PSScriptRoot -Parent
+$sourceRoot = Split-Path $PSScriptRoot -Parent
+$repoRoot = Split-Path $sourceRoot -Parent
 if (-not $OutputRoot) {
-    $OutputRoot = Join-Path $root 'release'
+    $OutputRoot = Join-Path $repoRoot 'release'
 }
 
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
@@ -24,7 +25,7 @@ $wfeDir = Join-Path $gameDir 'WFE-Libraries'
 New-Item -ItemType Directory -Force -Path $desktopDir, $wfeDir | Out-Null
 
 Write-Host '== build Vue ==' -ForegroundColor Cyan
-Push-Location (Join-Path $root 'web')
+Push-Location (Join-Path $sourceRoot 'web')
 try {
     npm run build
     if ($LASTEXITCODE -ne 0) { throw "Vue build failed ($LASTEXITCODE)" }
@@ -34,7 +35,7 @@ finally {
 }
 
 Write-Host '== publish desktop ==' -ForegroundColor Cyan
-dotnet publish (Join-Path $root 'DesktopHost\War3DeathSettlement.Desktop.csproj') `
+dotnet publish (Join-Path $sourceRoot 'DesktopHost\War3DeathSettlement.Desktop.csproj') `
     -c Release -r win-x64 --self-contained true `
     -o $desktopDir `
     -p:PublishSingleFile=true `
@@ -45,17 +46,17 @@ dotnet publish (Join-Path $root 'DesktopHost\War3DeathSettlement.Desktop.csproj'
 if ($LASTEXITCODE -ne 0) { throw "Desktop publish failed ($LASTEXITCODE)" }
 
 Write-Host '== collect game files ==' -ForegroundColor Cyan
-Copy-Item -LiteralPath (Join-Path $root '_test\hook\ddh.dll') -Destination $wfeDir -Force
+Copy-Item -LiteralPath (Join-Path $sourceRoot '_test\hook\ddh.dll') -Destination $wfeDir -Force
 
 $desktopDocs = @(
     @{ Source = 'README.md'; Name = 'README.md' }
 )
 foreach ($doc in $desktopDocs) {
-    Copy-Item -LiteralPath (Join-Path $root $doc.Source) -Destination (Join-Path $packageDir $doc.Name) -Force
+    Copy-Item -LiteralPath (Join-Path $sourceRoot $doc.Source) -Destination (Join-Path $packageDir $doc.Name) -Force
 }
-Copy-Item -LiteralPath (Join-Path $root 'tools\install_release.ps1') -Destination $packageDir -Force
-Copy-Item -LiteralPath (Join-Path $root 'tools\install_release.cmd') -Destination $packageDir -Force
-Copy-Item -LiteralPath (Join-Path $root 'tools\release-notes.txt') `
+Copy-Item -LiteralPath (Join-Path $sourceRoot 'tools\install_release.ps1') -Destination $packageDir -Force
+Copy-Item -LiteralPath (Join-Path $sourceRoot 'tools\install_release.cmd') -Destination $packageDir -Force
+Copy-Item -LiteralPath (Join-Path $sourceRoot 'tools\release-notes.txt') `
     -Destination (Join-Path $packageDir 'INSTALL.txt') -Force
 
 if (Test-Path -LiteralPath (Join-Path $wfeDir 'dss.html')) {
@@ -77,7 +78,7 @@ if (Test-Path -LiteralPath (Join-Path $gameDir 'ddh_web')) {
     throw 'Game-side ddh_web must not be included in the desktop-only release'
 }
 
-$commit = (git -C $root rev-parse --short HEAD).Trim()
+$commit = (git -C $repoRoot rev-parse --short HEAD).Trim()
 $builtAt = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
 $info = @(
     "Product=War3DeathSettlement"
