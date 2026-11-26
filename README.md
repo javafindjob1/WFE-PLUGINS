@@ -1,52 +1,63 @@
-# 魔兽死亡结算目录说明
+# War3DeathSettlement
 
-本目录把正式项目材料和临时逆向分析材料分开存放。
+魔兽争霸本地伤害采集、死亡结算和伤害复盘工具。
 
-## Source
+项目使用 WFE 注入原生采集模块 `ddh.dll`，由采集模块记录逐笔伤害并写入本机
+SQLite；桌面程序只读取 SQLite，提供死亡结算、伤害事件、战场单位和历史会话。
 
-正式源码和构建目录，日常开发、编译、测试和发布都在这里进行。
+## 目录结构
 
-| 路径 | 内容 |
+| 路径 | 用途 |
 | --- | --- |
-| `Source/Core` | 伤害采集、内存读取、结算、SQLite 与游戏内面板核心代码 |
-| `Source/Ui` | WinForms 桌面界面 |
-| `Source/DesktopHost` | Vue 桌面宿主 |
-| `Source/WebHost` | SQLite 快照读取、分页和页面数据服务 |
-| `Source/web` | Vue 3 页面源码和资源 |
-| `Source/_test` | 自动化测试、假魔兽靶子和验证脚本 |
-| `Source/tools` | 构建、部署、安装和发布打包脚本 |
-| `Source/bin`、`Source/obj` | 本地构建输出 |
-| `Source/publish`、`Source/publish_vue`、`Source/release` | 运行发布物和历史发布包 |
-| `Source/Program.cs`、`Source/War3DeathSettlement.csproj` | 主程序入口和项目文件 |
+| `Source/` | 正式源码、构建工具和项目说明 |
+| `Source/Native/` | 游戏内原生采集模块和伤害钩子 |
+| `Source/DesktopHost/` | 单文件桌面程序 |
+| `Source/web/` | Vue 3 页面源码 |
+| `Source/tools/` | 部署、安装和发布脚本 |
+| `TempAnalysis/` | 逆向、探针、截图、提取数据和一次性验证产物 |
+| `release/` | 构建生成的发布包，不纳入 Git |
+| `需求文档.md` | 产品需求、数据口径和验收标准 |
+| `问题.md` | 问题记录、排查过程和解决方案 |
+| `AGENTS.md` | 项目开发约定 |
 
-构建命令：
+`Source` 只放正式源码；分析、排查和验证产物统一放入 `TempAnalysis`。
+
+## 构建与发布
+
+构建机需要：
+
+- .NET 10 SDK
+- Node.js 和 npm
+- Visual Studio C++ Build Tools 与 Windows SDK
+
+从源码目录执行：
 
 ```powershell
 cd Source
-dotnet build -c Release
+powershell -ExecutionPolicy Bypass -File tools\package_release.ps1
 ```
 
-详细功能和开发说明见 `Source/README.md`。
+脚本会：
 
-## TempAnalysis
+1. 安装前端依赖并构建 Vue 页面。
+2. 从 `Source/Native` 重新编译 `ddh.dll`。
+3. 发布 .NET 10 自包含、单文件桌面程序。
+4. 将完整发布包写入仓库根目录 `release/`。
 
-临时逆向、地图提取和排查材料，不参与正式构建和发布。
+最终用户不需要安装 .NET，但桌面页面需要 Microsoft Edge WebView2 Runtime。
 
-| 路径 | 内容 |
-| --- | --- |
-| `TempAnalysis/_analysis` | 逆向分析中间数据、Ghidra 工程和扫描结果 |
-| `TempAnalysis/_map_tj`、`TempAnalysis/_map_xf` | 地图提取数据 |
-| `TempAnalysis/lua_scan`、`TempAnalysis/lua_tree`、`TempAnalysis/pylibs` | Lua 扫描、提取结果和分析依赖 |
-| `TempAnalysis/_design` | 临时界面设计稿 |
-| `TempAnalysis/*.py`、`TempAnalysis/*.lua` | 反汇编、MPQ、指针和符号分析脚本 |
-| `TempAnalysis/*分析*.md`、探测文本和 `.obj` | 分析报告、探测快照和中间产物 |
+## 使用方式
 
-## 根目录文档
+1. 完全退出 WFE 和魔兽。
+2. 使用发布包中的 `install_release.cmd` 安装更新。
+3. 重启 WFE，并通过 WFE 启动魔兽、进入地图。
+4. 运行 `Desktop\War3DeathSettlement.exe` 查看本机 SQLite 数据。
 
-| 文件 | 用途 |
-| --- | --- |
-| `需求文档.md` | 产品需求、验收口径和目录规范 |
-| `问题.md` | 问题、排查过程和解决方案 |
-| `AGENTS.md` | 项目开发约束 |
+更新 `ddh.dll` 后必须完整重启 WFE，不能只重启魔兽。
 
-临时分析结果确认不再需要后，可以直接清理 `TempAnalysis`，不会影响 `Source` 的编译和发布。
+## 文档
+
+- 完整架构、数据口径、开发与排障说明：[Source/README.md](Source/README.md)
+- 产品需求和验收标准：[需求文档.md](需求文档.md)
+- 历史问题和解决方案：[问题.md](问题.md)
+- 开发与目录约定：[AGENTS.md](AGENTS.md)
