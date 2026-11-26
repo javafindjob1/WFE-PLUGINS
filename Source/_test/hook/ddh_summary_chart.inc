@@ -645,6 +645,7 @@ static bool DdhSummaryChartShow(uint32_t victim)
 {
     if (!DdhSummaryInitUi()) return false;
     if (!DdhSummaryChartBuild(victim)) return false;
+    InterlockedExchange(&g_ddhSummaryCollapsed, 1);
     DdhSummaryChartRender();
     InterlockedExchange(&g_ddhSummaryShown, 1);
     InterlockedExchange(&g_ddhSummaryHideAt, (LONG)(GetTickCount() + 20000u));
