@@ -16,9 +16,9 @@
     <PublishTrimmed>false</PublishTrimmed>
     <AssemblyName>War3DeathSettlement</AssemblyName>
     <RootNamespace>War3DeathSettlement.Desktop</RootNamespace>
-    <Version>2.2.25</Version>
-    <AssemblyVersion>2.2.25.0</AssemblyVersion>
-    <FileVersion>2.2.25.0</FileVersion>
+    <Version>2.2.26</Version>
+    <AssemblyVersion>2.2.26.0</AssemblyVersion>
+    <FileVersion>2.2.26.0</FileVersion>
     <Product>War3DeathSettlement</Product>
     <AssemblyTitle>魔兽死亡结算 Vue Desktop</AssemblyTitle>
     <Company>wfe-library-demagewatcher</Company>

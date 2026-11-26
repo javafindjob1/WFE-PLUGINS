@@ -1236,6 +1236,330 @@ static void DdhCaptureCombatByUnit(uint32_t unit, DdhUnitCombatSnapshot* out)
     }
 }
 
+/* ---------------------------------------------------------------------------
+   单位类型属性：图标
+   ---------------------------------------------------------------------------
+   BLP 路径属于单位类型，不属于单笔伤害事件。伤害入口在读取受害者/来源类型码时
+   同步解析并缓存；阵亡总结只按类型码读取缓存，不再进入 GetUnitData。 */
+#define DDH_UNIT_ICON_CAP       256u
+#define DDH_UNIT_TYPE_ATTR_MAX  128
+
+struct DdhUnitTypeAttr
+{
+    uint32_t code;
+    char     iconPath[DDH_UNIT_ICON_CAP];
+};
+
+struct DdhUnitTypeSection
+{
+    uint32_t begin;
+    uint32_t end;
+    uint32_t chars;
+};
+
+static DdhUnitTypeAttr g_ddhUnitTypeAttrs[DDH_UNIT_TYPE_ATTR_MAX];
+static uint32_t        g_ddhUnitTypeAttrCount = 0;
+static uint32_t        g_ddhUnitTypeAttrNext = 0;
+static uint32_t        g_ddhUnitTypeMapCtx = 0;
+static uint32_t        g_ddhUnitTypeMapGame = 0;
+static uint32_t        g_ddhUnitIconGetUnitData = 0;
+static volatile LONG   g_ddhUnitIconInit = 0;
+static volatile LONG   g_ddhUnitIconLogged = 0;
+static volatile LONG   g_ddhUnitIconHitLogged = 0;
+
+static void DdhUnitTypeAttrReset(void)
+{
+    memset(g_ddhUnitTypeAttrs, 0, sizeof(g_ddhUnitTypeAttrs));
+    g_ddhUnitTypeAttrCount = 0;
+    g_ddhUnitTypeAttrNext = 0;
+}
+
+static void DdhUnitTypeAttrSyncMap(void)
+{
+    uint32_t ctx = 0, game = 0;
+    if (g_modBase)
+    {
+        __try { ctx = *(const uint32_t*)(uintptr_t)(g_modBase + 0x00BE4238u); }
+        __except (EXCEPTION_EXECUTE_HANDLER) { ctx = 0; }
+        __try { game = *(const uint32_t*)(uintptr_t)(g_modBase + 0x00BE40A8u); }
+        __except (EXCEPTION_EXECUTE_HANDLER) { game = 0; }
+    }
+    if (ctx != g_ddhUnitTypeMapCtx || game != g_ddhUnitTypeMapGame)
+    {
+        DdhUnitTypeAttrReset();
+        g_ddhUnitTypeMapCtx = ctx;
+        g_ddhUnitTypeMapGame = game;
+    }
+}
+
+static bool DdhUnitTypeIconPath(uint32_t code, char* out, size_t cap)
+{
+    if (!out || cap == 0) return false;
+    out[0] = 0;
+    if (!code) return false;
+    for (uint32_t i = 0; i < g_ddhUnitTypeAttrCount; ++i)
+    {
+        if (g_ddhUnitTypeAttrs[i].code != code) continue;
+        strncpy_s(out, cap, g_ddhUnitTypeAttrs[i].iconPath, _TRUNCATE);
+        return out[0] != 0;
+    }
+    return false;
+}
+
+static void DdhUnitTypeIconStore(uint32_t code, const char* path)
+{
+    if (!code || !path || !path[0]) return;
+
+    DdhUnitTypeAttr* slot = NULL;
+    for (uint32_t i = 0; i < g_ddhUnitTypeAttrCount; ++i)
+    {
+        if (g_ddhUnitTypeAttrs[i].code != code) continue;
+        slot = &g_ddhUnitTypeAttrs[i];
+        break;
+    }
+    if (!slot)
+    {
+        if (g_ddhUnitTypeAttrCount < DDH_UNIT_TYPE_ATTR_MAX)
+            slot = &g_ddhUnitTypeAttrs[g_ddhUnitTypeAttrCount++];
+        else
+            slot = &g_ddhUnitTypeAttrs[g_ddhUnitTypeAttrNext++ % DDH_UNIT_TYPE_ATTR_MAX];
+    }
+
+    memset(slot, 0, sizeof(*slot));
+    slot->code = code;
+    strncpy_s(slot->iconPath, sizeof(slot->iconPath), path, _TRUNCATE);
+
+    if (InterlockedIncrement(&g_ddhUnitIconLogged) <= 16)
+        LogLine("单位类型属性：code=0x%08X icon=%s", code, slot->iconPath);
+}
+
+static int DdhUnitTypePoke(uint32_t addr, uint32_t* out)
+{
+    if (!out || addr < 0x10000u) return 0;
+    __try { *out = *(const uint32_t*)(uintptr_t)addr; return 1; }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return 0; }
+}
+
+static int DdhUnitTypeSections(uint32_t base, DdhUnitTypeSection* out, int cap)
+{
+    if (!base || !out || cap <= 0) return 0;
+    const IMAGE_DOS_HEADER* dos = (const IMAGE_DOS_HEADER*)(uintptr_t)base;
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE) return 0;
+    const IMAGE_NT_HEADERS32* nt =
+        (const IMAGE_NT_HEADERS32*)((const uint8_t*)(uintptr_t)base + dos->e_lfanew);
+    if (nt->Signature != IMAGE_NT_SIGNATURE ||
+        nt->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) return 0;
+
+    const IMAGE_SECTION_HEADER* section = IMAGE_FIRST_SECTION(nt);
+    const uint32_t imageSize = nt->OptionalHeader.SizeOfImage;
+    int count = 0;
+    for (WORD i = 0; i < nt->FileHeader.NumberOfSections && count < cap; ++i)
+    {
+        uint32_t size = section[i].Misc.VirtualSize;
+        if (!size) size = section[i].SizeOfRawData;
+        if (!size || section[i].VirtualAddress >= imageSize) continue;
+        if (size > imageSize - section[i].VirtualAddress)
+            size = imageSize - section[i].VirtualAddress;
+        out[count].begin = base + section[i].VirtualAddress;
+        out[count].end = out[count].begin + size;
+        out[count].chars = section[i].Characteristics;
+        ++count;
+    }
+    return count;
+}
+
+static int DdhUnitTypeExec(const DdhUnitTypeSection* sections, int count, uint32_t address)
+{
+    for (int i = 0; i < count; ++i)
+        if ((sections[i].chars & IMAGE_SCN_MEM_EXECUTE) &&
+            address >= sections[i].begin && address < sections[i].end)
+            return 1;
+    return 0;
+}
+
+static uint32_t DdhUnitTypeResolveGetUnitData(void)
+{
+    if (g_ddhUnitIconGetUnitData) return g_ddhUnitIconGetUnitData;
+    if (!g_modBase) return 0;
+    if (InterlockedCompareExchange(&g_ddhUnitIconInit, 1, 0) != 0)
+        return g_ddhUnitIconGetUnitData;
+
+    DdhUnitTypeSection sections[32];
+    const int sectionCount = DdhUnitTypeSections(
+        g_modBase, sections, (int)(sizeof(sections) / sizeof(sections[0])));
+    if (sectionCount <= 0)
+    {
+        InterlockedExchange(&g_ddhUnitIconInit, 0);
+        return 0;
+    }
+
+    static const char name[] = "RegisterModel";
+    uint32_t stringAddress = 0;
+    for (int i = 0; i < sectionCount && !stringAddress; ++i)
+    {
+        if (!(sections[i].chars & IMAGE_SCN_MEM_READ) ||
+            (sections[i].chars & IMAGE_SCN_MEM_WRITE)) continue;
+        const uint8_t* bytes = (const uint8_t*)(uintptr_t)sections[i].begin;
+        const uint32_t size = sections[i].end - sections[i].begin;
+        for (uint32_t off = 0; off + sizeof(name) <= size; ++off)
+        {
+            if (bytes[off] == 'R' && memcmp(bytes + off, name, sizeof(name)) == 0)
+            {
+                stringAddress = sections[i].begin + off;
+                break;
+            }
+        }
+    }
+    if (!stringAddress)
+    {
+        InterlockedExchange(&g_ddhUnitIconInit, 0);
+        return 0;
+    }
+
+    uint32_t reference = 0;
+    for (int i = 0; i < sectionCount && !reference; ++i)
+    {
+        if (!(sections[i].chars & IMAGE_SCN_MEM_EXECUTE)) continue;
+        for (uint32_t address = sections[i].begin; address + 4u <= sections[i].end; ++address)
+        {
+            uint32_t value = 0;
+            memcpy(&value, (const void*)(uintptr_t)address, 4);
+            if (value == stringAddress)
+            {
+                reference = address;
+                break;
+            }
+        }
+    }
+    if (!reference)
+    {
+        InterlockedExchange(&g_ddhUnitIconInit, 0);
+        return 0;
+    }
+
+    const uint32_t start = reference + 4u;
+    for (int i = 0; i < sectionCount && !g_ddhUnitIconGetUnitData; ++i)
+    {
+        if (!(sections[i].chars & IMAGE_SCN_MEM_EXECUTE)) continue;
+        if (start < sections[i].begin || start + 5u > sections[i].end) continue;
+        uint32_t limit = start + 0x200u;
+        if (limit > sections[i].end) limit = sections[i].end;
+        for (uint32_t address = start; address + 5u <= limit; ++address)
+        {
+            if (*(const uint8_t*)(uintptr_t)address != 0xE8) continue;
+            int32_t relative = 0;
+            memcpy(&relative, (const void*)(uintptr_t)(address + 1u), 4);
+            const uint32_t target = address + 5u + (uint32_t)relative;
+            if (!DdhUnitTypeExec(sections, sectionCount, target)) continue;
+            uint32_t head = 0;
+            if (!DdhUnitTypePoke(target, &head)) continue;
+            if ((head & 0xFFu) == 0xCCu || (head & 0xFFu) == 0x00u) continue;
+            g_ddhUnitIconGetUnitData = target;
+            LogLine("单位类型属性：GetUnitData=0x%08X（RVA 0x%X）",
+                    target, target - g_modBase);
+            break;
+        }
+    }
+    if (!g_ddhUnitIconGetUnitData)
+        InterlockedExchange(&g_ddhUnitIconInit, 0);
+    return g_ddhUnitIconGetUnitData;
+}
+
+static bool DdhUnitIconText(uint32_t address, char* out, size_t cap)
+{
+    if (!out || cap < 8 || address < 0x10000u || address > 0x7FFFFFFFu) return false;
+    out[0] = 0;
+    __try
+    {
+        const unsigned char* p = (const unsigned char*)(uintptr_t)address;
+        size_t length = 0;
+        const size_t limit = cap;
+        for (; length < limit; ++length)
+        {
+            const unsigned char c = p[length];
+            if (!c) break;
+            if (c < 0x20 || c == 0x7F) return false;
+        }
+        if (length < 5 || length >= limit || p[length] != 0) return false;
+
+        bool blp = false;
+        for (size_t i = 0; i + 4u <= length; ++i)
+        {
+            if (p[i] == '.' && _stricmp((const char*)p + i, ".blp") == 0)
+            {
+                blp = true;
+                break;
+            }
+        }
+        if (!blp) return false;
+
+        memcpy(out, p, length);
+        out[length] = 0;
+        for (char* q = out; *q; ++q)
+            if (*q == '/') *q = '\\';
+        return true;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) { out[0] = 0; return false; }
+}
+
+static bool DdhUnitIconResolve(uint32_t code, char* out, size_t cap)
+{
+    if (!out || cap < 8 || !code) return false;
+    out[0] = 0;
+
+    const uint32_t function = DdhUnitTypeResolveGetUnitData();
+    if (!function) return false;
+
+    uintptr_t data = 0;
+    __try { data = ((uintptr_t(__fastcall*)(uint32_t))(uintptr_t)function)(code); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { data = 0; }
+    if (!data) return false;
+
+    char text[DDH_UNIT_ICON_CAP] = { 0 };
+    for (uint32_t i = 0; i < 0x300 && !out[0]; ++i)
+    {
+        uint32_t value = 0;
+        if (!DdhUnitTypePoke((uint32_t)data + i * 4u, &value)) break;
+        if (!DdhUnitIconText(value, text, sizeof(text))) continue;
+        if (strstr(text, "CommandButtons") || strstr(text, "BTN"))
+            strncpy_s(out, cap, text, _TRUNCATE);
+    }
+
+    for (uint32_t i = 0; i < 0x300 && !out[0]; ++i)
+    {
+        uint32_t nested = 0;
+        if (!DdhUnitTypePoke((uint32_t)data + i * 4u, &nested)) break;
+        if (nested < 0x10000u || nested > 0x7FFFFFFFu) continue;
+        for (uint32_t j = 0; j < 0x40 && !out[0]; ++j)
+        {
+            uint32_t value = 0;
+            if (!DdhUnitTypePoke(nested + j * 4u, &value)) break;
+            if (!DdhUnitIconText(value, text, sizeof(text))) continue;
+            if (strstr(text, "CommandButtons") || strstr(text, "BTN"))
+                strncpy_s(out, cap, text, _TRUNCATE);
+        }
+    }
+    return out[0] != 0;
+}
+
+static void DdhCaptureUnitTypeIcon(uint32_t code)
+{
+    if (!code) return;
+    DdhUnitTypeAttrSyncMap();
+
+    char cached[DDH_UNIT_ICON_CAP] = { 0 };
+    if (DdhUnitTypeIconPath(code, cached, sizeof(cached)))
+    {
+        if (InterlockedIncrement(&g_ddhUnitIconHitLogged) <= 16)
+            LogLine("单位类型属性：命中 code=0x%08X icon=%s", code, cached);
+        return;
+    }
+
+    char path[DDH_UNIT_ICON_CAP] = { 0 };
+    if (DdhUnitIconResolve(code, path, sizeof(path)))
+        DdhUnitTypeIconStore(code, path);
+}
+
 struct DdhLocustCacheEntry
 {
     uint32_t code;
@@ -1911,6 +2235,8 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
     e->victimCode = SafeCode(victim);
     e->source     = source;
     e->sourceCode = SafeCode(source);
+    DdhCaptureUnitTypeIcon(e->victimCode);
+    DdhCaptureUnitTypeIcon(e->sourceCode);
     DdhCaptureCombatByUnit(victim, &e->victimCombat);
     if (source)
         DdhCaptureCombatByUnit(source, &e->sourceCombat);
