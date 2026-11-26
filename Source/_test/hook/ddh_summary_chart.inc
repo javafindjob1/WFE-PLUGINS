@@ -54,6 +54,7 @@ static struct
     uint32_t victim;
     uint32_t victimCode;
     uint32_t endTick;
+    uint64_t endWallMs;
     uint32_t fatalSource;
     uint32_t fatalCode;
     char fatalName[64];
@@ -407,6 +408,18 @@ static int DdhSummaryChartBuild(uint32_t victim)
     if (!endTick) return 0;
     g_ddhSummaryChart.victim = victim;
     g_ddhSummaryChart.endTick = endTick;
+    {
+        FILETIME ft;
+        GetSystemTimeAsFileTime(&ft);
+        ULARGE_INTEGER wall;
+        wall.LowPart = ft.dwLowDateTime;
+        wall.HighPart = ft.dwHighDateTime;
+        const uint64_t nowWallMs =
+            wall.QuadPart / 10000ULL - 11644473600000ULL;
+        const uint32_t nowTick = GetTickCount();
+        g_ddhSummaryChart.endWallMs =
+            nowWallMs - (uint32_t)(nowTick - endTick);
+    }
 
     for (uint32_t k = 0; k < scan; ++k)
     {
@@ -482,10 +495,46 @@ static void DdhSummaryKillerText(char* out, size_t cap)
     DdhSprintf(out, cap, "击杀者 · %s", name);
 }
 
+static void DdhSummaryClockText(uint64_t wallMs, char* out, size_t cap)
+{
+    if (!out || cap == 0) return;
+    out[0] = 0;
+    if (cap < 9 || wallMs < 11644473600000ULL)
+    {
+        strncpy_s(out, cap, "时间未知", _TRUNCATE);
+        return;
+    }
+
+    const uint64_t fileTimeValue =
+        (wallMs + 11644473600000ULL) * 10000ULL;
+    FILETIME ftUtc;
+    ftUtc.dwLowDateTime = (DWORD)(fileTimeValue & 0xFFFFFFFFULL);
+    ftUtc.dwHighDateTime = (DWORD)(fileTimeValue >> 32);
+    FILETIME ftLocal;
+    SYSTEMTIME st;
+    if (!FileTimeToLocalFileTime(&ftUtc, &ftLocal) ||
+        !FileTimeToSystemTime(&ftLocal, &st))
+    {
+        strncpy_s(out, cap, "时间未知", _TRUNCATE);
+        return;
+    }
+    DdhSprintf(out, cap, "%02u:%02u:%02u",
+               (unsigned)st.wHour, (unsigned)st.wMinute, (unsigned)st.wSecond);
+}
+
 static void DdhSummaryWindowText(char* out, size_t cap)
 {
     if (!out || cap == 0) return;
-    strncpy_s(out, cap, "死亡前 10 秒", _TRUNCATE);
+    char start[24] = { 0 };
+    char end[24] = { 0 };
+    const uint64_t startWallMs =
+        g_ddhSummaryChart.endWallMs > 9000ULL
+            ? g_ddhSummaryChart.endWallMs - 9000ULL : 0ULL;
+    DdhSummaryClockText(
+        startWallMs, start, sizeof(start));
+    DdhSummaryClockText(
+        g_ddhSummaryChart.endWallMs, end, sizeof(end));
+    DdhSprintf(out, cap, "%s–%s", start, end);
 }
 
 static void DdhSummarySourceLabel(const DdhSummaryChartSrc* source,
@@ -770,10 +819,9 @@ static void DdhSummaryChartRender(void)
                            g_ddhSummaryFont * 0.52f, 0xFFFFD080u);
         const uint32_t secondsAgo =
             (uint32_t)(DDH_SUMMARY_CHART_SECONDS - 1 - i);
-        if (secondsAgo)
-            DdhSprintf(buffer, sizeof(buffer), "-%us", secondsAgo);
-        else
-            strncpy_s(buffer, sizeof(buffer), "0s", _TRUNCATE);
+        DdhSummaryClockText(
+            g_ddhSummaryChart.endWallMs - (uint64_t)secondsAgo * 1000ULL,
+            buffer, sizeof(buffer));
         DdhSummaryText(50 + i, buffer, x0 + 0.003f, base - g_ddhSummaryFont * 1.05f,
                        g_ddhSummaryFont * 0.62f, 0xFFB0B0B0u);
     }
