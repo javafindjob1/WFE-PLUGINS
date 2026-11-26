@@ -67,11 +67,14 @@ static uint32_t g_ddhSummaryBg = 0;
 static uint32_t g_ddhSummaryBars[DDH_SUMMARY_CHART_BAR_MAX];
 static char g_ddhSummaryBarTex[DDH_SUMMARY_CHART_BAR_MAX][64];
 static uint32_t g_ddhSummaryTexts[DDH_SUMMARY_CHART_TEXT_MAX];
+static float g_ddhSummaryWantX = 0.60f;
+static float g_ddhSummaryWantY = -0.10f;
 static float g_ddhSummaryX = 0.455f;
 static float g_ddhSummaryY = -0.10f;
 static float g_ddhSummaryW = 0.34f;
 static float g_ddhSummaryH = 0.32f;
 static float g_ddhSummaryFont = 0.0135f;
+static volatile LONG g_ddhSummaryCollapsed = 1;
 static volatile LONG g_ddhSummaryShown = 0;
 static volatile LONG g_ddhSummaryHideAt = 0;
 static volatile LONG g_ddhSummaryLogCount = 0;
@@ -398,6 +401,79 @@ static void DdhSummaryFormatAmount(char* out, size_t cap, float value)
         DdhSprintf(out, cap, "%.0f", (double)value);
 }
 
+static void DdhSummaryApplyLayout(void)
+{
+    const float fullW = 0.34f;
+    const float fullH = 0.32f;
+    g_ddhSummaryCollapsed = g_ddhSummaryCollapsed ? 1 : 0;
+    g_ddhSummaryW = g_ddhSummaryCollapsed ? 0.1433f : fullW;
+    g_ddhSummaryH = g_ddhSummaryCollapsed ? 0.070f : fullH;
+    float x = g_ddhSummaryCollapsed
+        ? g_ddhSummaryWantX + fullW - g_ddhSummaryW
+        : g_ddhSummaryWantX;
+    float y = g_ddhSummaryWantY;
+    if (x < 0.005f) x = 0.005f;
+    if (x + g_ddhSummaryW > 0.795f) x = 0.795f - g_ddhSummaryW;
+    if (y > -0.005f) y = -0.005f;
+    if (y - g_ddhSummaryH < -0.595f) y = -0.595f + g_ddhSummaryH;
+    g_ddhSummaryX = x;
+    g_ddhSummaryY = y;
+}
+
+static void DdhSummaryChartRenderCollapsed(void)
+{
+    static const char* typeBars[DDH_SUMMARY_CHART_TYPES] = {
+        "ReplaceableTextures\\TeamColor\\TeamColor00.blp",
+        "ReplaceableTextures\\TeamColor\\TeamColor01.blp",
+        "ReplaceableTextures\\TeamColor\\TeamColor08.blp",
+        "ReplaceableTextures\\TeamColor\\TeamColor03.blp"
+    };
+    char buffer[96] = { 0 };
+    float totals[DDH_SUMMARY_CHART_TYPES] = { 0, 0, 0, 0 };
+    float grand = 0.0f;
+    for (int b = 0; b < DDH_SUMMARY_CHART_SECONDS; ++b)
+    {
+        for (int i = 0; i < g_ddhSummaryChart.segCount[b]; ++i)
+        {
+            const int type = g_ddhSummaryChart.seg[b][i].type;
+            totals[type] += g_ddhSummaryChart.seg[b][i].amount;
+            grand += g_ddhSummaryChart.seg[b][i].amount;
+        }
+    }
+
+    DdhSummaryText(0, "阵亡总结", g_ddhSummaryX + 0.006f,
+                   g_ddhSummaryY - 0.002f, g_ddhSummaryFont * 0.72f,
+                   0xFFF0E0C0u);
+    DdhSummaryFormatAmount(buffer, sizeof(buffer), grand);
+    {
+        char total[96] = { 0 };
+        DdhSprintf(total, sizeof(total), "总伤害 %s", buffer);
+        DdhSummaryText(39, total, g_ddhSummaryX + 0.006f,
+                       g_ddhSummaryY - 0.024f, g_ddhSummaryFont * 0.58f,
+                       0xFFFFD080u);
+    }
+    DdhSummaryText(38, "<<<",
+                   g_ddhSummaryX + g_ddhSummaryW - 0.030f,
+                   g_ddhSummaryY - 0.016f,
+                   g_ddhSummaryFont * 0.75f, 0xFFFFD080u);
+
+    const float left = g_ddhSummaryX + 0.004f;
+    const float right = g_ddhSummaryX + g_ddhSummaryW - 0.032f;
+    const float width = right > left ? right - left : 0.0f;
+    const float y0 = g_ddhSummaryY - 0.050f;
+    const float y1 = g_ddhSummaryY - 0.070f;
+    float cursor = left;
+    const float denominator = grand > 0.01f ? grand : 1.0f;
+    for (int t = 0; t < DDH_SUMMARY_CHART_TYPES; ++t)
+    {
+        if (totals[t] <= 0.01f) continue;
+        float segment = totals[t] / denominator * width;
+        if (segment < 0.002f) segment = 0.002f;
+        DdhSummarySetBar(40 + t, typeBars[t], cursor, y0, cursor + segment, y1);
+        cursor += segment;
+    }
+}
+
 static void DdhSummaryChartRender(void)
 {
     static const char* typeNames[DDH_SUMMARY_CHART_TYPES] = { "物理", "法术", "纯粹", "移除" };
@@ -415,6 +491,7 @@ static void DdhSummaryChartRender(void)
     float sourceType[DDH_SUMMARY_CHART_MAX_SRC][DDH_SUMMARY_CHART_TYPES];
     float sourceTotal[DDH_SUMMARY_CHART_MAX_SRC] = { 0 };
     memset(sourceType, 0, sizeof(sourceType));
+    DdhSummaryApplyLayout();
 
     uint32_t ui = DdhSummaryGetUi();
     if (!ui) return;
@@ -443,6 +520,11 @@ static void DdhSummaryChartRender(void)
                       g_ddhSummaryX - 0.012f, g_ddhSummaryY + 0.012f,
                       g_ddhSummaryX + g_ddhSummaryW, g_ddhSummaryY - g_ddhSummaryH);
     DdhSummaryFrameShow(g_ddhSummaryBg, 1);
+    if (g_ddhSummaryCollapsed)
+    {
+        DdhSummaryChartRenderCollapsed();
+        return;
+    }
 
     for (int b = 0; b < DDH_SUMMARY_CHART_SECONDS; ++b)
     {
@@ -571,6 +653,31 @@ static bool DdhSummaryChartShow(uint32_t victim)
         LogLine("阵亡总结：原生面板已显示（victim=0x%08X，10 秒总伤 %.0f，来源 %d）",
                 victim, (double)g_ddhSummaryChart.maxTotal,
                 g_ddhSummaryChart.sourceCount);
+    return true;
+}
+
+static bool DdhSummaryChartClick(int px, int py)
+{
+    if (!InterlockedCompareExchange(&g_ddhSummaryShown, 0, 0)) return false;
+    RECT rc = { 0 };
+    if (!g_gameWnd || !GetClientRect(g_gameWnd, &rc)) return false;
+    const int cw = rc.right - rc.left;
+    const int ch = rc.bottom - rc.top;
+    if (cw <= 0 || ch <= 0) return false;
+
+    const float u = (float)px / (float)cw;
+    const float v = -(float)py / (float)ch;
+    const float l = g_ddhSummaryX + g_ddhSummaryW - 0.042f;
+    const float r = g_ddhSummaryX + g_ddhSummaryW + 0.002f;
+    const float t = g_ddhSummaryY + 0.014f;
+    const float b = g_ddhSummaryY - g_ddhSummaryH - 0.014f;
+    if (u < l || u > r || v > t || v < b) return false;
+
+    InterlockedExchange(&g_ddhSummaryCollapsed,
+                        g_ddhSummaryCollapsed ? 0 : 1);
+    DdhSummaryChartRender();
+    InterlockedExchange(&g_ddhSummaryHideAt, (LONG)(GetTickCount() + 20000u));
+    LogLine("阵亡总结：已切换为%s", g_ddhSummaryCollapsed ? "缩版" : "展开");
     return true;
 }
 

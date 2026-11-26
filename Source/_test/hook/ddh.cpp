@@ -3754,6 +3754,22 @@ static BOOL CALLBACK DdhEnumWndProc(HWND hwnd, LPARAM lp)
 
 static LRESULT CALLBACK DdhGameWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+    if (msg == WM_LBUTTONDOWN)
+    {
+        const int x = (int)(int16_t)LOWORD(lp);
+        const int y = (int)(int16_t)HIWORD(lp);
+        __try
+        {
+            if (DdhSummaryChartClick(x, y))
+                return 0;
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER)
+        {
+            LogLine("阵亡总结：点击处理异常 code=%08X（已吞掉）",
+                    (unsigned)GetExceptionCode());
+        }
+    }
+
     if (msg == WM_TIMER && wp == DDH_SUMMARY_CHART_TIMER)
     {
         __try { DdhSummaryChartTick(); }
