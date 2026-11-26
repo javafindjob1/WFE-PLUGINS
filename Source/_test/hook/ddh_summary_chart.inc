@@ -282,6 +282,51 @@ static void DdhSummaryText(int slot, const char* text, float x, float y,
     DdhSummaryFrameShow(frame, 1);
 }
 
+static float DdhSummaryTextWidth(const char* text, float height)
+{
+    if (!text || !text[0] || !(height > 0.0f)) return 0.0f;
+    float units = 0.0f;
+    const size_t length = strlen(text);
+    for (size_t i = 0; i < length; ++i)
+    {
+        const unsigned char c = (unsigned char)text[i];
+        if (c < 0x80)
+        {
+            units += (c == ' ') ? 0.30f : 0.58f;
+        }
+        else if ((c & 0xE0u) == 0xC0u)
+        {
+            units += 0.85f;
+            if (i + 1 < length) ++i;
+        }
+        else if ((c & 0xF0u) == 0xE0u)
+        {
+            units += 1.0f;
+            if (i + 1 < length) ++i;
+            if (i + 1 < length) ++i;
+        }
+        else if ((c & 0xF8u) == 0xF0u)
+        {
+            units += 1.0f;
+            if (i + 1 < length) ++i;
+            if (i + 1 < length) ++i;
+            if (i + 1 < length) ++i;
+        }
+        else
+        {
+            units += 0.70f;
+        }
+    }
+    return units * height;
+}
+
+static void DdhSummaryTextRightTo(int slot, const char* text, float rightX, float y,
+                                  float height, uint32_t color)
+{
+    const float width = DdhSummaryTextWidth(text, height);
+    DdhSummaryText(slot, text, rightX - width - 0.003f, y, height, color);
+}
+
 static uint32_t DdhSummaryIconFrame(int slot)
 {
     if (slot < 0 || slot >= 12) return 0;
@@ -682,26 +727,30 @@ static void DdhSummaryChartRender(void)
     {
         const float rowY = g_ddhSummaryY - 0.055f - (float)t * 0.0168f;
         DdhSummaryFormatAmount(buffer, sizeof(buffer), typeTotal[t]);
-        DdhSummaryText(10 + t, buffer, g_ddhSummaryX + 0.008f, rowY + 0.0008f,
-                       g_ddhSummaryFont * 0.62f, 0xFFD8D8D8u);
+        DdhSummaryTextRightTo(10 + t, buffer, g_ddhSummaryX + 0.060f,
+                              rowY + 0.0008f, g_ddhSummaryFont * 0.62f,
+                              0xFFD8D8D8u);
+        DdhSummarySetBar(60 + t, "Textures\\Black32.blp",
+                         g_ddhSummaryX + 0.060f, rowY + 0.001f,
+                         g_ddhSummaryX + 0.125f, rowY - 0.010f);
         if (typeTotal[t] > 0.01f)
         {
             float width = typeTotal[t] / (typeMax > 0.01f ? typeMax : 1.0f) * 0.065f;
             if (width < 0.003f) width = 0.003f;
             DdhSummarySetBar(20 + t, typeBars[t],
-                             g_ddhSummaryX + 0.050f, rowY + 0.001f,
-                             g_ddhSummaryX + 0.050f + width, rowY - 0.010f);
+                             g_ddhSummaryX + 0.060f, rowY + 0.001f,
+                             g_ddhSummaryX + 0.060f + width, rowY - 0.010f);
         }
-        DdhSummaryText(14 + t, typeNames[t], g_ddhSummaryX + 0.122f, rowY + 0.0008f,
+        DdhSummaryText(14 + t, typeNames[t], g_ddhSummaryX + 0.064f, rowY + 0.0008f,
                        g_ddhSummaryFont * 0.66f, typeColors[t]);
     }
 
     {
         const float totalY = g_ddhSummaryY - 0.125f;
         DdhSummaryFormatAmount(buffer, sizeof(buffer), grand);
-        DdhSummaryText(2, buffer, g_ddhSummaryX + 0.008f, totalY,
-                       g_ddhSummaryFont * 0.66f, 0xFFF0D080u);
-        DdhSummaryText(7, "总伤害", g_ddhSummaryX + 0.052f, totalY,
+        DdhSummaryTextRightTo(2, buffer, g_ddhSummaryX + 0.060f, totalY,
+                              g_ddhSummaryFont * 0.66f, 0xFFF0D080u);
+        DdhSummaryText(7, "总伤害", g_ddhSummaryX + 0.064f, totalY,
                        g_ddhSummaryFont * 0.66f, 0xFFF0E0C0u);
     }
 
@@ -727,8 +776,9 @@ static void DdhSummaryChartRender(void)
                        g_ddhSummaryX + 0.193f, rowY + 0.001f,
                        0.011f, 0.013f);
         DdhSummaryFormatAmount(buffer, sizeof(buffer), sourceTotal[source]);
-        DdhSummaryText(20 + k, buffer, g_ddhSummaryX + 0.208f, rowY + 0.0008f,
-                       g_ddhSummaryFont * 0.62f, 0xFFD8D8D8u);
+        DdhSummaryTextRightTo(20 + k, buffer, g_ddhSummaryX + 0.242f,
+                              rowY + 0.0008f, g_ddhSummaryFont * 0.62f,
+                              0xFFD8D8D8u);
         float cursor = g_ddhSummaryX + 0.242f;
         const float totalWidth = sourceTotal[source] / (sourceMax > 0.01f ? sourceMax : 1.0f) * 0.073f;
         const float sourceDenominator = sourceTotal[source] > 0.01f
@@ -759,8 +809,9 @@ static void DdhSummaryChartRender(void)
         DdhSummaryText(26, "其他", g_ddhSummaryX + 0.193f, rowY + 0.0008f,
                        g_ddhSummaryFont * 0.58f, 0xFFB8B8B8u);
         DdhSummaryFormatAmount(buffer, sizeof(buffer), otherTotal);
-        DdhSummaryText(27, buffer, g_ddhSummaryX + 0.208f, rowY + 0.0008f,
-                       g_ddhSummaryFont * 0.62f, 0xFFD8D8D8u);
+        DdhSummaryTextRightTo(27, buffer, g_ddhSummaryX + 0.242f,
+                              rowY + 0.0008f, g_ddhSummaryFont * 0.62f,
+                              0xFFD8D8D8u);
         float cursor = g_ddhSummaryX + 0.242f;
         const float totalWidth = otherTotal / (sourceMax > 0.01f ? sourceMax : 1.0f) * 0.073f;
         const float denominator = otherTotal > 0.01f ? otherTotal : 1.0f;
