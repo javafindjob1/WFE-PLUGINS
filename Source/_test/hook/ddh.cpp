@@ -1630,6 +1630,90 @@ static void ResolveName(uint32_t obj, uint32_t code, char* out, size_t outSize)
         LogLine("类型码名称表解析成功：code=0x%08X 名字=%s", code, tmp);
 }
 
+#define DDH_META_QUEUE_CAP 64
+struct DdhPendingMeta
+{
+    uint32_t seq;
+    uint32_t victim;
+    uint32_t source;
+    uint32_t victimCode;
+    uint32_t sourceCode;
+};
+
+static DdhPendingMeta g_pendingMeta[DDH_META_QUEUE_CAP];
+static uint32_t      g_pendingMetaCount = 0;
+
+static void DdhQueuePendingMeta(uint32_t seq, uint32_t victim, uint32_t source,
+                                uint32_t victimCode, uint32_t sourceCode)
+{
+    if (g_pendingMetaCount >= DDH_META_QUEUE_CAP) return;
+    DdhPendingMeta* m = &g_pendingMeta[g_pendingMetaCount++];
+    m->seq = seq;
+    m->victim = victim;
+    m->source = source;
+    m->victimCode = victimCode;
+    m->sourceCode = sourceCode;
+}
+
+static void DdhMarkPendingReadyWithoutEngine(void)
+{
+    if (!g_shm) { g_pendingMetaCount = 0; return; }
+    for (uint32_t i = 0; i < g_pendingMetaCount; ++i)
+    {
+        const DdhPendingMeta* m = &g_pendingMeta[i];
+        const uint32_t slot = (m->seq - 1) % DDH_MAX_EVENTS;
+        if (g_shm->ev[slot].seq == m->seq)
+            InterlockedExchange(&g_evReady[slot], 1);
+    }
+    g_pendingMetaCount = 0;
+}
+
+static void DdhResolvePendingMeta(void)
+{
+    if (!g_shm) { g_pendingMetaCount = 0; return; }
+
+    const uint32_t count = g_pendingMetaCount;
+    g_pendingMetaCount = 0;
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const DdhPendingMeta* m = &g_pendingMeta[i];
+        const uint32_t slot = (m->seq - 1) % DDH_MAX_EVENTS;
+        DdhEvent* e = &g_shm->ev[slot];
+        if (e->seq != m->seq) continue;
+
+        __try
+        {
+            char text[64] = { 0 };
+            if (m->victimCode)
+            {
+                ResolveName(0, m->victimCode, text, sizeof(text));
+                if (text[0]) DdhUtf8SafeCopy(e->victimName, sizeof(e->victimName), text, sizeof(text) - 1);
+            }
+            text[0] = 0;
+            if (m->sourceCode)
+            {
+                ResolveName(0, m->sourceCode, text, sizeof(text));
+                if (text[0]) DdhUtf8SafeCopy(e->sourceName, sizeof(e->sourceName), text, sizeof(text) - 1);
+            }
+
+            if (m->victim && DdhAbilityInUnitList(m->victim, DDH_ABILITY_ALOC) > 0)
+                e->flags |= 1u;
+            if (m->source && DdhAbilityInUnitList(m->source, DDH_ABILITY_ALOC) > 0)
+                e->flags |= DDH_EVENT_FLAG_SOURCE_LOCUST;
+
+            DdhDbUpdateEventUnits(e);
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER)
+        {
+            LogLine("延迟元数据处理失败：seq=%u code=%08X/%08X exception=%08X",
+                    m->seq, m->victimCode, m->sourceCode,
+                    (unsigned)GetExceptionCode());
+        }
+
+        InterlockedExchange(&g_evReady[slot], 1);
+    }
+}
+
 static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysical,
                              uint32_t stackSource, uint32_t depth, uint32_t hpOk, float hpBefore,
                              uint32_t* outSeq)
@@ -1662,12 +1746,12 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
     e->victimCode = SafeCode(victim);
     e->source     = source;
     e->sourceCode = SafeCode(source);
-    /* Capture everything before the original damage function can kill or free the unit.
-       Only the fields required for damage attribution are read from CUnit. */
+    /* The damage callback must never call game/JASS functions. Use stable type-code
+       text here and resolve names after the hook has fully returned. */
     if (e->victimCode)
-        ResolveName(victim, e->victimCode, e->victimName, sizeof(e->victimName));
+        DdhCodeText(e->victimCode, e->victimName, sizeof(e->victimName));
     if (e->sourceCode)
-        ResolveName(source, e->sourceCode, e->sourceName, sizeof(e->sourceName));
+        DdhCodeText(e->sourceCode, e->sourceName, sizeof(e->sourceName));
     e->victimOwner = ResolveOwnerPid(victim);
     e->sourceOwner = ResolveOwnerPid(source);
     memcpy(&e->amount, &amountBits, 4);
@@ -1691,7 +1775,6 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
     e->finalDamage  = 0.0f;
     e->finalFlags   = 0;
     /* owner slots are filled from CUnit+0x58 after the damage callback. */
-    /* Aloc by type data only; never by handle/memory of a neighboring dummy. */
     /* Event slots are reused by the 512-entry ring. Always start from zero so
        illusion bits from a previous event cannot survive in this slot. */
     e->flags = 0;
@@ -1703,33 +1786,7 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
         e->flags |= DDH_EVENT_FLAG_VICTIM_ILLUSION;
     if (source && DdhUnitIllusionStateByObj(source) > 0)
         e->flags |= DDH_EVENT_FLAG_SOURCE_ILLUSION;
-    /* Instance-only Aloc check while the victim CUnit pointer is still valid.
-       Check both sides: attack-only spell dummies commonly appear as source. */
-    if (DdhAbilityInUnitList(victim, 0x416C6F63u) > 0)
-        e->flags |= 1u;
-    if (source && DdhAbilityInUnitList(source, 0x416C6F63u) > 0)
-        e->flags |= DDH_EVENT_FLAG_SOURCE_LOCUST;
-    DdhDbUpdateEventUnits(e);
-#if 0
-    e->victimOwner = ResolveOwnerPid(victim);
-    e->sourceOwner = ResolveOwnerPid(source);
-    {
-        const LONG n = InterlockedIncrement(&g_ownerLogCount);
-        if (n <= 5)
-            LogLine("玩家号：victim=0x%08X→Player %d，source=0x%08X→Player %d（-1=未知，0 基）",
-                    victim, (int)e->victimOwner, source, (int)e->sourceOwner);
-    }
-    if (g_namesEnabled)
-    {
-        ResolveName(victim, e->victimCode, e->victimName, sizeof(e->victimName));
-        ResolveName(source, e->sourceCode, e->sourceName, sizeof(e->sourceName));
-    }
-    else
-    {
-        e->victimName[0] = 0;
-        e->sourceName[0] = 0;
-    }
-#endif
+    DdhQueuePendingMeta(seq, victim, source, e->victimCode, e->sourceCode);
     g_shm->hdr.lastTick = e->tickMs;
     MemoryBarrier();
     if (outSeq) *outSeq = seq;
@@ -3382,6 +3439,8 @@ static void DdhRestoreGameWnd(void)
    全程 __try —�?任何一步抛异常都只写日志，绝不影响伤害钩子本身�?*/
 static void DdhProcessDeferred(void)
 {
+    DdhResolvePendingMeta();
+
     /* GetLocalPlayer/GetPlayerId 只能在游戏线程调用。即使单位属性扫描已关闭，
        C# 仍需要这个真实本地玩家号，因此每次最外层伤害退出时尝试一次，
        成功以后 g_allyMaskDone 会把后续调用短路。 */
@@ -3657,7 +3716,6 @@ static uint32_t __fastcall DdhDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
                                          void* info, uint32_t is_physical, uint32_t source_unit)
 {
     /* v9：第一次进伤害函数时把热键线程拉起来（此时游戏已就绪，也不在加载器锁里�?*/
-    DdhEnsureHotkeyThread();
 
     /* 深度 +1；超过上限就不加（否则收尾的深度 -1 会对不上，深度永久泄漏）�?
        这一层仍然要跑原函数、把返回值原样带回去 —�?只是不再单独�?after�?*/
@@ -3932,7 +3990,6 @@ static uint32_t __fastcall DdhDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
     {
         /* Metadata was captured at event start while both CUnit objects were alive. */
         DdhTrackEvent(e);
-        InterlockedExchange(&g_evReady[g_slot[level] % DDH_MAX_EVENTS], 1);
     }
 
     MemoryBarrier();
@@ -3945,7 +4002,7 @@ static uint32_t __fastcall DdhDamageFunc(uint32_t _this, uint32_t _edx, uint32_t
         /* Keep all JASS/UI work out of the engine damage call stack. */
         if (!g_gameWnd || !IsWindow(g_gameWnd) ||
             !PostMessageA(g_gameWnd, DDH_WM_DAMAGE_DEFERRED, 0, 0))
-            DdhProcessDeferred();
+            DdhMarkPendingReadyWithoutEngine();
     }
 
     return retval;
