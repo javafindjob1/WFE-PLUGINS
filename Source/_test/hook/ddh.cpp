@@ -3754,6 +3754,20 @@ static BOOL CALLBACK DdhEnumWndProc(HWND hwnd, LPARAM lp)
 
 static LRESULT CALLBACK DdhGameWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+    if ((msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN) && wp == VK_OEM_3)
+    {
+        __try
+        {
+            if (DdhSummaryChartToggleVisible())
+                return 0;
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER)
+        {
+            LogLine("阵亡总结：~ 切换异常 code=%08X（已吞掉）",
+                    (unsigned)GetExceptionCode());
+        }
+    }
+
     if (msg == WM_LBUTTONDOWN)
     {
         const int x = (int)(int16_t)LOWORD(lp);

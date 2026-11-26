@@ -51,6 +51,7 @@ static struct
 {
     int valid;
     uint32_t victim;
+    uint32_t victimCode;
     uint32_t endTick;
     uint32_t fatalSource;
     uint32_t fatalCode;
@@ -67,6 +68,8 @@ static uint32_t g_ddhSummaryBg = 0;
 static uint32_t g_ddhSummaryBars[DDH_SUMMARY_CHART_BAR_MAX];
 static char g_ddhSummaryBarTex[DDH_SUMMARY_CHART_BAR_MAX][64];
 static uint32_t g_ddhSummaryTexts[DDH_SUMMARY_CHART_TEXT_MAX];
+static uint32_t g_ddhSummaryIcons[12];
+static char g_ddhSummaryIconTex[12][128];
 static float g_ddhSummaryWantX = 0.60f;
 static float g_ddhSummaryWantY = -0.10f;
 static float g_ddhSummaryX = 0.455f;
@@ -155,6 +158,8 @@ static void DdhSummaryHideFrames(void)
         if (g_ddhSummaryBars[i]) DdhSummaryFrameShow(g_ddhSummaryBars[i], 0);
     for (int i = 0; i < DDH_SUMMARY_CHART_TEXT_MAX; ++i)
         if (g_ddhSummaryTexts[i]) DdhSummaryFrameShow(g_ddhSummaryTexts[i], 0);
+    for (int i = 0; i < 12; ++i)
+        if (g_ddhSummaryIcons[i]) DdhSummaryFrameShow(g_ddhSummaryIcons[i], 0);
 }
 
 static void DdhSummaryResetFrames(uint32_t ui)
@@ -165,6 +170,8 @@ static void DdhSummaryResetFrames(uint32_t ui)
     memset(g_ddhSummaryBars, 0, sizeof(g_ddhSummaryBars));
     memset(g_ddhSummaryBarTex, 0, sizeof(g_ddhSummaryBarTex));
     memset(g_ddhSummaryTexts, 0, sizeof(g_ddhSummaryTexts));
+    memset(g_ddhSummaryIcons, 0, sizeof(g_ddhSummaryIcons));
+    memset(g_ddhSummaryIconTex, 0, sizeof(g_ddhSummaryIconTex));
 }
 
 static uint32_t DdhSummaryBarFrame(int slot)
@@ -271,6 +278,267 @@ static void DdhSummaryText(int slot, const char* text, float x, float y,
     DdhSummaryFrameShow(frame, 1);
 }
 
+struct DdhSummarySection
+{
+    uint32_t begin;
+    uint32_t end;
+    uint32_t chars;
+};
+
+struct DdhSummaryIconCache
+{
+    uint32_t code;
+    int state;
+    char path[128];
+};
+
+static DdhSummaryIconCache g_ddhSummaryIconCache[32];
+static int g_ddhSummaryIconCacheCount = 0;
+static uint32_t g_ddhSummaryGetUnitData = 0;
+static volatile LONG g_ddhSummaryIconInit = 0;
+
+static int DdhSummaryPoke(uint32_t addr, uint32_t* out)
+{
+    if (!out || addr < 0x10000u) return 0;
+    __try { *out = *(const uint32_t*)(uintptr_t)addr; return 1; }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return 0; }
+}
+
+static int DdhSummarySections(uint32_t base, DdhSummarySection* out, int cap)
+{
+    if (!base || !out || cap <= 0) return 0;
+    const IMAGE_DOS_HEADER* dos = (const IMAGE_DOS_HEADER*)(uintptr_t)base;
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE) return 0;
+    const IMAGE_NT_HEADERS32* nt =
+        (const IMAGE_NT_HEADERS32*)((const uint8_t*)(uintptr_t)base + dos->e_lfanew);
+    if (nt->Signature != IMAGE_NT_SIGNATURE ||
+        nt->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR32_MAGIC) return 0;
+
+    const IMAGE_SECTION_HEADER* section = IMAGE_FIRST_SECTION(nt);
+    const uint32_t imageSize = nt->OptionalHeader.SizeOfImage;
+    int count = 0;
+    for (WORD i = 0; i < nt->FileHeader.NumberOfSections && count < cap; ++i)
+    {
+        uint32_t size = section[i].Misc.VirtualSize;
+        if (!size) size = section[i].SizeOfRawData;
+        if (!size || section[i].VirtualAddress >= imageSize) continue;
+        if (size > imageSize - section[i].VirtualAddress)
+            size = imageSize - section[i].VirtualAddress;
+        out[count].begin = base + section[i].VirtualAddress;
+        out[count].end = out[count].begin + size;
+        out[count].chars = section[i].Characteristics;
+        ++count;
+    }
+    return count;
+}
+
+static int DdhSummaryExec(const DdhSummarySection* sections, int count, uint32_t address)
+{
+    for (int i = 0; i < count; ++i)
+        if ((sections[i].chars & IMAGE_SCN_MEM_EXECUTE) &&
+            address >= sections[i].begin && address < sections[i].end)
+            return 1;
+    return 0;
+}
+
+static uint32_t DdhSummaryResolveGetUnitData(void)
+{
+    if (g_ddhSummaryGetUnitData) return g_ddhSummaryGetUnitData;
+    if (InterlockedCompareExchange(&g_ddhSummaryIconInit, 1, 0) != 0)
+        return g_ddhSummaryGetUnitData;
+    if (!g_modBase) return 0;
+
+    DdhSummarySection sections[32];
+    const int sectionCount = DdhSummarySections(g_modBase, sections,
+                                                (int)(sizeof(sections) / sizeof(sections[0])));
+    if (sectionCount <= 0) return 0;
+
+    static const char name[] = "RegisterModel";
+    uint32_t stringAddress = 0;
+    for (int i = 0; i < sectionCount && !stringAddress; ++i)
+    {
+        if (!(sections[i].chars & IMAGE_SCN_MEM_READ) ||
+            (sections[i].chars & IMAGE_SCN_MEM_WRITE)) continue;
+        const uint8_t* bytes = (const uint8_t*)(uintptr_t)sections[i].begin;
+        const uint32_t size = sections[i].end - sections[i].begin;
+        for (uint32_t off = 0; off + sizeof(name) <= size; ++off)
+            if (bytes[off] == 'R' && memcmp(bytes + off, name, sizeof(name)) == 0)
+            {
+                stringAddress = sections[i].begin + off;
+                break;
+            }
+    }
+    if (!stringAddress) return 0;
+
+    uint32_t reference = 0;
+    for (int i = 0; i < sectionCount && !reference; ++i)
+    {
+        if (!(sections[i].chars & IMAGE_SCN_MEM_EXECUTE)) continue;
+        for (uint32_t address = sections[i].begin; address + 4u <= sections[i].end; ++address)
+        {
+            uint32_t value = 0;
+            memcpy(&value, (const void*)(uintptr_t)address, 4);
+            if (value == stringAddress) { reference = address; break; }
+        }
+    }
+    if (!reference) return 0;
+
+    const uint32_t start = reference + 4u;
+    for (int i = 0; i < sectionCount && !g_ddhSummaryGetUnitData; ++i)
+    {
+        if (!(sections[i].chars & IMAGE_SCN_MEM_EXECUTE)) continue;
+        if (start < sections[i].begin || start + 5u > sections[i].end) continue;
+        uint32_t limit = start + 0x200u;
+        if (limit > sections[i].end) limit = sections[i].end;
+        for (uint32_t address = start; address + 5u <= limit; ++address)
+        {
+            if (*(const uint8_t*)(uintptr_t)address != 0xE8) continue;
+            int32_t relative = 0;
+            memcpy(&relative, (const void*)(uintptr_t)(address + 1u), 4);
+            const uint32_t target = address + 5u + (uint32_t)relative;
+            if (!DdhSummaryExec(sections, sectionCount, target)) continue;
+            uint32_t head = 0;
+            if (!DdhSummaryPoke(target, &head)) continue;
+            if ((head & 0xFFu) == 0xCCu || (head & 0xFFu) == 0x00u) continue;
+            g_ddhSummaryGetUnitData = target;
+            break;
+        }
+    }
+    return g_ddhSummaryGetUnitData;
+}
+
+static int DdhSummaryIconText(uint32_t address, char* out, size_t cap)
+{
+    if (!out || cap < 8 || address < 0x10000u || address > 0x7FFFFFFFu) return 0;
+    out[0] = 0;
+    __try
+    {
+        const unsigned char* p = (const unsigned char*)(uintptr_t)address;
+        int length = 0;
+        for (; length < 240; ++length)
+        {
+            const unsigned char c = p[length];
+            if (!c) break;
+            if (c < 0x20 || c == 0x7F) return 0;
+        }
+        if (length < 5 || length >= 240 || p[length] != 0) return 0;
+        char text[240] = { 0 };
+        memcpy(text, p, (size_t)length);
+        bool blp = false;
+        for (int i = 0; i + 4 <= length; ++i)
+            if (text[i] == '.' && _stricmp(text + i, ".blp") == 0)
+            {
+                blp = true;
+                break;
+            }
+        if (!blp) return 0;
+        strncpy_s(out, cap, text, _TRUNCATE);
+        for (char* q = out; *q; ++q) if (*q == '/') *q = '\\';
+        return 1;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return 0; }
+}
+
+static bool DdhSummaryResolveIcon(uint32_t code, char* out, size_t cap)
+{
+    if (!out || cap < 8 || !code) return false;
+    out[0] = 0;
+    for (int i = 0; i < g_ddhSummaryIconCacheCount; ++i)
+        if (g_ddhSummaryIconCache[i].code == code)
+        {
+            if (g_ddhSummaryIconCache[i].state <= 0) return false;
+            strncpy_s(out, cap, g_ddhSummaryIconCache[i].path, _TRUNCATE);
+            return out[0] != 0;
+        }
+
+    char path[128] = { 0 };
+    const uint32_t function = DdhSummaryResolveGetUnitData();
+    if (function)
+    {
+        uintptr_t data = 0;
+        __try { data = ((uintptr_t(__fastcall*)(uint32_t))(uintptr_t)function)(code); }
+        __except (EXCEPTION_EXECUTE_HANDLER) { data = 0; }
+        if (data)
+        {
+            for (uint32_t i = 0; i < 0x300 && !path[0]; ++i)
+            {
+                uint32_t value = 0;
+                if (!DdhSummaryPoke((uint32_t)data + i * 4u, &value)) break;
+                char text[128] = { 0 };
+                if (!DdhSummaryIconText(value, text, sizeof(text))) continue;
+                if (strstr(text, "CommandButtons") || strstr(text, "BTN"))
+                    strncpy_s(path, sizeof(path), text, _TRUNCATE);
+            }
+            for (uint32_t i = 0; i < 0x300 && !path[0]; ++i)
+            {
+                uint32_t nested = 0;
+                if (!DdhSummaryPoke((uint32_t)data + i * 4u, &nested)) break;
+                if (nested < 0x10000u || nested > 0x7FFFFFFFu) continue;
+                for (uint32_t j = 0; j < 0x40 && !path[0]; ++j)
+                {
+                    uint32_t value = 0;
+                    if (!DdhSummaryPoke(nested + j * 4u, &value)) break;
+                    char text[128] = { 0 };
+                    if (!DdhSummaryIconText(value, text, sizeof(text))) continue;
+                    if (strstr(text, "CommandButtons") || strstr(text, "BTN"))
+                        strncpy_s(path, sizeof(path), text, _TRUNCATE);
+                }
+            }
+        }
+    }
+
+    if (g_ddhSummaryIconCacheCount >=
+        (int)(sizeof(g_ddhSummaryIconCache) / sizeof(g_ddhSummaryIconCache[0])))
+        return false;
+    DdhSummaryIconCache* cache = &g_ddhSummaryIconCache[g_ddhSummaryIconCacheCount++];
+    cache->code = code;
+    cache->state = path[0] ? 1 : -1;
+    strncpy_s(cache->path, sizeof(cache->path), path, _TRUNCATE);
+    if (!path[0]) return false;
+    strncpy_s(out, cap, path, _TRUNCATE);
+    return out[0] != 0;
+}
+
+static uint32_t DdhSummaryIconFrame(int slot)
+{
+    if (slot < 0 || slot >= 12) return 0;
+    if (g_ddhSummaryIcons[slot]) return g_ddhSummaryIcons[slot];
+    uint32_t frame = 0;
+    __try
+    {
+        frame = ((fn_ddh_summary_create_backdrop_t)(uintptr_t)g_ddhSummaryCreateBackdrop)
+            (g_ddhSummaryUi, 0, 0);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER) { frame = 0; }
+    if (!frame) return 0;
+    g_ddhSummaryIcons[slot] = frame;
+    g_ddhSummaryIconTex[slot][0] = 0;
+    DdhSummaryFrameShow(frame, 0);
+    return frame;
+}
+
+static void DdhSummaryIcon(int slot, uint32_t code,
+                           float x, float yTop, float width, float height)
+{
+    char path[128] = { 0 };
+    if (!DdhSummaryResolveIcon(code, path, sizeof(path))) return;
+    uint32_t frame = DdhSummaryIconFrame(slot);
+    if (!frame) return;
+    if (_stricmp(g_ddhSummaryIconTex[slot], path) != 0)
+    {
+        __try
+        {
+            ((fn_ddh_summary_setbackdrop_t)(uintptr_t)g_ddhSummarySetBackdrop)
+                ((void*)(uintptr_t)frame, 0, path, 0u, 0u, NULL, 1u);
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER) { }
+        strncpy_s(g_ddhSummaryIconTex[slot], sizeof(g_ddhSummaryIconTex[slot]),
+                  path, _TRUNCATE);
+    }
+    DdhSummarySetRect(frame, x, yTop, x + width, yTop - height);
+    DdhSummaryFrameShow(frame, 1);
+}
+
 static int DdhSummaryChartKind(const DdhEvent* e)
 {
     uint32_t mask = e->damageMask;
@@ -351,6 +619,7 @@ static int DdhSummaryChartBuild(uint32_t victim)
         const uint32_t seq = count - k;
         const DdhEvent* e = &g_shm->ev[(seq - 1u) % cap];
         if (e->seq != seq || e->victim != victim) continue;
+        if (!g_ddhSummaryChart.victimCode) g_ddhSummaryChart.victimCode = e->victimCode;
         if (e->hpValid && e->hpBefore > 0.0f && e->hpAfter <= 0.0f &&
             !g_ddhSummaryChart.fatalCode)
         {
@@ -441,14 +710,16 @@ static void DdhSummaryChartRenderCollapsed(void)
         }
     }
 
-    DdhSummaryText(0, "阵亡总结", g_ddhSummaryX + 0.006f,
+    DdhSummaryIcon(10, g_ddhSummaryChart.victimCode,
+        g_ddhSummaryX + 0.005f, g_ddhSummaryY + 0.001f, 0.026f, 0.032f);
+    DdhSummaryText(0, "阵亡总结", g_ddhSummaryX + 0.035f,
                    g_ddhSummaryY - 0.002f, g_ddhSummaryFont * 0.72f,
                    0xFFF0E0C0u);
     DdhSummaryFormatAmount(buffer, sizeof(buffer), grand);
     {
         char total[96] = { 0 };
         DdhSprintf(total, sizeof(total), "总伤害 %s", buffer);
-        DdhSummaryText(39, total, g_ddhSummaryX + 0.006f,
+        DdhSummaryText(39, total, g_ddhSummaryX + 0.035f,
                        g_ddhSummaryY - 0.024f, g_ddhSummaryFont * 0.58f,
                        0xFFFFD080u);
     }
@@ -546,6 +817,8 @@ static void DdhSummaryChartRender(void)
     for (int s = 0; s < g_ddhSummaryChart.sourceCount; ++s)
         if (sourceTotal[s] > sourceMax) sourceMax = sourceTotal[s];
 
+    DdhSummaryIcon(10, g_ddhSummaryChart.victimCode,
+        g_ddhSummaryX + 0.005f, g_ddhSummaryY + 0.001f, 0.026f, 0.032f);
     DdhSummaryText(0, "阵亡总结", g_ddhSummaryX + 0.035f, g_ddhSummaryY,
                    g_ddhSummaryFont * 1.08f, 0xFFF0E0C0u);
     DdhSummaryFormatAmount(buffer, sizeof(buffer), grand);
@@ -596,10 +869,13 @@ static void DdhSummaryChartRender(void)
     {
         const int source = order[k];
         const float rowY = g_ddhSummaryY - 0.042f - (float)k * 0.028f;
+        DdhSummaryIcon(k, g_ddhSummaryChart.source[source].code,
+                       g_ddhSummaryX + 0.210f, rowY + 0.0012f,
+                       0.012f, 0.014f);
         DdhCodeText(g_ddhSummaryChart.source[source].code, buffer, sizeof(buffer));
-        DdhSummaryText(9 + k, buffer, g_ddhSummaryX + 0.212f, rowY + 0.0012f,
+        DdhSummaryText(9 + k, buffer, g_ddhSummaryX + 0.226f, rowY + 0.0012f,
                        g_ddhSummaryFont * 0.65f, 0xFFD8D8D8u);
-        float cursor = g_ddhSummaryX + 0.230f;
+        float cursor = g_ddhSummaryX + 0.244f;
         for (int t = 0; t < DDH_SUMMARY_CHART_TYPES; ++t)
         {
             if (sourceType[source][t] <= 0.01f) continue;
@@ -666,8 +942,10 @@ static bool DdhSummaryChartClick(int px, int py)
     const int ch = rc.bottom - rc.top;
     if (cw <= 0 || ch <= 0) return false;
 
-    const float u = (float)px / (float)cw;
-    const float v = -(float)py / (float)ch;
+    /* Warcraft UI coordinates span 0..0.8 horizontally and 0..-0.6 vertically,
+       while the client area has arbitrary pixel dimensions. */
+    const float u = (float)px / ((float)cw * 1.25f);
+    const float v = -(float)py * 0.6f / (float)ch;
     const float l = g_ddhSummaryX + g_ddhSummaryW - 0.042f;
     const float r = g_ddhSummaryX + g_ddhSummaryW + 0.002f;
     const float t = g_ddhSummaryY + 0.014f;
@@ -679,6 +957,25 @@ static bool DdhSummaryChartClick(int px, int py)
     DdhSummaryChartRender();
     InterlockedExchange(&g_ddhSummaryHideAt, (LONG)(GetTickCount() + 20000u));
     LogLine("阵亡总结：已切换为%s", g_ddhSummaryCollapsed ? "缩版" : "展开");
+    return true;
+}
+
+static void DdhSummaryChartHide(void);
+
+static bool DdhSummaryChartToggleVisible(void)
+{
+    if (InterlockedCompareExchange(&g_ddhSummaryShown, 0, 0))
+    {
+        DdhSummaryChartHide();
+        return true;
+    }
+    if (!g_ddhSummaryChart.valid)
+        return false;
+    DdhSummaryChartRender();
+    InterlockedExchange(&g_ddhSummaryShown, 1);
+    InterlockedExchange(&g_ddhSummaryHideAt, (LONG)(GetTickCount() + 20000u));
+    if (g_gameWnd) SetTimer(g_gameWnd, DDH_SUMMARY_CHART_TIMER, 500u, NULL);
+    LogLine("阵亡总结：按 ~ 重新显示");
     return true;
 }
 
