@@ -96,7 +96,6 @@ public sealed class MainForm : Form
     private readonly MonitorEngine _engine = new();
     private readonly CliOptions _opt;
     private readonly Settings _settings = Settings.Load();
-    private readonly WebHostAutostart _webHostAutostart;
     private readonly System.Windows.Forms.Timer _uiTimer = new();
     /// <summary>右下角【回到顶部】：仅当当前页行数够多且已向下滚动时出现。</summary>
     private readonly Button _btnBackTop = new();
@@ -227,7 +226,6 @@ public sealed class MainForm : Form
     {
         _opt = opt ?? new CliOptions();
         _owner = new UnitOwnerResolver(() => _engine.Game);
-        _webHostAutostart = new WebHostAutostart(_settings);
         string build = "";
         try { build = "　[构建 " + File.GetLastWriteTime(System.Reflection.Assembly.GetExecutingAssembly().Location).ToString("MM-dd HH:mm") + "]"; }
         catch { }
@@ -773,7 +771,6 @@ public sealed class MainForm : Form
             return;
         }
         if (livePid > 0)
-            _webHostAutostart.Ensure(livePid, _engine.Game?.SessionId);
 
         // 【战场单位】与新局同一步清空：连接新进程 / 同进程换图时，这里在 200ms 的界面节拍上
         // 立刻清表并作废属性缓存，而不是等用户切到【战场单位】页或滚回顶部才清。
@@ -2625,7 +2622,6 @@ public sealed class MainForm : Form
         }
         catch { }
 
-        _webHostAutostart.Dispose();
         _engine.Dispose();
         base.OnFormClosing(e);
     }

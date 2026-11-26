@@ -34,7 +34,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- WebHost / DesktopHost 是独立项目，不能进入主程序默认编译项。 -->
+    <!-- Shared desktop data readers and DesktopHost are separate from the legacy WinForms project. -->
     <Compile Remove="WebHost\**\*.cs" />
     <Compile Remove="DesktopHost\**\*.cs" />
     <EmbeddedResource Remove="WebHost\**\*" />

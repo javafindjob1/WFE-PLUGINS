@@ -9,11 +9,9 @@ internal sealed class DesktopRuntime : IDisposable
 {
     private readonly MonitorEngine _engine = new();
     private readonly Settings _settings = Settings.Load();
-    private readonly WebHostAutostart _webHostAutostart;
 
     public DesktopRuntime()
     {
-        _webHostAutostart = new WebHostAutostart(_settings);
         _engine.IntervalMs = _settings.IntervalMs;
         _engine.ReadPluginLog = _settings.ReadPluginLog;
         _engine.PluginLogPath = _settings.PluginLogPath;
@@ -46,9 +44,6 @@ internal sealed class DesktopRuntime : IDisposable
         Wc3Game? game = _engine.Game;
         int pid = game?.Mem.Pid ?? current.Pid;
         string sessionId = game?.SessionId ?? "";
-
-        if (pid > 0)
-            _webHostAutostart.Ensure(pid, sessionId);
 
         SettlementSnapshot snapshot = SnapshotReader.Read(
             DdhEventDb.FixedPath,
@@ -130,6 +125,5 @@ internal sealed class DesktopRuntime : IDisposable
     public void Dispose()
     {
         _engine.Dispose();
-        _webHostAutostart.Dispose();
     }
 }

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '2.2.10',
+    [string]$Version = '2.2.11',
     [string]$OutputRoot = '',
     [string]$NuGetSource = 'https://api.nuget.org/v3/index.json'
 )
@@ -22,9 +22,7 @@ $desktopDir = Join-Path $packageDir 'Desktop'
 $desktopHookDir = Join-Path $desktopDir 'hook'
 $gameDir = Join-Path $packageDir 'Game'
 $wfeDir = Join-Path $gameDir 'WFE-Libraries'
-$webHostDir = Join-Path $gameDir 'ddh_web'
-$assetDir = Join-Path $webHostDir 'dss-assets'
-New-Item -ItemType Directory -Force -Path $desktopDir, $desktopHookDir, $wfeDir, $assetDir, $webHostDir | Out-Null
+New-Item -ItemType Directory -Force -Path $desktopDir, $desktopHookDir, $wfeDir | Out-Null
 
 Write-Host '== build Vue ==' -ForegroundColor Cyan
 Push-Location (Join-Path $root 'web')
@@ -47,40 +45,10 @@ dotnet publish (Join-Path $root 'DesktopHost\War3DeathSettlement.Desktop.csproj'
     --source $NuGetSource
 if ($LASTEXITCODE -ne 0) { throw "Desktop publish failed ($LASTEXITCODE)" }
 
-Write-Host '== publish WebHost ==' -ForegroundColor Cyan
-dotnet publish (Join-Path $root 'WebHost\DdhWebHost.csproj') `
-    -c Release -r win-x64 --self-contained true `
-    -o $webHostDir --nologo `
-    --source $NuGetSource
-if ($LASTEXITCODE -ne 0) { throw "WebHost publish failed ($LASTEXITCODE)" }
-
-Write-Host '== check self-contained output ==' -ForegroundColor Cyan
-$requiredRuntimeFiles = @(
-    'coreclr.dll'
-    'hostfxr.dll'
-    'hostpolicy.dll'
-    'System.Private.CoreLib.dll'
-)
-foreach ($name in $requiredRuntimeFiles) {
-    if (-not (Test-Path -LiteralPath (Join-Path $webHostDir $name))) {
-        throw "Missing self-contained .NET runtime file: $name"
-    }
-}
-$runtimeConfigPath = Join-Path $webHostDir 'ddh_web.runtimeconfig.json'
-$runtimeConfig = Get-Content -Raw -LiteralPath $runtimeConfigPath -Encoding UTF8
-if ($runtimeConfig -notmatch '"version"\s*:\s*"10\.') {
-    throw "WebHost runtime is not .NET 10: $runtimeConfigPath"
-}
-
 Write-Host '== collect game files ==' -ForegroundColor Cyan
 Copy-Item -LiteralPath (Join-Path $root '_test\hook\ddh.dll') -Destination $wfeDir -Force
 Copy-Item -LiteralPath (Join-Path $root '_test\hook\ddh.dll') -Destination $desktopHookDir -Force
 Copy-Item -LiteralPath (Join-Path $root '_test\hook\ddh_inject.exe') -Destination $desktopHookDir -Force
-Copy-Item -LiteralPath (Join-Path $root 'web\dist\index.html') `
-    -Destination (Join-Path $webHostDir 'dss.html') -Force
-Copy-Item -Path (Join-Path $root 'web\dist\dss-assets\*') -Destination $assetDir -Recurse -Force
-Copy-Item -LiteralPath (Join-Path $root 'tools\ddh_web_launcher.cmd') -Destination $gameDir -Force
-Copy-Item -LiteralPath (Join-Path $root 'tools\ddh_web_launcher.ps1') -Destination $gameDir -Force
 
 $desktopDocs = @(
     @{ Source = 'README.md'; Name = 'README.md' }
@@ -111,8 +79,8 @@ if (-not (Test-Path -LiteralPath (Join-Path $desktopHookDir 'ddh.dll'))) {
 if (-not (Test-Path -LiteralPath (Join-Path $desktopHookDir 'ddh_inject.exe'))) {
     throw 'Missing ddh_inject.exe for standalone Desktop mode'
 }
-if (-not (Test-Path -LiteralPath (Join-Path $webHostDir 'dss.html'))) {
-    throw 'Missing dss.html in ddh_web'
+if (Test-Path -LiteralPath (Join-Path $gameDir 'ddh_web')) {
+    throw 'Game-side ddh_web must not be included in the desktop-only release'
 }
 
 $commit = (git -C $root rev-parse --short HEAD).Trim()
@@ -132,8 +100,6 @@ $info = @(
 Get-ChildItem -Path $desktopDir -Filter '*.pdb' -File -ErrorAction SilentlyContinue |
     Remove-Item -Force
 Get-ChildItem -Path $desktopDir -Filter '*.xml' -File -ErrorAction SilentlyContinue |
-    Remove-Item -Force
-Get-ChildItem -Path $webHostDir -Filter '*.pdb' -File -ErrorAction SilentlyContinue |
     Remove-Item -Force
 
 Write-Host '== hashes ==' -ForegroundColor Cyan

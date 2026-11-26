@@ -14,7 +14,7 @@
 
 ```powershell
 cd <DeathSettlement>
-.\tools\build_vue_desktop.ps1
+.\tools\package_release.ps1
 ```
 
 脚本会：

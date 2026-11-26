@@ -20,10 +20,6 @@ public sealed class Settings
     public bool HookEnabled = true;   // 默认开：伤害钩子是常规功能，界面上不再给开关
     public string HookDll = "hook\\ddh.dll";
     public string HookInjector = "hook\\ddh_inject.exe";
-    /// <summary>连接游戏后由桌面 C# 进程启动 Vue WebHost（避开 War3 的 Job 限制）。</summary>
-    public bool WebHostAutoStart = true;
-    public string WebHostExe = @"C:\launch\ddh_web\ddh_web.exe";
-    public string WebHostHtml = @"C:\launch\ddh_web\dss.html";
 
     /// <summary>
     /// "钩子需要管理员权限"那条启动提示是否已经显示过。
@@ -101,9 +97,6 @@ public sealed class Settings
                 case "hook_enable": s.HookEnabled = v is "1" or "true" or "yes"; break;
                 case "hook_dll": if (v.Length > 0) s.HookDll = v; break;
                 case "hook_injector": if (v.Length > 0) s.HookInjector = v; break;
-                case "webhost_auto_start": s.WebHostAutoStart = v is "1" or "true" or "yes" or "on"; break;
-                case "webhost_exe": if (v.Length > 0) s.WebHostExe = v; break;
-                case "webhost_html": if (v.Length > 0) s.WebHostHtml = v; break;
                 case "hook_admin_hint_shown": s.HookAdminHintShown = v is "1" or "true" or "yes" or "on"; break;
                 case "atype_labels": s.AttackTypeLabels = v; break;
                 case "dtype_labels": s.DamageTypeLabels = v; break;
@@ -143,10 +136,6 @@ public sealed class Settings
         sb.AppendLine($"hook_enable={(HookEnabled ? 1 : 0)}");
         sb.AppendLine($"hook_dll={HookDll}");
         sb.AppendLine($"hook_injector={HookInjector}");
-        sb.AppendLine("; webhost_auto_start : 1 = C# 连接游戏后在游戏 Job 外启动 Vue WebHost");
-        sb.AppendLine($"webhost_auto_start={(WebHostAutoStart ? 1 : 0)}");
-        sb.AppendLine($"webhost_exe={WebHostExe}");
-        sb.AppendLine($"webhost_html={WebHostHtml}");
         sb.AppendLine("; hook_admin_hint_shown : 1 = 已提示过“钩子需要管理员权限”（改回 0 可再提示一次）");
         sb.AppendLine($"hook_admin_hint_shown={(HookAdminHintShown ? 1 : 0)}");
         sb.AppendLine($"atype_labels={AttackTypeLabels}");
