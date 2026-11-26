@@ -1020,6 +1020,8 @@ button {
 }
 
 .desktop-bar {
+  position: relative;
+  z-index: 20;
   min-width: 0;
   display: flex;
   align-items: center;
@@ -1079,7 +1081,11 @@ button {
   gap: 6px;
 }
 
-.desktop-actions > button {
+.desktop-menu {
+  position: relative;
+}
+
+.menu-trigger {
   height: 27px;
   padding: 0 11px;
   border: 1px solid rgba(208, 170, 85, 0.2);
@@ -1090,20 +1096,64 @@ button {
   cursor: pointer;
 }
 
-.desktop-actions > button:hover {
+.menu-trigger:hover,
+.menu-trigger[aria-expanded="true"] {
   border-color: rgba(226, 184, 90, 0.52);
   color: #ffe0a0;
   background: rgba(213, 167, 67, 0.08);
 }
 
-.desktop-actions > button:disabled {
+.menu-trigger span {
+  margin-left: 5px;
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.desktop-menu-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 154px;
+  padding: 5px;
+  border: 1px solid rgba(214, 173, 82, 0.38);
+  border-radius: 5px;
+  background: rgba(20, 21, 18, 0.99);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.desktop-menu-panel button {
+  width: 100%;
+  height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 3px;
+  color: #c9c0ae;
+  background: transparent;
+  font-size: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.desktop-menu-panel button:hover,
+.desktop-menu-panel button:focus-visible {
+  color: #ffe0a0;
+  background: rgba(213, 167, 67, 0.09);
+}
+
+.desktop-menu-panel button:disabled {
   opacity: 0.48;
   cursor: wait;
 }
 
-.desktop-actions > button.accent-button {
+.desktop-menu-panel .menu-accent {
   border-color: rgba(103, 194, 174, 0.4);
   color: #9edbd0;
+}
+
+.menu-separator {
+  height: 1px;
+  margin: 4px 7px;
+  background: rgba(204, 170, 94, 0.16);
 }
 
 .connection-pill {
@@ -1299,7 +1349,7 @@ button {
     display: none;
   }
 
-  .desktop-actions > button {
+  .menu-trigger {
     padding: 0 7px;
   }
 

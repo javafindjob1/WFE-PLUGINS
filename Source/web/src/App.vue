@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import DeathPanel from './components/DeathPanel.vue'
 import EventsPanel from './components/EventsPanel.vue'
 import UnitsPanel from './components/UnitsPanel.vue'
@@ -41,6 +41,8 @@ const query = ref('')
 const victimFilter = ref<EventUnitFilter | null>(null)
 const sourceFilter = ref<EventUnitFilter | null>(null)
 const historyOpen = ref(false)
+const menuOpen = ref(false)
+const menuRoot = ref<HTMLElement | null>(null)
 
 const desktop = computed(() => snapshot.value.desktop)
 const connectionText = computed(() => {
@@ -51,6 +53,7 @@ const connectionText = computed(() => {
 })
 
 function openHistory() {
+  menuOpen.value = false
   historyOpen.value = true
   requestHistory()
 }
@@ -61,8 +64,32 @@ function selectHistory(sessionId: string) {
 }
 
 function backToLive() {
+  menuOpen.value = false
   resumeLive()
 }
+
+function menuFindGame() {
+  menuOpen.value = false
+  command('find-game')
+}
+
+function menuOpenLogs() {
+  menuOpen.value = false
+  command('open-logs')
+}
+
+function menuOpenSettings() {
+  menuOpen.value = false
+  command('open-settings')
+}
+
+function closeMenuOnOutsideClick(event: PointerEvent) {
+  if (menuOpen.value && menuRoot.value && !menuRoot.value.contains(event.target as Node))
+    menuOpen.value = false
+}
+
+onMounted(() => document.addEventListener('pointerdown', closeMenuOnOutsideClick))
+onBeforeUnmount(() => document.removeEventListener('pointerdown', closeMenuOnOutsideClick))
 
 function loadEventPage(request: { page: number; pageSize: number }) {
   requestEventPage({
@@ -106,13 +133,35 @@ function loadSettlementPage(request: {
           <i />
           {{ connectionText }}
         </span>
-        <button :disabled="busy" @click="command('find-game')">查找游戏</button>
-        <button @click="openHistory">历史</button>
-        <button v-if="desktop.mode === 'history'" class="accent-button" @click="backToLive">
-          回到实时
-        </button>
-        <button @click="command('open-logs')">日志</button>
-        <button @click="command('open-settings')">设置</button>
+        <div ref="menuRoot" class="desktop-menu">
+          <button
+            type="button"
+            class="menu-trigger"
+            :aria-expanded="menuOpen"
+            aria-haspopup="menu"
+            @click="menuOpen = !menuOpen"
+          >
+            菜单 <span>▾</span>
+          </button>
+          <div v-if="menuOpen" class="desktop-menu-panel" role="menu">
+            <button type="button" role="menuitem" :disabled="busy" @click="menuFindGame">
+              查找游戏
+            </button>
+            <button type="button" role="menuitem" @click="openHistory">历史</button>
+            <button
+              v-if="desktop.mode === 'history'"
+              type="button"
+              role="menuitem"
+              class="menu-accent"
+              @click="backToLive"
+            >
+              回到实时
+            </button>
+            <div class="menu-separator" />
+            <button type="button" role="menuitem" @click="menuOpenLogs">打开日志</button>
+            <button type="button" role="menuitem" @click="menuOpenSettings">设置</button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -131,7 +180,7 @@ function loadSettlementPage(request: {
 
       <label v-if="desktop" class="search-box">
         <span>筛选</span>
-        <input v-model="query" type="search" placeholder="单位、类型码、来源或地址" />
+        <input v-model="query" type="text" inputmode="search" placeholder="单位、类型码、来源或地址" />
         <button v-if="query" aria-label="清空筛选" @click="query = ''">×</button>
       </label>
     </section>
