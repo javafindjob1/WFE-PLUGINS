@@ -1715,12 +1715,20 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
     e->victimCode = SafeCode(victim);
     e->source     = source;
     e->sourceCode = SafeCode(source);
-    /* The damage callback must never call game/JASS functions. Use stable type-code
-       text here and resolve names after the hook has fully returned. */
+    /* Capture names while both CUnit objects are still valid. The type code is read
+       from CUnit+0x30 and the result is cached by type code. */
     if (e->victimCode)
-        DdhCodeText(e->victimCode, e->victimName, sizeof(e->victimName));
+    {
+        ResolveName(victim, e->victimCode, e->victimName, sizeof(e->victimName));
+        if (!e->victimName[0])
+            DdhCodeText(e->victimCode, e->victimName, sizeof(e->victimName));
+    }
     if (e->sourceCode)
-        DdhCodeText(e->sourceCode, e->sourceName, sizeof(e->sourceName));
+    {
+        ResolveName(source, e->sourceCode, e->sourceName, sizeof(e->sourceName));
+        if (!e->sourceName[0])
+            DdhCodeText(e->sourceCode, e->sourceName, sizeof(e->sourceName));
+    }
     e->victimOwner = ResolveOwnerPid(victim);
     e->sourceOwner = ResolveOwnerPid(source);
     memcpy(&e->amount, &amountBits, 4);
