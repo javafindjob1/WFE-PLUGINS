@@ -3248,10 +3248,13 @@ static void DdhShowSummaryText(const char* utf8)
     }
 }
 
+#include "ddh_summary_chart.inc"
+
 static void DdhSelfSummaryShow(void)
 {
     if (InterlockedExchange(&g_selfSummary.pending, 0) == 0) return;
     if (!g_selfSummary.hero || !g_selfSummary.dead) return;
+    if (DdhSummaryChartShow(g_selfSummary.hero)) return;
 
     char text[1024] = { 0 };
     const double seconds = (g_selfSummary.firstTick && g_selfSummary.lastTick > g_selfSummary.firstTick)
@@ -3751,6 +3754,16 @@ static BOOL CALLBACK DdhEnumWndProc(HWND hwnd, LPARAM lp)
 
 static LRESULT CALLBACK DdhGameWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
+    if (msg == WM_TIMER && wp == DDH_SUMMARY_CHART_TIMER)
+    {
+        __try { DdhSummaryChartTick(); }
+        __except (EXCEPTION_EXECUTE_HANDLER)
+        {
+            LogLine("阵亡总结：定时器异常 code=%08X（已吞掉）", (unsigned)GetExceptionCode());
+        }
+        return 0;
+    }
+
     if (msg == DDH_WM_DAMAGE_DEFERRED)
     {
         __try { DdhProcessDeferred(); }
