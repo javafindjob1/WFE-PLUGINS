@@ -169,6 +169,7 @@ static bool           g_duplicateInstance = false;
 static volatile LONG  g_evReady[DDH_MAX_EVENTS];
 static bool DdhReadMapName(char* out, size_t cap);
 static size_t DdhUtf8SafeCopy(char* dst, size_t cap, const char* src, size_t maxBytes);
+static bool DdhCachedTitleByCode(uint32_t code, char* out, size_t cap);
 #include "ddh_sqlite.inc"
 static HMODULE        g_self = NULL;
 
@@ -1630,6 +1631,74 @@ static void ResolveName(uint32_t obj, uint32_t code, char* out, size_t outSize)
         LogLine("类型码名称表解析成功：code=0x%08X 名字=%s", code, tmp);
 }
 
+struct DdhTitleCacheEntry
+{
+    uint32_t code;
+    uint32_t attempted;
+    char     title[64];
+};
+
+static DdhTitleCacheEntry g_ddhTitleCache[128];
+static uint32_t           g_ddhTitleCacheCount = 0;
+
+static bool DdhCachedTitleByCode(uint32_t code, char* out, size_t cap)
+{
+    if (!out || cap < 2) return false;
+    out[0] = 0;
+    if (!code) return false;
+
+    for (uint32_t i = 0; i < g_ddhTitleCacheCount; ++i)
+    {
+        const DdhTitleCacheEntry* e = &g_ddhTitleCache[i];
+        if (e->code != code || !e->title[0]) continue;
+        DdhUtf8SafeCopy(out, cap, e->title, cap - 1);
+        return out[0] != 0;
+    }
+    return false;
+}
+
+static bool DdhCaptureTitleByObject(uint32_t obj, uint32_t code)
+{
+    if (!code || obj < 0x10000u || obj > 0x7FFFFFFFu) return false;
+    for (uint32_t i = 0; i < g_ddhTitleCacheCount; ++i)
+    {
+        const DdhTitleCacheEntry* e = &g_ddhTitleCache[i];
+        if (e->code == code) return e->attempted && e->title[0] != 0;
+    }
+
+    DdhTitleCacheEntry* slot = NULL;
+    if (g_ddhTitleCacheCount < 128)
+    {
+        slot = &g_ddhTitleCache[g_ddhTitleCacheCount++];
+        memset(slot, 0, sizeof(*slot));
+        slot->code = code;
+    }
+    else
+    {
+        slot = &g_ddhTitleCache[127];
+        memset(slot, 0, sizeof(*slot));
+        slot->code = code;
+    }
+    slot->attempted = 1;
+
+    if (!g_modBase || g_imageSize <= 0x0050B550u) return false;
+    uint32_t typeData = 0;
+    __try { typeData = *(const uint32_t*)(uintptr_t)(obj + 0x1F0u); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+    if (typeData < 0x10000u || typeData > 0x7FFFFFFFu) return false;
+
+    char text[0x100] = { 0 };
+    typedef void (__thiscall* fn_proper_name_t)(void*, char*, uint32_t);
+    const fn_proper_name_t fn =
+        (fn_proper_name_t)(uintptr_t)(g_modBase + 0x0050B550u);
+    __try { fn((void*)(uintptr_t)typeData, text, (uint32_t)sizeof(text)); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+
+    if (!text[0] || strcmp(text, "The Unknown Hero") == 0) return false;
+    DdhUtf8SafeCopy(slot->title, sizeof(slot->title), text, sizeof(slot->title) - 1);
+    return slot->title[0] != 0;
+}
+
 #define DDH_META_QUEUE_CAP 64
 struct DdhPendingMeta
 {
@@ -1729,6 +1798,9 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
         if (!e->sourceName[0])
             DdhCodeText(e->sourceCode, e->sourceName, sizeof(e->sourceName));
     }
+    DdhCaptureTitleByObject(victim, e->victimCode);
+    if (source)
+        DdhCaptureTitleByObject(source, e->sourceCode);
     e->victimOwner = ResolveOwnerPid(victim);
     e->sourceOwner = ResolveOwnerPid(source);
     memcpy(&e->amount, &amountBits, 4);

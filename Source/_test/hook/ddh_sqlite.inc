@@ -530,6 +530,7 @@ struct DdhDbEventUnit
     bool     dirty;
     char     typeCode[5];
     char     name[64];
+    char     title[64];
 };
 
 static DdhDbEventUnit g_dbEventUnits[DDH_DB_EVENT_UNIT_CAP];
@@ -605,6 +606,10 @@ static void DdhDbMergeEventUnit(const char* sessionId, const DdhEvent* e, bool s
     if (name && name[0])
         DdhUtf8SafeCopy(u->name, sizeof(u->name), name, sizeof(u->name) - 1);
 
+    char title[64] = { 0 };
+    if (DdhCachedTitleByCode(code, title, sizeof(title)) && title[0])
+        DdhUtf8SafeCopy(u->title, sizeof(u->title), title, sizeof(u->title) - 1);
+
     ++u->version;
     u->dirty = true;
 }
@@ -666,7 +671,7 @@ static void DdhDbWriteEventUnits(void)
         g_sqlBindI64(g_dbUnitStmt, 2, (long long)u->addr);
         g_sqlBindText(g_dbUnitStmt, 3, u->typeCode, -1, DDH_SQLITE_TRANSIENT);
         g_sqlBindText(g_dbUnitStmt, 4, u->name, -1, DDH_SQLITE_TRANSIENT);
-        g_sqlBindText(g_dbUnitStmt, 5, "", -1, DDH_SQLITE_TRANSIENT);
+        g_sqlBindText(g_dbUnitStmt, 5, u->title, -1, DDH_SQLITE_TRANSIENT);
         g_sqlBindI64(g_dbUnitStmt, 6, (long long)u->owner);
         g_sqlBindDouble(g_dbUnitStmt, 7, 0.0);
         g_sqlBindDouble(g_dbUnitStmt, 8, 0.0);
