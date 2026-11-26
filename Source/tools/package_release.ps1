@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '2.2.18',
+    [string]$Version = '2.2.19',
     [string]$OutputRoot = '',
     [string]$NuGetSource = 'https://api.nuget.org/v3/index.json'
 )

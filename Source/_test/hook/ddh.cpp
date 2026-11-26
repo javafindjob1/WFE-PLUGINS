@@ -1584,7 +1584,10 @@ static bool DdhNameFromTypeTable(uint32_t code, char* out, size_t outSize)
             if (p && ValidateNameText(p, out, outSize) && out[0]) return true;
         }
     }
-    __except (EXCEPTION_EXECUTE_HANDLER) { if (out) out[0] = 0; }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        if (out) out[0] = 0;
+    }
     return false;
 }
 
@@ -1634,7 +1637,7 @@ static void ResolveName(uint32_t obj, uint32_t code, char* out, size_t outSize)
 struct DdhTitleCacheEntry
 {
     uint32_t code;
-    uint32_t attempted;
+    uint32_t valid;
     char     title[64];
 };
 
@@ -1650,7 +1653,7 @@ static bool DdhCachedTitleByCode(uint32_t code, char* out, size_t cap)
     for (uint32_t i = 0; i < g_ddhTitleCacheCount; ++i)
     {
         const DdhTitleCacheEntry* e = &g_ddhTitleCache[i];
-        if (e->code != code || !e->title[0]) continue;
+        if (e->code != code || !e->valid || !e->title[0]) continue;
         DdhUtf8SafeCopy(out, cap, e->title, cap - 1);
         return out[0] != 0;
     }
@@ -1663,23 +1666,9 @@ static bool DdhCaptureTitleByObject(uint32_t obj, uint32_t code)
     for (uint32_t i = 0; i < g_ddhTitleCacheCount; ++i)
     {
         const DdhTitleCacheEntry* e = &g_ddhTitleCache[i];
-        if (e->code == code) return e->attempted && e->title[0] != 0;
+        if (e->code != code || !e->valid) continue;
+        return e->title[0] != 0;
     }
-
-    DdhTitleCacheEntry* slot = NULL;
-    if (g_ddhTitleCacheCount < 128)
-    {
-        slot = &g_ddhTitleCache[g_ddhTitleCacheCount++];
-        memset(slot, 0, sizeof(*slot));
-        slot->code = code;
-    }
-    else
-    {
-        slot = &g_ddhTitleCache[127];
-        memset(slot, 0, sizeof(*slot));
-        slot->code = code;
-    }
-    slot->attempted = 1;
 
     if (!g_modBase || g_imageSize <= 0x0050B550u) return false;
     uint32_t typeData = 0;
@@ -1694,7 +1683,18 @@ static bool DdhCaptureTitleByObject(uint32_t obj, uint32_t code)
     __try { fn((void*)(uintptr_t)typeData, text, (uint32_t)sizeof(text)); }
     __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
 
-    if (!text[0] || strcmp(text, "The Unknown Hero") == 0) return false;
+    DdhTitleCacheEntry* slot = NULL;
+    if (g_ddhTitleCacheCount < 128)
+        slot = &g_ddhTitleCache[g_ddhTitleCacheCount++];
+    else
+        slot = &g_ddhTitleCache[127];
+    memset(slot, 0, sizeof(*slot));
+    slot->code = code;
+    slot->valid = 1;
+
+    if (!text[0] || strcmp(text, "The Unknown Hero") == 0)
+        return false;   /* Valid response: this type has no proper name. */
+
     DdhUtf8SafeCopy(slot->title, sizeof(slot->title), text, sizeof(slot->title) - 1);
     return slot->title[0] != 0;
 }
