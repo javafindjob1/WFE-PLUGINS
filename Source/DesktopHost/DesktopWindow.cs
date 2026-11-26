@@ -58,6 +58,16 @@ internal sealed class DesktopWindow : Form
         }
     }
 
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+
+        int darkMode = 1;
+        DwmSetWindowAttribute(Handle, 20, ref darkMode, sizeof(int)); // DWMWA_USE_IMMERSIVE_DARK_MODE
+        int borderColor = 0x000F1211; // COLORREF: RGB(17, 18, 15)
+        DwmSetWindowAttribute(Handle, 34, ref borderColor, sizeof(int)); // DWMWA_BORDER_COLOR
+    }
+
     private async Task InitializeWebAsync()
     {
         try
@@ -599,4 +609,11 @@ internal sealed class DesktopWindow : Form
 
     [DllImport("user32.dll")]
     private static extern IntPtr SendMessage(IntPtr window, int message, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(
+        IntPtr window,
+        int attribute,
+        ref int value,
+        int valueSize);
 }

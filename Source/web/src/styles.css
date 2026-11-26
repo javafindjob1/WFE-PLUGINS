@@ -1115,6 +1115,7 @@ button {
 .window-controls {
   height: 100%;
   display: flex;
+  justify-content: flex-end;
   justify-self: stretch;
 }
 
