@@ -2152,6 +2152,38 @@ struct DdhTrack
 
 static DdhTrack g_ddhTrack;
 
+struct DdhSelfSummary
+{
+    uint32_t   hero;
+    uint32_t   code;
+    int32_t    owner;
+    uint32_t   life;
+    uint32_t   startSeq;
+    uint32_t   hits;
+    uint32_t   firstTick;
+    uint32_t   lastTick;
+    uint32_t   currentSecond;
+    uint32_t   secondInit;
+    uint32_t   sourceCount;
+    uint32_t   dead;
+    volatile LONG pending;
+    float      maxHit;
+    uint32_t   fatalSource;
+    uint32_t   fatalCode;
+    uint32_t   fatalFlag;
+    uint32_t   fatalPhysical;
+    double     net;
+    double     raw;
+    double     peakSecond;
+    double     currentSecondDamage;
+    double     fatalDamage;
+    char       label[96];
+    char       fatalLabel[96];
+    DdhSrcStat source[DDH_SRC_MAX];
+};
+
+static DdhSelfSummary g_selfSummary;
+
 /* ---- 全局“每个受击单位”的累计：Q 在没有记录单位时发它�?Top5 ---- */
 #define DDH_GLOBAL_MAX 128
 
@@ -3065,6 +3097,216 @@ static void DdhDeliverText(const char* textUtf8)
     }
 }
 
+static int DdhLocalPlayerSlot(void)
+{
+    if (!g_modBase) return -1;
+    const uint32_t ctx = SafeU32(g_modBase, DDH_RVA_CTX_GLOBAL);
+    if (ctx < 0x10000u || ctx > 0x7FFFFFFFu) return -1;
+    const uint32_t slot = SafeU32(ctx, 0x28u) & 0xFFFFu;
+    return slot < 24u ? (int)slot : -1;
+}
+
+static void DdhSelfSummaryReset(const DdhEvent* e)
+{
+    memset(&g_selfSummary, 0, sizeof(g_selfSummary));
+    g_selfSummary.hero = e->victim;
+    g_selfSummary.code = e->victimCode;
+    g_selfSummary.owner = e->victimOwner;
+    g_selfSummary.life = 1;
+    g_selfSummary.startSeq = e->seq;
+    DdhUnitLabelSafe(e->victim, e->victimCode, g_selfSummary.label, sizeof(g_selfSummary.label));
+}
+
+static DdhSrcStat* DdhSelfSummarySource(const DdhEvent* e)
+{
+    const uint32_t key = e->sourceCode ? e->sourceCode : e->source;
+    for (uint32_t i = 0; i < g_selfSummary.sourceCount; ++i)
+    {
+        DdhSrcStat* s = &g_selfSummary.source[i];
+        if ((s->code ? s->code : s->source) == key) return s;
+    }
+    if (g_selfSummary.sourceCount >= DDH_SRC_MAX) return NULL;
+
+    DdhSrcStat* s = &g_selfSummary.source[g_selfSummary.sourceCount++];
+    memset(s, 0, sizeof(*s));
+    s->source = e->source;
+    s->code = e->sourceCode;
+    DdhUnitLabelSafe(e->source, e->sourceCode, s->label, sizeof(s->label));
+    return s;
+}
+
+static void DdhSelfSummaryEvent(const DdhEvent* e)
+{
+    if (!e || !e->victim || !e->hpValid) return;
+
+    const int localPlayer = DdhLocalPlayerSlot();
+    if (localPlayer < 0 || e->victimOwner != localPlayer) return;
+    if (!DdhIsHeroCode(e->victimCode)) return;
+
+    if (!g_selfSummary.hero ||
+        g_selfSummary.hero != e->victim ||
+        g_selfSummary.code != e->victimCode)
+    {
+        DdhSelfSummaryReset(e);
+    }
+    else if (g_selfSummary.dead)
+    {
+        if (e->hpAfter > 0.0f)
+        {
+            const uint32_t life = g_selfSummary.life + 1;
+            DdhSelfSummaryReset(e);
+            g_selfSummary.life = life;
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    if (e->seq < g_selfSummary.startSeq) return;
+    if (!g_selfSummary.firstTick) g_selfSummary.firstTick = e->tickMs;
+    g_selfSummary.lastTick = e->tickMs;
+
+    const double net = e->hpValid ? (double)e->actual : 0.0;
+    const double hit = net > 0.0 ? net : 0.0;
+    if (hit > 0.005)
+    {
+        g_selfSummary.hits++;
+        g_selfSummary.net += net;
+        g_selfSummary.raw += (double)e->amount;
+        if (hit > (double)g_selfSummary.maxHit)
+            g_selfSummary.maxHit = (float)hit;
+
+        const uint32_t second = e->tickMs / 1000u;
+        if (!g_selfSummary.secondInit)
+        {
+            g_selfSummary.secondInit = 1;
+            g_selfSummary.currentSecond = second;
+            g_selfSummary.currentSecondDamage = 0.0;
+        }
+        else if (second != g_selfSummary.currentSecond)
+        {
+            if (g_selfSummary.currentSecondDamage > g_selfSummary.peakSecond)
+                g_selfSummary.peakSecond = g_selfSummary.currentSecondDamage;
+            g_selfSummary.currentSecond = second;
+            g_selfSummary.currentSecondDamage = 0.0;
+        }
+        g_selfSummary.currentSecondDamage += hit;
+
+        DdhSrcStat* source = DdhSelfSummarySource(e);
+        if (source)
+        {
+            source->hits++;
+            source->raw += (double)e->amount;
+            source->net += net;
+            if (hit > (double)source->maxHit)
+                source->maxHit = (float)hit;
+        }
+    }
+
+    if (e->hpBefore > 0.0f && e->hpAfter <= 0.0f)
+    {
+        if (g_selfSummary.currentSecondDamage > g_selfSummary.peakSecond)
+            g_selfSummary.peakSecond = g_selfSummary.currentSecondDamage;
+        g_selfSummary.dead = 1;
+        g_selfSummary.fatalSource = e->source;
+        g_selfSummary.fatalCode = e->sourceCode;
+        g_selfSummary.fatalFlag = e->flag;
+        g_selfSummary.fatalPhysical = e->isPhysical;
+        g_selfSummary.fatalDamage = net;
+        DdhUnitLabelSafe(e->source, e->sourceCode,
+                         g_selfSummary.fatalLabel, sizeof(g_selfSummary.fatalLabel));
+        InterlockedExchange(&g_selfSummary.pending, 1);
+    }
+}
+
+static void DdhShowSummaryText(const char* utf8)
+{
+    const uint32_t dt = DdhGetDtttp();
+    if (!dt || !utf8 || !utf8[0]) return;
+    const uint32_t str = DdhMakeJassString(utf8);
+    if (!str) return;
+
+    uint32_t player = 0;
+    const uint32_t playerFn = DdhGetPlayerNative();
+    const int slot = DdhLocalPlayerSlot();
+    if (playerFn && slot >= 0)
+    {
+        __try { player = ((uint32_t (__cdecl*)(uint32_t))(uintptr_t)playerFn)((uint32_t)slot); }
+        __except (EXCEPTION_EXECUTE_HANDLER) { player = 0; }
+    }
+
+    float x = 0.02f, y = 0.12f, duration = 15.0f;
+    __try
+    {
+        ((void (__cdecl*)(uint32_t, const float*, const float*, const float*, uint32_t))(uintptr_t)dt)
+            (player, &x, &y, &duration, str);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        LogLine("阵亡总结：本机显示异常 code=%08X（已吞掉）", (unsigned)GetExceptionCode());
+    }
+}
+
+static void DdhSelfSummaryShow(void)
+{
+    if (InterlockedExchange(&g_selfSummary.pending, 0) == 0) return;
+    if (!g_selfSummary.hero || !g_selfSummary.dead) return;
+
+    char text[1024] = { 0 };
+    const double seconds = (g_selfSummary.firstTick && g_selfSummary.lastTick > g_selfSummary.firstTick)
+        ? (double)(g_selfSummary.lastTick - g_selfSummary.firstTick) / 1000.0 : 0.0;
+    const double dps = seconds > 0.05 ? g_selfSummary.net / seconds : 0.0;
+
+    DdhAppendFmt(text, sizeof(text), "【阵亡总结】%s\n",
+                 g_selfSummary.label[0] ? g_selfSummary.label : DdhCodeText(g_selfSummary.code));
+    DdhAppendFmt(text, sizeof(text), "承受伤害 %.0f · %u 笔\n",
+                 g_selfSummary.net, g_selfSummary.hits);
+    DdhAppendFmt(text, sizeof(text), "最大单次 %.0f · 最惨 1 秒 %.0f\n",
+                 (double)g_selfSummary.maxHit, g_selfSummary.peakSecond);
+    DdhAppendFmt(text, sizeof(text), "战斗 %.1f 秒 · 秒伤 %.0f\n", seconds, dps);
+    DdhAppendFmt(text, sizeof(text), "致命一击 %s %.0f（%s · %s）\n",
+                 g_selfSummary.fatalLabel[0] ? g_selfSummary.fatalLabel : "?",
+                 g_selfSummary.fatalDamage,
+                 (g_selfSummary.fatalFlag & 0x100u) ? "普攻" : "技能",
+                 g_selfSummary.fatalPhysical ? "物理" : "法术");
+
+    uint8_t used[DDH_SRC_MAX] = { 0 };
+    int added = 0;
+    for (int rank = 0; rank < 4 && rank < (int)g_selfSummary.sourceCount; ++rank)
+    {
+        int best = -1;
+        for (uint32_t i = 0; i < g_selfSummary.sourceCount; ++i)
+        {
+            if (used[i]) continue;
+            if (best < 0 || g_selfSummary.source[i].net > g_selfSummary.source[best].net)
+                best = (int)i;
+        }
+        if (best < 0) break;
+        used[best] = 1;
+        const DdhSrcStat* s = &g_selfSummary.source[best];
+        const double pct = g_selfSummary.net > 0.01
+            ? s->net * 100.0 / g_selfSummary.net : 0.0;
+        if (added == 0)
+        {
+            DdhAppendFmt(text, sizeof(text), "伤害来源：");
+            added = 1;
+        }
+        else
+        {
+            DdhAppendFmt(text, sizeof(text), " · ");
+        }
+        DdhAppendFmt(text, sizeof(text), "%s %.1f%%",
+                     s->label[0] ? s->label : DdhCodeText(s->code), pct);
+    }
+
+    DdhTruncateUtf8(text, sizeof(text), DDH_MSG_MAX_BYTES);
+    DdhShowSummaryText(text);
+    LogLine("阵亡总结：已在本机显示（hero=0x%08X damage=%.0f hits=%u sources=%u）",
+            g_selfSummary.hero, g_selfSummary.net,
+            g_selfSummary.hits, g_selfSummary.sourceCount);
+}
+
 /* ---------------------------------------------------------------------------
    统计：全局受击�?+ 记录单位
    --------------------------------------------------------------------------- */
@@ -3099,6 +3341,7 @@ static void DdhGlobalAdd(const DdhEvent* e)
 
 static void DdhTrackEvent(const DdhEvent* e)
 {
+    DdhSelfSummaryEvent(e);
     DdhGlobalAdd(e);
 
     if (!e->victim || e->victim != g_ddhTrack.unit) return;
@@ -3627,6 +3870,15 @@ static void DdhRestoreGameWnd(void)
 static void DdhProcessDeferred(void)
 {
     DdhCompletePendingEvents();
+
+    __try
+    {
+        DdhSelfSummaryShow();
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        LogLine("阵亡总结：处理异常 code=%08X（已吞掉）", (unsigned)GetExceptionCode());
+    }
 
     __try
     {
