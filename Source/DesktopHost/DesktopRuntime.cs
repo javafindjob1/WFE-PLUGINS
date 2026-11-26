@@ -5,49 +5,42 @@ using War3DeathSettlement.Core;
 
 namespace War3DeathSettlement.Desktop;
 
+/// <summary>
+/// Desktop data source is SQLite only. It never opens the game process,
+/// requests CUnit attributes, injects code, or creates shared memory.
+/// </summary>
 internal sealed class DesktopRuntime : IDisposable
 {
-    private readonly MonitorEngine _engine = new();
     private readonly Settings _settings = Settings.Load();
+    private bool _autoAttach = true;
 
     public DesktopRuntime()
     {
-        _engine.IntervalMs = _settings.IntervalMs;
-        _engine.ReadPluginLog = _settings.ReadPluginLog;
-        _engine.PluginLogPath = _settings.PluginLogPath;
-        _engine.AutoAttach = _settings.AutoAttach;
-        _engine.AttachOptions = _settings.ToAttach();
-        _engine.IgnoreUnitNames = _settings.IgnoreUnitNames;
         DamageTypeNames.Override(_settings.AttackTypeLabels, _settings.DamageTypeLabels);
-        _engine.Start();
     }
 
     public bool AutoAttach
     {
-        get => _engine.AutoAttach;
-        set => _engine.AutoAttach = value;
+        get => _autoAttach;
+        set => _autoAttach = value;
     }
 
     public (bool Ok, string Message) AttachGame()
     {
-        bool ok = _engine.Attach(out string message);
-        return (ok, message);
+        if (!File.Exists(DdhEventDb.FixedPath))
+            return (false, "尚未找到 WFE 写入的 SQLite 数据库");
+        SettlementSnapshot snapshot = SnapshotReader.Read(DdhEventDb.FixedPath, 0, "");
+        return snapshot.SessionId.Length > 0
+            ? (true, "已连接 WFE SQLite 数据")
+            : (false, "SQLite 中还没有可用会话");
     }
 
     public SettlementSnapshot BuildLiveSnapshot()
     {
-        Snapshot current = _engine.Current;
-        Wc3Game? game = _engine.Game;
-        int pid = game?.Mem.Pid ?? current.Pid;
-        string sessionId = game?.SessionId ?? "";
-
-        SettlementSnapshot snapshot = SnapshotReader.Read(
-            DdhEventDb.FixedPath,
-            pid,
-            sessionId);
+        int pid = FindGamePid();
+        SettlementSnapshot snapshot = SnapshotReader.Read(DdhEventDb.FixedPath, pid, "");
         snapshot.Pid = pid;
-        if (sessionId.Length > 0) snapshot.SessionId = sessionId;
-        snapshot.Desktop = BuildDesktopState(game, current, "live");
+        snapshot.Desktop = BuildDesktopState(snapshot, pid, "live");
         return snapshot;
     }
 
@@ -57,7 +50,7 @@ internal sealed class DesktopRuntime : IDisposable
             DdhEventDb.FixedPath,
             0,
             sessionId);
-        snapshot.Desktop = BuildDesktopState(null, _engine.Current, "history");
+        snapshot.Desktop = BuildDesktopState(snapshot, 0, "history");
         snapshot.Desktop.SourceLabel = "历史会话 · " + sessionId;
         snapshot.Desktop.Status = snapshot.MapName.Length > 0
             ? "正在查看历史：" + snapshot.MapName
@@ -68,40 +61,49 @@ internal sealed class DesktopRuntime : IDisposable
     public List<HistoryFileInfo> ListHistory() =>
         DdhHistoryReader.List(DdhEventDb.FixedPath);
 
-    private DesktopState BuildDesktopState(
-        Wc3Game? game,
-        Snapshot current,
+    private static DesktopState BuildDesktopState(
+        SettlementSnapshot snapshot,
+        int pid,
         string mode)
     {
-        string selfIntegrity = "";
-        string gameIntegrity = "";
-        try { selfIntegrity = Integrity.Name(Integrity.Self); } catch { }
-        if (game != null)
-        {
-            try { gameIntegrity = Integrity.Name(Integrity.OfProcess(game.Mem.Pid, out _)); }
-            catch { gameIntegrity = "未知"; }
-        }
-
+        bool hasSession = snapshot.SessionId.Length > 0;
         return new DesktopState
         {
             Mode = mode,
             AppVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "2.0.0",
             BuildTime = BuildTime(),
-            Connected = game != null,
-            Ready = current.Ready,
-            AutoAttach = _engine.AutoAttach,
-            Pid = game?.Mem.Pid ?? 0,
-            SessionId = game?.SessionId ?? "",
-            GameVersion = game?.Version.Version ?? "",
-            Status = current.Status.Length > 0 ? current.Status : "等待魔兽进程",
-            HookStatus = _engine.HookStatus,
-            HookAttached = _engine.HookAttached,
-            SelfIntegrity = selfIntegrity,
-            GameIntegrity = gameIntegrity,
-            ScanCount = _engine.ScanCount,
+            Connected = hasSession,
+            Ready = hasSession,
+            AutoAttach = true,
+            Pid = pid,
+            SessionId = snapshot.SessionId,
+            Status = hasSession
+                ? "WFE SQLite 已连接"
+                : File.Exists(DdhEventDb.FixedPath)
+                    ? "等待 WFE 写入当前对局"
+                    : "等待 WFE 生成 SQLite",
+            HookStatus = hasSession ? "WFE 采集数据" : "等待 WFE",
+            HookAttached = hasSession,
+            SelfIntegrity = "",
+            GameIntegrity = "",
+            ScanCount = 0,
             DatabasePath = DdhEventDb.FixedPath,
-            SourceLabel = "ddh SQLite 实时数据",
+            SourceLabel = "WFE SQLite 数据",
         };
+    }
+
+    private static int FindGamePid()
+    {
+        try
+        {
+            return Process.GetProcessesByName("War3")
+                .Select(x => x.Id)
+                .FirstOrDefault();
+        }
+        catch
+        {
+            return 0;
+        }
     }
 
     private static string BuildTime()
@@ -109,8 +111,9 @@ internal sealed class DesktopRuntime : IDisposable
         try
         {
             string path = Environment.ProcessPath ?? "";
-            if (path.Length == 0) return "";
-            return File.GetLastWriteTime(path).ToString("yyyy-MM-dd HH:mm:ss");
+            return path.Length > 0
+                ? File.GetLastWriteTime(path).ToString("yyyy-MM-dd HH:mm:ss")
+                : "";
         }
         catch
         {
@@ -120,6 +123,5 @@ internal sealed class DesktopRuntime : IDisposable
 
     public void Dispose()
     {
-        _engine.Dispose();
     }
 }

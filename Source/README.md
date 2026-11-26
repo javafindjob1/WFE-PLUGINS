@@ -100,8 +100,8 @@
 
 #### 战场单位
 
-- 显示类型码、名称/称谓、攻击力、攻击范围、护甲、攻击速度、攻击间隔、攻击频率、
-  蝗虫、镜像、玩家和地址。
+- 只显示 SQLite 中已有的事件单位信息；CUnit 属性扫描已删除，攻击力、护甲、
+  移速、视野、三维等缺失字段显示为 `?`，不再进入游戏读取。
 - 桌面壳中名称/称谓、类型码和地址可被顶部筛选匹配。
 - 该页是只读属性页，没有点击行下钻。
 
@@ -443,9 +443,8 @@ CUnit + 0xB0 = HP 回复率      CUnit + 0x16C = 坐标索引（+0x78 = X，+0x7
 | `logs\selftest.txt` | 离线自检报告 |
 | WFE `Application\Libraries\ddh-<PID>.log` | ddh 注入、伤害 Hook、SQLite 和面板日志 |
 
-> **编码统一 UTF-8（2026-11-01 起）**：`ddh\ddh-<PID>.log`、诊断 dump（`*.unit.txt` / `*.udata.txt` / `*.seed.txt`）
-> 与 `_test\hook\ddh.cpp` 源码都是 UTF-8；更早的日志已原地从 GBK 转成 UTF-8
-> （更早日志里的单位名原本就是 UTF-8 字节，混在 GBK 行里，转码后仍是原样，不影响其余文字）。
+> **编码统一 UTF-8（2026-11-01 起）**：`ddh\ddh-<PID>.log` 与 `_test\hook\ddh.cpp`
+> 源码都是 UTF-8。属性 SEEDPROBE/UNITDUMP 诊断已删除。
 
 ## 6. 旧只读桌面源码结构
 

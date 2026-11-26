@@ -11,7 +11,7 @@
 | `Source/Core` | 伤害采集、内存读取、结算、SQLite 与游戏内面板核心代码 |
 | `Source/Ui` | WinForms 桌面界面 |
 | `Source/DesktopHost` | Vue 桌面宿主 |
-| `Source/WebHost` | WebView2、共享内存和页面服务 |
+| `Source/WebHost` | SQLite 快照读取、分页和页面数据服务 |
 | `Source/web` | Vue 3 页面源码和资源 |
 | `Source/_test` | 自动化测试、假魔兽靶子和验证脚本 |
 | `Source/tools` | 构建、部署、安装和发布打包脚本 |

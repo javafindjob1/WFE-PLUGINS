@@ -7,7 +7,7 @@
 ## 职责划分
 
 - Vue：死亡结算、伤害事件、战场单位、搜索、分页、历史抽屉、连接状态与桌面工具栏。
-- C#：连接 War3、运行 `MonitorEngine`、读取 ddh SQLite、启动游戏内 WebHost。
+- C#：读取 ddh 写入的 SQLite，不扫描游戏内存、不打开共享内存、不注入游戏。
 - WebView2：承载内嵌的 Vue 静态资源，并通过 `postMessage` 与 C# 双向通信。
 
 ## 构建
@@ -59,4 +59,4 @@ Game\
 
 1. 通过 WFE 启动魔兽并进入地图，由 WFE 加载 `Game\WFE-Libraries\ddh.dll`。
 2. 运行 `Desktop\War3DeathSettlement.exe`。
-3. 桌面程序只读取 ddh 写入的 SQLite，不注入游戏，也不打开共享内存。
+3. 桌面程序只读取 ddh 写入的 SQLite，不注入游戏，也不请求 CUnit 属性。
