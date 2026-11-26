@@ -485,11 +485,7 @@ static void DdhSummaryKillerText(char* out, size_t cap)
 static void DdhSummaryWindowText(char* out, size_t cap)
 {
     if (!out || cap == 0) return;
-    out[0] = 0;
-    const uint32_t endSec = g_ddhSummaryChart.endTick / 1000u;
-    const uint32_t startSec = (endSec > 10u) ? endSec - 10u : 0u;
-    DdhSprintf(out, cap, "近10秒 · %02u:%02u–%02u:%02u",
-               startSec / 60u, startSec % 60u, endSec / 60u, endSec % 60u);
+    strncpy_s(out, cap, "死亡前 10 秒", _TRUNCATE);
 }
 
 static void DdhSummarySourceLabel(const DdhSummaryChartSrc* source,
@@ -511,8 +507,8 @@ static void DdhSummaryApplyLayout(void)
     const float fullW = 0.34f;
     const float fullH = 0.32f;
     g_ddhSummaryCollapsed = g_ddhSummaryCollapsed ? 1 : 0;
-    g_ddhSummaryW = g_ddhSummaryCollapsed ? 0.190f : fullW;
-    g_ddhSummaryH = g_ddhSummaryCollapsed ? 0.095f : fullH;
+    g_ddhSummaryW = g_ddhSummaryCollapsed ? 0.082f : fullW;
+    g_ddhSummaryH = g_ddhSummaryCollapsed ? 0.085f : fullH;
     float x = g_ddhSummaryCollapsed
         ? g_ddhSummaryWantX + fullW - g_ddhSummaryW
         : g_ddhSummaryWantX;
@@ -533,9 +529,6 @@ static void DdhSummaryChartRenderCollapsed(void)
         "ReplaceableTextures\\TeamColor\\TeamColor08.blp",
         "ReplaceableTextures\\TeamColor\\TeamColor03.blp"
     };
-    char buffer[96] = { 0 };
-    char killer[96] = { 0 };
-    char window[96] = { 0 };
     float totals[DDH_SUMMARY_CHART_TYPES] = { 0, 0, 0, 0 };
     float grand = 0.0f;
     for (int b = 0; b < DDH_SUMMARY_CHART_SECONDS; ++b)
@@ -548,38 +541,14 @@ static void DdhSummaryChartRenderCollapsed(void)
         }
     }
 
-    DdhSummaryKillerText(killer, sizeof(killer));
-    DdhSummaryWindowText(window, sizeof(window));
-
     DdhSummaryIcon(10, g_ddhSummaryChart.fatalCode,
-        g_ddhSummaryX + 0.008f, g_ddhSummaryY - 0.004f, 0.035f, 0.044f);
-    DdhSummaryText(0, "阵亡总结", g_ddhSummaryX + 0.049f,
-                   g_ddhSummaryY - 0.008f, g_ddhSummaryFont * 0.74f,
-                   0xFFF0E0C0u);
-    DdhSummaryText(1, killer, g_ddhSummaryX + 0.049f,
-                   g_ddhSummaryY - 0.027f, g_ddhSummaryFont * 0.54f,
-                   0xFFD8D8D8u);
-    DdhSummaryFormatAmount(buffer, sizeof(buffer), grand);
-    {
-        char total[96] = { 0 };
-        DdhSprintf(total, sizeof(total), "总伤害 %s", buffer);
-        DdhSummaryText(2, total, g_ddhSummaryX + 0.049f,
-                       g_ddhSummaryY - 0.049f, g_ddhSummaryFont * 0.72f,
-                       0xFFFFD080u);
-    }
-    DdhSummaryText(3, window, g_ddhSummaryX + 0.049f,
-                   g_ddhSummaryY - 0.070f, g_ddhSummaryFont * 0.47f,
-                   0xFFA8A8A8u);
-    DdhSummaryText(4, "<<<",
-                   g_ddhSummaryX + g_ddhSummaryW - 0.035f,
-                   g_ddhSummaryY - 0.032f,
-                   g_ddhSummaryFont * 0.64f, 0xFFFFD080u);
+        g_ddhSummaryX + 0.018f, g_ddhSummaryY - 0.008f, 0.046f, 0.061f);
 
     const float left = g_ddhSummaryX + 0.008f;
     const float right = g_ddhSummaryX + g_ddhSummaryW - 0.008f;
     const float width = right > left ? right - left : 0.0f;
-    const float y0 = g_ddhSummaryY - 0.084f;
-    const float y1 = g_ddhSummaryY - 0.092f;
+    const float y0 = g_ddhSummaryY - 0.075f;
+    const float y1 = g_ddhSummaryY - 0.082f;
     float cursor = left;
     const float denominator = grand > 0.01f ? grand : 1.0f;
     for (int t = 0; t < DDH_SUMMARY_CHART_TYPES; ++t)
@@ -799,8 +768,12 @@ static void DdhSummaryChartRender(void)
         if (amount > 0.01f)
             DdhSummaryText(40 + i, buffer, x0 - 0.002f, base + height + 0.006f,
                            g_ddhSummaryFont * 0.52f, 0xFFFFD080u);
-        const uint32_t age = (g_ddhSummaryChart.endTick - i * 1000u) / 1000u;
-        DdhSprintf(buffer, sizeof(buffer), "%02u:%02u", age / 60u, age % 60u);
+        const uint32_t secondsAgo =
+            (uint32_t)(DDH_SUMMARY_CHART_SECONDS - 1 - i);
+        if (secondsAgo)
+            DdhSprintf(buffer, sizeof(buffer), "-%us", secondsAgo);
+        else
+            strncpy_s(buffer, sizeof(buffer), "0s", _TRUNCATE);
         DdhSummaryText(50 + i, buffer, x0 + 0.003f, base - g_ddhSummaryFont * 1.05f,
                        g_ddhSummaryFont * 0.62f, 0xFFB0B0B0u);
     }
@@ -835,10 +808,12 @@ static bool DdhSummaryChartClick(int px, int py)
        while the client area has arbitrary pixel dimensions. */
     const float u = (float)px / ((float)cw * 1.25f);
     const float v = -(float)py * 0.6f / (float)ch;
-    const float l = g_ddhSummaryX + g_ddhSummaryW - 0.042f;
+    const bool collapsed = g_ddhSummaryCollapsed != 0;
+    const float l = collapsed ? g_ddhSummaryX - 0.012f
+                              : g_ddhSummaryX + g_ddhSummaryW - 0.042f;
     const float r = g_ddhSummaryX + g_ddhSummaryW + 0.002f;
     const float t = g_ddhSummaryY + 0.014f;
-    const float b = g_ddhSummaryY - g_ddhSummaryH - 0.014f;
+    const float b = g_ddhSummaryY - g_ddhSummaryH - (collapsed ? 0.002f : 0.014f);
     if (u < l || u > r || v > t || v < b) return false;
 
     InterlockedExchange(&g_ddhSummaryCollapsed,
