@@ -6,7 +6,7 @@
 #define DDH_SUMMARY_CHART_TYPES   4
 #define DDH_SUMMARY_CHART_MAX_SRC 8
 #define DDH_SUMMARY_CHART_MAX_SEG 16
-#define DDH_SUMMARY_CHART_BAR_MAX 64
+#define DDH_SUMMARY_CHART_BAR_MAX 104
 #define DDH_SUMMARY_CHART_TEXT_MAX 64
 #define DDH_SUMMARY_CHART_TIMER 0xDDF1u
 #define DDH_UI_LAYOUT_SUB 0xB4u
@@ -641,8 +641,10 @@ static void DdhSummaryChartRender(void)
     char killer[96] = { 0 };
     char window[96] = { 0 };
     float typeTotal[DDH_SUMMARY_CHART_TYPES] = { 0, 0, 0, 0 };
+    float bucketType[DDH_SUMMARY_CHART_SECONDS][DDH_SUMMARY_CHART_TYPES];
     float sourceType[DDH_SUMMARY_CHART_MAX_SRC][DDH_SUMMARY_CHART_TYPES];
     float sourceTotal[DDH_SUMMARY_CHART_MAX_SRC] = { 0 };
+    memset(bucketType, 0, sizeof(bucketType));
     memset(sourceType, 0, sizeof(sourceType));
     DdhSummaryApplyLayout();
 
@@ -686,6 +688,7 @@ static void DdhSummaryChartRender(void)
             const int type = g_ddhSummaryChart.seg[b][i].type;
             const int source = g_ddhSummaryChart.seg[b][i].src;
             const float amount = g_ddhSummaryChart.seg[b][i].amount;
+            bucketType[b][type] += amount;
             typeTotal[type] += amount;
             sourceType[source][type] += amount;
             sourceTotal[source] += amount;
@@ -839,8 +842,20 @@ static void DdhSummaryChartRender(void)
         const float height = amount / maximum * maxHeight;
         const float x0 = startX + (float)i * (barWidth + gap);
         if (amount > 0.01f)
-            DdhSummarySetBar(i, "UI\\Widgets\\Glues\\LoadingBar\\Loading-BarFill.blp",
-                             x0, base + height, x0 + barWidth, base);
+        {
+            const float denominator = amount > 0.01f ? amount : 1.0f;
+            float cursorY = base;
+            for (int t = 0; t < DDH_SUMMARY_CHART_TYPES; ++t)
+            {
+                if (bucketType[i][t] <= 0.01f) continue;
+                const float segmentHeight = bucketType[i][t] / denominator * height;
+                if (segmentHeight <= 0.0f) continue;
+                DdhSummarySetBar(
+                    64 + i * DDH_SUMMARY_CHART_TYPES + t, typeBars[t],
+                    x0, cursorY + segmentHeight, x0 + barWidth, cursorY);
+                cursorY += segmentHeight;
+            }
+        }
         DdhSummaryFormatAmount(buffer, sizeof(buffer), amount);
         if (amount > 0.01f)
             DdhSummaryText(40 + i, buffer, x0 - 0.002f, base + height + 0.006f,
