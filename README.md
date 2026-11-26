@@ -2,7 +2,7 @@
 
 魔兽争霸本地伤害采集、死亡结算和伤害复盘工具。
 
-项目使用 WFE 注入原生采集模块 `ddh.dll`，由采集模块记录逐笔伤害并写入本机
+项目使用 WFE 注入原生采集模块 `UDamageWatcher.dll`，由采集模块记录逐笔伤害并写入本机
 SQLite；桌面程序只读取 SQLite，提供死亡结算、伤害事件、战场单位和历史会话。
 
 ## 目录结构
@@ -40,7 +40,7 @@ powershell -ExecutionPolicy Bypass -File tools\package_release.ps1
 脚本会：
 
 1. 安装前端依赖并构建 Vue 页面。
-2. 从 `Source/Native` 重新编译 `ddh.dll`。
+2. 从 `Source/Native` 重新编译 `UDamageWatcher.dll`。
 3. 发布 .NET 10 自包含、单文件桌面程序。
 4. 将完整发布包写入仓库根目录 `release/`。
 
@@ -53,7 +53,7 @@ powershell -ExecutionPolicy Bypass -File tools\package_release.ps1
 3. 重启 WFE，并通过 WFE 启动魔兽、进入地图。
 4. 运行 `Desktop\War3DeathSettlement.exe` 查看本机 SQLite 数据。
 
-更新 `ddh.dll` 后必须完整重启 WFE，不能只重启魔兽。
+更新 `UDamageWatcher.dll` 后必须完整重启 WFE，不能只重启魔兽。
 
 ## 文档
 

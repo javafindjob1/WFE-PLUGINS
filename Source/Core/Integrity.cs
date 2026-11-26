@@ -7,7 +7,7 @@ namespace War3DeathSettlement.Core;
 /// <para>
 /// 为什么关心它：本软件平时的读数只需要 <c>PROCESS_VM_READ | PROCESS_QUERY_LIMITED_INFORMATION</c>，
 /// 从普通权限（Medium）读管理员权限（High）的游戏**是允许的**（读是"向下兼容"的）。
-/// 但注入 ddh.dll 要 <c>PROCESS_VM_WRITE | PROCESS_CREATE_THREAD</c>，这两个是**写**权限，
+/// 但注入 UDamageWatcher.dll 要 <c>PROCESS_VM_WRITE | PROCESS_CREATE_THREAD</c>，这两个是**写**权限，
 /// 低完整性级别进程向高完整性级别进程申请写，会被内核直接拒绝并返回
 /// <c>ERROR_ACCESS_DENIED(5)</c> —— 注意这跟 DACL 无关，也跟"当前账号在不在管理员组"无关。
 /// </para>

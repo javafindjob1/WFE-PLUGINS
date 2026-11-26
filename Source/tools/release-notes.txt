@@ -2,7 +2,7 @@ War3DeathSettlement 发布包
 ==========================
 
 版本：2.0.0
-构建形式：单个 .NET 10 自包含 x64 桌面程序，WFE 使用单个 ddh.dll。
+构建形式：单个 .NET 10 自包含 x64 桌面程序，WFE 使用单个 UDamageWatcher.dll。
 
 运行前置条件：
   - Microsoft Edge WebView2 Runtime
@@ -11,7 +11,7 @@ War3DeathSettlement 发布包
 ------------
 Desktop\War3DeathSettlement.exe
   桌面结算程序，已内嵌死亡结算、伤害事件和战场单位页面。
-Game\WFE-Libraries\ddh.dll
+Game\WFE-Libraries\UDamageWatcher.dll
   WFE 加载的单一伤害采集模块，只负责伤害钩子和 SQLite 落库。
 
 二、游戏内行为
@@ -44,7 +44,7 @@ Game\WFE-Libraries\ddh.dll
 1. 完全退出魔兽争霸和 WFE。
 2. 双击 install_release.cmd；如果系统阻止，请右键以管理员身份运行。
 3. 安装器会更新：
-   C:\3rd\wc3gamesearcher\WFE\Application\Libraries\ddh.dll
+   C:\3rd\wc3gamesearcher\WFE\Application\Libraries\UDamageWatcher.dll
 4. 安装器会删除旧版 C:\launch\ddh_web、页面资源和游戏内启动脚本。
 5. 重新启动 WFE，再启动魔兽并进入地图。
 
@@ -55,7 +55,7 @@ Game\WFE-Libraries\ddh.dll
 写入用户目录。
 
 桌面程序不注入游戏：
-1. 采集必须由 WFE 加载 Game\WFE-Libraries\ddh.dll。
+1. 采集必须由 WFE 加载 Game\WFE-Libraries\UDamageWatcher.dll。
 2. 桌面程序只读取 ddh 写入的 SQLite。
 3. 找不到 WFE 采集数据时，桌面程序显示等待状态。
 

@@ -6,6 +6,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $root = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
+$dllName = 'UDamageWatcher.dll'
 Set-Location $root
 
 function Die($m) { Write-Host $m -ForegroundColor Red; exit 1 }
@@ -49,9 +50,9 @@ $sdkVer = Split-Path $sdkInc -Leaf
 
 Write-Host "cl: $($msvc.Cl)" -ForegroundColor DarkGray
 
-Write-Host '== 1/2 combined ddh.dll ==' -ForegroundColor Cyan
-& $msvc.Cl /nologo /LD /O2 /MD /EHsc /W3 /utf-8 /D_CRT_SECURE_NO_WARNINGS /I"sqlite" /I"third_party\detours" /DSQLITE_THREADSAFE=1 /DSQLITE_OMIT_LOAD_EXTENSION ddh.cpp "third_party\detours\detours.cpp" "third_party\detours\modules.cpp" "third_party\detours\disasm.cpp" "third_party\detours\image.cpp" "third_party\detours\creatwth.cpp" "third_party\detours\disolx86.cpp" "third_party\detours\disolx64.cpp" "third_party\detours\disolia64.cpp" "third_party\detours\disolarm.cpp" "third_party\detours\disolarm64.cpp" "sqlite\sqlite3.c" /link /OUT:ddh.dll /INCREMENTAL:NO user32.lib shell32.lib ole32.lib uuid.lib
-if ($LASTEXITCODE -ne 0) { Die "combined ddh.dll build failed ($LASTEXITCODE)" }
+Write-Host "== 1/2 combined $dllName ==" -ForegroundColor Cyan
+& $msvc.Cl /nologo /LD /O2 /MD /EHsc /W3 /utf-8 /D_CRT_SECURE_NO_WARNINGS /I"sqlite" /I"third_party\detours" /DSQLITE_THREADSAFE=1 /DSQLITE_OMIT_LOAD_EXTENSION ddh.cpp "third_party\detours\detours.cpp" "third_party\detours\modules.cpp" "third_party\detours\disasm.cpp" "third_party\detours\image.cpp" "third_party\detours\creatwth.cpp" "third_party\detours\disolx86.cpp" "third_party\detours\disolx64.cpp" "third_party\detours\disolia64.cpp" "third_party\detours\disolarm.cpp" "third_party\detours\disolarm64.cpp" "sqlite\sqlite3.c" /link "/OUT:$dllName" /INCREMENTAL:NO user32.lib shell32.lib ole32.lib uuid.lib
+if ($LASTEXITCODE -ne 0) { Die "combined $dllName build failed ($LASTEXITCODE)" }
 
 $panelBlp = Join-Path $root 'assets\ddh_panel.blp'
 if (Test-Path $panelBlp) {
@@ -60,4 +61,4 @@ if (Test-Path $panelBlp) {
 
 Remove-Item *.obj, *.exp, *.lib -ErrorAction SilentlyContinue
 Write-Host '== done ==' -ForegroundColor Green
-Get-ChildItem ddh.dll | Select-Object Length, Name | Format-Table -AutoSize
+Get-ChildItem $dllName | Select-Object Length, Name | Format-Table -AutoSize

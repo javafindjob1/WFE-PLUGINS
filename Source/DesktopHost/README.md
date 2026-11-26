@@ -20,7 +20,7 @@ cd <DeathSettlement>
 脚本会：
 
 1. 安装前端依赖并构建 `web`。
-2. 重新编译 `Native\ddh.dll`。
+2. 重新编译 `Native\UDamageWatcher.dll`。
 3. 发布自包含、单文件的桌面程序。
 4. 将发布包写入仓库根目录 `..\release\`。
 
@@ -52,11 +52,11 @@ Desktop\
   War3DeathSettlement.exe
 Game\
   WFE-Libraries\
-    ddh.dll
+    UDamageWatcher.dll
 ```
 
 运行顺序：
 
-1. 通过 WFE 启动魔兽并进入地图，由 WFE 加载 `Game\WFE-Libraries\ddh.dll`。
+1. 通过 WFE 启动魔兽并进入地图，由 WFE 加载 `Game\WFE-Libraries\UDamageWatcher.dll`。
 2. 运行 `Desktop\War3DeathSettlement.exe`。
 3. 桌面程序只读取 ddh 写入的 SQLite，不注入游戏，也不请求 CUnit 属性。

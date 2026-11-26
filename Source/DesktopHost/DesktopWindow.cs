@@ -411,7 +411,7 @@ internal sealed class DesktopWindow : Form
         {
             Process.Start(new ProcessStartInfo(
                 "notepad.exe",
-                CliOptions.Quote(Settings.DefaultPath))
+                QuoteArgument(Settings.DefaultPath))
             {
                 UseShellExecute = true,
             });
@@ -420,6 +420,13 @@ internal sealed class DesktopWindow : Form
         {
             Log.Warn("打开设置失败：" + ex.Message);
         }
+    }
+
+    private static string QuoteArgument(string value)
+    {
+        if (value.Length == 0) return "\"\"";
+        if (value.IndexOfAny(new[] { ' ', '\t', '"' }) < 0) return value;
+        return "\"" + value.Replace("\"", "\\\"") + "\"";
     }
 
     private void OpenPath(string path)

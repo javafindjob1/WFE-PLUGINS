@@ -26,6 +26,7 @@ node_modules/
 *.tsbuildinfo
 Source/web/dist/
 Source/Native/ddh.dll
+Source/Native/UDamageWatcher.dll
 Source/Native/*.obj
 Source/Native/*.exp
 Source/Native/*.lib

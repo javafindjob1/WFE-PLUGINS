@@ -36,10 +36,10 @@ finally {
     Pop-Location
 }
 
-Write-Host '== build native ddh.dll ==' -ForegroundColor Cyan
+Write-Host '== build native UDamageWatcher.dll ==' -ForegroundColor Cyan
 & (Join-Path $sourceRoot 'Native\build_hook.ps1')
-if (-not (Test-Path -LiteralPath (Join-Path $sourceRoot 'Native\ddh.dll'))) {
-    throw 'Native build did not produce Native\ddh.dll'
+if (-not (Test-Path -LiteralPath (Join-Path $sourceRoot 'Native\UDamageWatcher.dll'))) {
+    throw 'Native build did not produce Native\UDamageWatcher.dll'
 }
 
 Write-Host '== publish desktop ==' -ForegroundColor Cyan
@@ -54,7 +54,7 @@ dotnet publish (Join-Path $sourceRoot 'DesktopHost\War3DeathSettlement.Desktop.c
 if ($LASTEXITCODE -ne 0) { throw "Desktop publish failed ($LASTEXITCODE)" }
 
 Write-Host '== collect game files ==' -ForegroundColor Cyan
-Copy-Item -LiteralPath (Join-Path $sourceRoot 'Native\ddh.dll') -Destination $wfeDir -Force
+Copy-Item -LiteralPath (Join-Path $sourceRoot 'Native\UDamageWatcher.dll') -Destination $wfeDir -Force
 
 $desktopDocs = @(
     @{ Source = 'README.md'; Name = 'README.md' }
@@ -74,10 +74,10 @@ if (Test-Path -LiteralPath (Join-Path $wfeDir 'dss-assets')) {
     throw 'dss-assets must not be placed in WFE-Libraries'
 }
 if (Test-Path -LiteralPath (Join-Path $wfeDir 'ddh_core.bin')) {
-    throw 'ddh_core.bin must not be included; the injected module is a single ddh.dll'
+    throw 'ddh_core.bin must not be included; the injected module is a single UDamageWatcher.dll'
 }
-if (-not (Test-Path -LiteralPath (Join-Path $wfeDir 'ddh.dll'))) {
-    throw 'Missing ddh.dll in WFE-Libraries'
+if (-not (Test-Path -LiteralPath (Join-Path $wfeDir 'UDamageWatcher.dll'))) {
+    throw 'Missing UDamageWatcher.dll in WFE-Libraries'
 }
 if (Test-Path -LiteralPath (Join-Path $desktopDir 'hook')) {
     throw 'Desktop injection files must not be included'

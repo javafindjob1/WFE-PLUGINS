@@ -129,7 +129,7 @@ public sealed class MonitorEngine : IDisposable
     /// <summary>是否读游戏内插件日志（插件在跑时才有意义）。</summary>
     public bool ReadPluginLog { get; set; } = true;
 
-    // ---- 侵入式伤害事件（注入 ddh.dll 挂钩引擎伤害函数）----
+    // ---- 侵入式伤害事件（注入 UDamageWatcher.dll 挂钩引擎伤害函数）----
 
     /// <summary>
     /// 注入被完整性级别（MIC）拦下：游戏比本进程高时，OpenProcess 申请
@@ -152,7 +152,7 @@ public sealed class MonitorEngine : IDisposable
     private readonly List<Settlement> _awaitingAttribution = new();
     private DateTime _lastPluginPoll = DateTime.MinValue;
 
-    // ---- 侵入式伤害事件（ddh.dll 注入 + 共享内存读取）----
+    // ---- 侵入式伤害事件（UDamageWatcher.dll 注入 + 共享内存读取）----
     private readonly DamageHook _hook = new();
     private readonly List<DamageHook.HookEvent> _hookEvents = new();
     /// <summary>保护 _hookEvents 的读写：监视线程在 PumpHook 里写，界面线程通过 HookEvents 读快照。</summary>
@@ -256,7 +256,7 @@ public sealed class MonitorEngine : IDisposable
         try { _hook.Dispose(); } catch { }
     }
 
-    /// <summary>钩子是否已挂上（注入成功且 ddh.dll 报告 hookOk）。</summary>
+    /// <summary>钩子是否已挂上（注入成功且 UDamageWatcher.dll 报告 hookOk）。</summary>
     public bool HookAttached { get; private set; }
     /// <summary>钩子状态说明（给界面/日志看）。</summary>
     public string HookStatus { get; private set; } = "未启用";
@@ -275,7 +275,7 @@ public sealed class MonitorEngine : IDisposable
     // v10：单位属性请求 / 响应（【战场单位】页）。共享内存读写在 DamageHook 里加锁，
     // 界面线程（写请求/读响应）和监视线程（读事件）可以同时用，不会撞 view。
     // ------------------------------------------------------------------
-    /// <summary>ddh.dll 的共享内存协议版本（0 = 还没连上）。</summary>
+    /// <summary>UDamageWatcher.dll 的共享内存协议版本（0 = 还没连上）。</summary>
     public uint HookVersion => _hook.Version;
 
     /// <summary>这个 ddh 支持单位属性请求（v12 起，96 槽）。老 DLL / 没注入时界面属性列显示 ?。</summary>
@@ -569,7 +569,7 @@ public sealed class MonitorEngine : IDisposable
             IntegrityLevel gameIl = Integrity.OfProcess(g.Mem.Pid, out int ilErr);
             string extra = gameIl == IntegrityLevel.Unknown
                 ? $"（读不出来，err={ilErr}）"
-                : Integrity.CanInject(gameIl) ? "" : "（游戏更高：只读照常，注入 ddh.dll 需以管理员身份重启）";
+                : Integrity.CanInject(gameIl) ? "" : "（游戏更高：只读照常，注入 UDamageWatcher.dll 需以管理员身份重启）";
             Log.Write($"完整性级别：本程序 {Integrity.Name(selfIl)}，游戏 {Integrity.Name(gameIl)}{extra}");
         }
         catch { }
@@ -635,7 +635,7 @@ public sealed class MonitorEngine : IDisposable
 
     /// <summary>
     /// 清空核心状态（调用方需自行持有 <see cref="_gate"/> 锁）。
-    /// resetHook=true 时把钩子注入状态一起复位（换进程/重连要重新注入 ddh.dll）；
+    /// resetHook=true 时把钩子注入状态一起复位（换进程/重连要重新注入 UDamageWatcher.dll）；
     /// 同一进程内换图/重开局传 false（ddh 还在老进程里，别重复注入）。
     /// </summary>
     private void ClearHistoryCore(bool resetHook)
@@ -1454,7 +1454,7 @@ public sealed class MonitorEngine : IDisposable
         return peak;
     }
 
-    /// <summary>这个进程里是否已经有 ddh：共享内存能打开，或模块列表里有 ddh.dll（WFE/ASI 预加载）。</summary>
+    /// <summary>这个进程里是否已经有采集模块：共享内存能打开，或模块列表里有 UDamageWatcher.dll。</summary>
     private bool DdhAlreadyPresent(int pid)
     {
         if (_hook.IsOpen) return true;
@@ -1463,7 +1463,7 @@ public sealed class MonitorEngine : IDisposable
         {
             using var p = System.Diagnostics.Process.GetProcessById(pid);
             foreach (System.Diagnostics.ProcessModule m in p.Modules)
-                if (string.Equals(m.ModuleName, "ddh.dll", StringComparison.OrdinalIgnoreCase)) return true;
+                if (string.Equals(m.ModuleName, "UDamageWatcher.dll", StringComparison.OrdinalIgnoreCase)) return true;
         }
         catch { }
         return false;
@@ -1480,7 +1480,7 @@ public sealed class MonitorEngine : IDisposable
             if (HookStatus != "检测到已有 ddh，等待共享内存…")
             {
                 HookStatus = "检测到已有 ddh，等待共享内存…";
-                Log.Write("hook：检测到 ddh.dll 已由 WFE/ASI 加载，等待共享内存就绪（不会重复注入）");
+                Log.Write("hook：检测到 UDamageWatcher.dll 已由 WFE 加载，等待共享内存就绪（不会重复注入）");
             }
             return;
         }

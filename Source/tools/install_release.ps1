@@ -43,6 +43,7 @@ catch {
 $legacyHtml = Join-Path $WfeLibraries 'dss.html'
 $legacyAssets = Join-Path $WfeLibraries 'dss-assets'
 $legacyCore = Join-Path $WfeLibraries 'ddh_core.bin'
+$legacyDll = Join-Path $WfeLibraries 'ddh.dll'
 if (Test-Path -LiteralPath $legacyHtml) {
     Remove-Item -LiteralPath $legacyHtml -Force
 }
@@ -51,6 +52,9 @@ if (Test-Path -LiteralPath $legacyAssets) {
 }
 if (Test-Path -LiteralPath $legacyCore) {
     Remove-Item -LiteralPath $legacyCore -Force
+}
+if (Test-Path -LiteralPath $legacyDll) {
+    Remove-Item -LiteralPath $legacyDll -Force
 }
 foreach ($name in @('ddh_web_launcher.cmd', 'ddh_web_launcher.ps1')) {
     $legacyLauncher = Join-Path $LaunchDirectory $name

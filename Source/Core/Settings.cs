@@ -128,9 +128,11 @@ public sealed class Settings
         catch (Exception ex) { Log.Warn("写设置失败：" + ex.Message); }
     }
 
+#if !DESKTOP_READONLY
     public AttachOptions ToAttach() =>
         new(null, string.IsNullOrWhiteSpace(LastProcessName) ? null : LastProcessName,
             string.IsNullOrWhiteSpace(ForceVersion) ? null : ForceVersion);
+#endif
 }
 
 

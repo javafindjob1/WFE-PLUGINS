@@ -119,6 +119,7 @@ internal static class DdhEventDb
         return list;
     }
 
+#if !DESKTOP_READONLY
     /// <summary>
     /// 读取 seq &gt; afterSeq 的事件，按 seq 升序，最多 limit 条。
     /// 返回空列表时 <paramref name="error"/> 为空表示“暂时没有新行”，非空表示读失败。
@@ -251,4 +252,5 @@ internal static class DdhEventDb
             }
         }
     }
+#endif
 }

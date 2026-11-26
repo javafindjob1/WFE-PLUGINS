@@ -107,8 +107,6 @@ public sealed class HistorySource
     public bool NetValid { get; set; }
     public double Percent { get; set; }
 
-    public HookBreakdown.SourceRow ToSourceRow() =>
-        new(Source, Count, Damage, Engine, EngineValid, Effective, EffectiveValid, NetDrop, NetValid, Percent);
 }
 
 public sealed class HistoryCombo
@@ -129,9 +127,6 @@ public sealed class HistoryCombo
     public bool NetValid { get; set; }
     public double Percent { get; set; }
 
-    public HookBreakdown.Combination ToCombination() =>
-        new(Source, IsAttack, IsRanged, AttackType, DamageType, Count, Damage, Engine, EngineValid,
-            Effective, EffectiveValid, NetDrop, NetValid, Percent);
 }
 
 public sealed class HistoryEvent
@@ -174,20 +169,8 @@ public sealed class HistoryEvent
     public uint Flags { get; set; }
     public int VictimOwner { get; set; } = -1;
     public int SourceOwner { get; set; } = -1;
-    public bool VictimIllusion => (Flags & DamageHook.HookEvent.FlagVictimIllusion) != 0;
-    public bool SourceIllusion => (Flags & DamageHook.HookEvent.FlagSourceIllusion) != 0;
-
-    public DamageHook.HookEvent ToHookEvent() => new(
-        Seq, At, Victim, VictimCode, Source, SourceCode, Amount,
-        IsAttack, IsRanged, AttackType, DamageType, IsPhysical,
-        VictimName, SourceName, DamageMask, WeaponType,
-        HpBefore, HpAfter, Actual, HpValid, Depth,
-        EngineDamage, EngineValid, EngineLast, EngineCalls,
-        SetDamage, SetCalls, Flags, VictimOwner, SourceOwner, IsV20)
-    {
-        VictimTitle = VictimTitle,
-        SourceTitle = SourceTitle,
-    };
+    public bool VictimIllusion => (Flags & (1u << 1)) != 0;
+    public bool SourceIllusion => (Flags & (1u << 2)) != 0;
 }
 
 public sealed class HistoryFileInfo

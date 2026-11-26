@@ -7,7 +7,7 @@ namespace War3DeathSettlement.Core;
 
 /// <summary>
 /// 侵入式伤害事件的“外面那一半”：
-///   * 用 <c>ddh_inject.exe</c> 把 <c>ddh.dll</c> 注入游戏（DLL 里挂 game.dll+0x67DC40 的钩子）；
+///   * 用注入器把 <c>UDamageWatcher.dll</c> 注入游戏（DLL 里挂 game.dll+0x67DC40 的钩子）；
 ///   * 通过命名共享内存 <c>Local\DdhRing_&lt;pid&gt;</c> 把事件读出来。
 ///
 /// 结构体布局必须和 ddh.cpp 里的 <c>#pragma pack(1)</c> 完全一致。
@@ -68,7 +68,7 @@ public sealed class DamageHook : IDisposable
     /// <summary>v8 追加的 2 个 4 字节：victimOwner / sourceOwner（源/目标所属玩家号，0 基；-1 = 未知）。</summary>
     private const int RecordV8Extra = 2 * 4;
 
-    /// <summary>按 ddh.dll 报的版本决定每条记录多长（旧 DLL 也能正常读）。</summary>
+    /// <summary>按 UDamageWatcher.dll 报的版本决定每条记录多长（旧 DLL 也能正常读）。</summary>
     private int _recordSize = RecordBaseSizeV8;
 
     /// <summary>当前 DLL 版本对应的基础段长度和名字字段宽度（v9 名字占 64 字节，偏移跟着变）。</summary>
@@ -301,7 +301,7 @@ public sealed class DamageHook : IDisposable
     public string MapName { get; private set; } = "";
     public bool HookOk { get; private set; }
     public uint GameDllBase { get; private set; }
-    /// <summary>ddh.dll 的共享内存协议版本（3 起带 hpBefore/hpAfter/actual；9 起名字各 64 字节）。</summary>
+    /// <summary>UDamageWatcher.dll 的共享内存协议版本（3 起带 hpBefore/hpAfter/actual；9 起名字各 64 字节）。</summary>
     public uint Version { get; private set; }
     /// <summary>按 DLL 版本算出的每条记录字节数（v8 = 172，v9 = 236；自检/日志用）。</summary>
     public int RecordSize => _recordSize;
@@ -309,7 +309,7 @@ public sealed class DamageHook : IDisposable
     public int NameFieldSize => _nameSize;
     /// <summary>这个 DLL 会不会采“实际伤害”（v3 且它自己声明开了血量采集）。</summary>
     public bool HpSupported { get; private set; }
-    /// <summary>ddh.dll 实际挂钩的 RVA（它会按特征扫描，可能不是 0x67DC40）。</summary>
+    /// <summary>UDamageWatcher.dll 实际挂钩的 RVA（它会按特征扫描，可能不是 0x67DC40）。</summary>
     public uint HookRva { get; private set; }
     /// <summary>v21：本地玩家视角的结盟掩码（bit i = 玩家 i 与本地玩家结盟）。0 = 老 DLL / 未算出来。</summary>
     public uint AllyMask { get; private set; }
@@ -324,7 +324,7 @@ public sealed class DamageHook : IDisposable
     public static (bool ok, string message) Inject(int pid, string injectorPath, string dllPath, int timeoutMs = 8000)
     {
         if (!File.Exists(injectorPath)) return (false, $"找不到注入器：{injectorPath}");
-        if (!File.Exists(dllPath)) return (false, $"找不到 ddh.dll：{dllPath}");
+        if (!File.Exists(dllPath)) return (false, $"找不到 UDamageWatcher.dll：{dllPath}");
         try
         {
             var psi = new ProcessStartInfo(injectorPath)
@@ -417,7 +417,7 @@ public sealed class DamageHook : IDisposable
             catch (FileNotFoundException) { Thread.Sleep(150); }
             catch (Exception ex) { LastError = ex.Message; Thread.Sleep(150); }
         }
-        LastError = LastError.Length > 0 ? LastError : "等待 ddh.dll 的共享内存超时";
+        LastError = LastError.Length > 0 ? LastError : "等待 UDamageWatcher.dll 的共享内存超时";
         return false;
     }
 

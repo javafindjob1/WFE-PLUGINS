@@ -7,7 +7,7 @@
 
 当前正式使用方式是：
 
-* **WFE 附加库**：WFE 注入单个完整 `ddh.dll`，只负责伤害钩子、事件环和 SQLite 落库。
+* **WFE 附加库**：WFE 注入单个完整 `UDamageWatcher.dll`，只负责伤害钩子、事件环和 SQLite 落库。
 * **桌面程序**：`War3DeathSettlement.exe` 读取 SQLite 并显示死亡结算、伤害事件和战场单位。
 * **游戏内只提供本地阵亡总结**：没有结算按钮、完整页面、WebView2 宿主或共享画面。
 
@@ -23,13 +23,13 @@
 | 组件 | 位置 | 职责 |
 | --- | --- | --- |
 | WFE | `C:\3rd\wc3gamesearcher\WFE` | 加载附加库，启动魔兽时注入 ddh |
-| `ddh.dll` | WFE `Application\Libraries` | 单一采集模块：挂伤害钩子、维护事件环、写 SQLite |
+| `UDamageWatcher.dll` | WFE `Application\Libraries` | 单一采集模块：挂伤害钩子、维护事件环、写 SQLite |
 | `War3DeathSettlement.exe` | `Desktop` | 桌面页面：读取 SQLite、筛选、分页和历史查看 |
 | SQLite | `%LOCALAPPDATA%\War3DeathSettlement\ddh\ddh-events.db` | 保存会话、事件、结算和单位属性 |
 
 ### 0.2 从进图到显示结算的数据流
 
-1. WFE 注入 `ddh.dll`，延迟 3 秒后在游戏进程内完成初始化并挂载钩子。
+1. WFE 注入 `UDamageWatcher.dll`，延迟 3 秒后在游戏进程内完成初始化并挂载钩子。
 2. ddh 挂钩 `game.dll+0x67DC40` 伤害函数；入口记录原始伤害、来源和触发单位，出口读取最终伤害与前后血。
 3. ddh 将事件写入内存事件环，同时批量写入 SQLite 的 `game_events`、`game_settlements`、`game_units`。
 4. 桌面程序每 0.5 秒读取当前会话摘要；死亡结算页和伤害事件页都按页查询。
@@ -148,7 +148,7 @@ powershell -ExecutionPolicy Bypass -File tools\package_release.ps1
 ```
 
 发布包默认写入仓库根目录 `../release/`，不会放入 `Source/release/`。
-只修改 Vue 页面时重新构建桌面程序的内嵌页面；修改 `ddh.dll` 后，
+只修改 Vue 页面时重新构建桌面程序的内嵌页面；修改 `UDamageWatcher.dll` 后，
 必须完全退出并重启 WFE 再进游戏。
 
 正式发布包使用 .NET 10 自包含桌面程序，玩家无需另装 .NET；桌面页面仍需要
@@ -162,7 +162,7 @@ Microsoft Edge WebView2 Runtime。WFE 附加库目录只保留注入与钩子文
 - `game_units` 按“会话 + 类型码 + 镜像”去重，同一类型可能有多个事件地址但只保留一个单位属性实例。
 - 回血、护盾、无敌和免疫可能使“地图伤害 > 0”与“净掉血 = 0”同时出现。
 - `?` 表示未测量，不是 0；只有 `0.00` 才表示测量结果为零。
-- 更新 `ddh.dll` 后必须完整重启 WFE，不能只重启魔兽。
+- 更新 `UDamageWatcher.dll` 后必须完整重启 WFE，不能只重启魔兽。
 
 ---
 
@@ -313,7 +313,7 @@ War3DeathSettlement.exe --help
 | **伤害来源** | 打人的是谁 | 结构体 `+0x00` 的来源单位 → `+0x30` 类型码；当前 Vue 页面点击单位名称后按“类型码 + 镜像”筛选 |
 | **攻击 / 远程 / 攻击类型 / 伤害类型** | 一行显示四项引擎事件属性，例如 `0 / 0 / 0 / 26` | 是否攻击 / 是否远程各为 `0/1`，后两项为引擎数字类型 |
 | **层** | 这次事件在第几层，使用紧凑列宽 | 1 = 最外层；>1 = 地图在伤害事件里又触发了伤害（DOT/反伤/连环） |
-| **原始伤害** | 引擎伤害结构体里的账面值 | ddh.dll 在伤害函数（`game.dll+0x67DC40`）**入口**抄的 `+0x10`（地图/引擎都还没动它） |
+| **原始伤害** | 引擎伤害结构体里的账面值 | UDamageWatcher.dll 在伤害函数（`game.dll+0x67DC40`）**入口**抄的 `+0x10`（地图/引擎都还没动它） |
 | **引擎伤害** | 原伤害函数退出后 `info+0x10` 的值（含护甲、攻防类型等引擎计算） | v20 在 `game.dll+0x67DC40` 出口回读，不再依赖地图调用 `GetEventDamage` |
 | **地图伤害** | 调用方 `*out` 的最终生效值，包含地图 `SetEventDamage` 改写 | 出口 `*out` 与引擎伤害读取成功即可；不要求本帧实际掉血 |
 | **净掉血** | 血差 | 原函数返回后前后两次读血相减（本层净值，嵌套扣内层） |

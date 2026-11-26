@@ -10,6 +10,20 @@ public static class DdhHistoryReader
     public static string DatabasePath => DdhEventDb.FixedPath;
     public static string DefaultDirectory => DdhEventDb.Folder;
 
+    private static bool LooksLikeMapName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return false;
+        value = value.Trim();
+        if (value.Length is < 2 or > 80 || value.Contains('\uFFFD')) return false;
+        if (value.EndsWith(".cpp", StringComparison.OrdinalIgnoreCase) ||
+            value.EndsWith(".hpp", StringComparison.OrdinalIgnoreCase) ||
+            value.EndsWith(".h", StringComparison.OrdinalIgnoreCase) ||
+            value.EndsWith(".c", StringComparison.OrdinalIgnoreCase) ||
+            value.EndsWith(".obj", StringComparison.OrdinalIgnoreCase))
+            return false;
+        return value.All(c => !char.IsControl(c));
+    }
+
     public static List<HistoryFileInfo> List(string? databasePath = null)
     {
         var list = new List<HistoryFileInfo>();
@@ -55,7 +69,7 @@ public static class DdhHistoryReader
 
             string sessionId = st.Row.GetString(0);
             string mapName = st.Row.GetString(1);
-            if (!MapNameReader.LooksLikeMapName(mapName)) mapName = "";
+            if (!LooksLikeMapName(mapName)) mapName = "";
             DateTimeOffset started = MsToTime(st.Row.GetInt64(2));
             DateTimeOffset ended = MsToTime(st.Row.GetInt64(3));
             list.Add(new HistoryFileInfo
@@ -105,7 +119,7 @@ public static class DdhHistoryReader
             {
                 found = true;
                 doc.MapName = st.Row.GetString(0);
-                if (!MapNameReader.LooksLikeMapName(doc.MapName)) doc.MapName = "";
+                if (!LooksLikeMapName(doc.MapName)) doc.MapName = "";
                 doc.StartedAt = MsToTime(st.Row.GetInt64(1));
                 doc.EndedAt = MsToTime(st.Row.GetInt64(2));
             }

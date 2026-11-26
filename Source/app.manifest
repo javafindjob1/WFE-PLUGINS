@@ -12,7 +12,7 @@
 
   <!--
     requireAdministrator: Windows elevates at launch and Explorer draws the UAC
-    shield on the exe. Needed because the damage hook injects ddh.dll into war3.exe,
+    shield on the exe. Needed because the damage hook injects the native collector into war3.exe,
     and a non-elevated process cannot even query a platform-launched game
     (OpenProcess returns ERROR_ACCESS_DENIED 5).
 

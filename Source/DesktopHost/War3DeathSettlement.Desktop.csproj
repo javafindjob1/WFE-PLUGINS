@@ -29,12 +29,21 @@
     <ErrorReport>none</ErrorReport>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationManifest>..\app.manifest</ApplicationManifest>
+    <DefineConstants>$(DefineConstants);DESKTOP_READONLY</DefineConstants>
     <NoWarn>$(NoWarn);WFO0003</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Core\**\*.cs" Link="Core\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Remove="..\Core\SelfTest.cs" />
+    <Compile Include="..\Core\DamageTypeNames.cs" Link="Core\DamageTypeNames.cs" />
+    <Compile Include="..\Core\DdhEventDb.cs" Link="Core\DdhEventDb.cs" />
+    <Compile Include="..\Core\DdhHistoryReader.cs" Link="Core\DdhHistoryReader.cs" />
+    <Compile Include="..\Core\Gbk.cs" Link="Core\Gbk.cs" />
+    <Compile Include="..\Core\HistoryModels.cs" Link="Core\HistoryModels.cs" />
+    <Compile Include="..\Core\Log.cs" Link="Core\Log.cs" />
+    <Compile Include="..\Core\Settings.cs" Link="Core\Settings.cs" />
+    <Compile Include="..\Core\Sqlite.cs" Link="Core\Sqlite.cs" />
+    <Compile Include="..\Core\UnitAttrWire.cs" Link="Core\UnitAttrWire.cs" />
+    <Compile Include="..\Core\Wc3Text.cs" Link="Core\Wc3Text.cs" />
     <Compile Include="..\WebHost\Models.cs" Link="Shared\Models.cs" />
     <Compile Include="..\WebHost\SnapshotReader.cs" Link="Shared\SnapshotReader.cs" />
   </ItemGroup>
