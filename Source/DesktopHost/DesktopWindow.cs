@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using DdhWebHost;
 using Microsoft.Web.WebView2.Core;
@@ -30,6 +31,7 @@ internal sealed class DesktopWindow : Form
         Text = "魔兽死亡结算 Vue Desktop";
         Width = 1360;
         Height = 860;
+        FormBorderStyle = FormBorderStyle.None;
         MinimumSize = new Size(980, 620);
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = Color.FromArgb(17, 18, 15);
@@ -42,7 +44,18 @@ internal sealed class DesktopWindow : Form
             _timer.Stop();
             _runtime.Dispose();
         };
+        Resize += (_, _) => PostWindowState();
         _timer.Tick += (_, _) => QueueSnapshot();
+    }
+
+    protected override CreateParams CreateParams
+    {
+        get
+        {
+            CreateParams parameters = base.CreateParams;
+            parameters.Style |= 0x00040000; // WS_THICKFRAME，无边框窗口仍可从边缘调整大小
+            return parameters;
+        }
     }
 
     private async Task InitializeWebAsync()
@@ -82,6 +95,7 @@ internal sealed class DesktopWindow : Form
                 Log.Write("Vue 桌面页面加载完成");
                 _webReady = true;
                 QueueSnapshot();
+                PostWindowState();
                 _timer.Start();
             };
             core.Navigate($"https://{AppHost}/index.html");
@@ -164,6 +178,13 @@ internal sealed class DesktopWindow : Form
             if (type == "dss-ready")
             {
                 QueueSnapshot();
+                PostWindowState();
+                return;
+            }
+            if (type == "dss-titlebar")
+            {
+                string titlebarAction = JsonString(root, "action");
+                HandleTitlebarAction(titlebarAction);
                 return;
             }
             if (type != "dss-command") return;
@@ -185,6 +206,48 @@ internal sealed class DesktopWindow : Form
         {
             Log.Warn("桌面命令解析失败：" + ex.Message);
         }
+    }
+
+    private void HandleTitlebarAction(string action)
+    {
+        void Execute()
+        {
+            if (IsDisposed) return;
+            switch (action)
+            {
+                case "drag":
+                    ReleaseCapture();
+                    SendMessage(Handle, 0x00A1, (IntPtr)0x0002, IntPtr.Zero);
+                    break;
+                case "minimize":
+                    WindowState = FormWindowState.Minimized;
+                    break;
+                case "toggle-maximize":
+                    WindowState = WindowState == FormWindowState.Maximized
+                        ? FormWindowState.Normal
+                        : FormWindowState.Maximized;
+                    break;
+                case "close":
+                    Close();
+                    break;
+            }
+            if (action is "minimize" or "toggle-maximize")
+                PostWindowState();
+        }
+
+        if (InvokeRequired)
+            BeginInvoke(new Action(Execute));
+        else
+            Execute();
+    }
+
+    private void PostWindowState()
+    {
+        PostMessage(new
+        {
+            type = "window-state",
+            maximized = WindowState == FormWindowState.Maximized,
+        });
     }
 
     private void RunCommand(string action, string sessionId)
@@ -520,4 +583,10 @@ internal sealed class DesktopWindow : Form
             Log.Warn("向 Vue 推送消息失败：" + ex.Message);
         }
     }
+
+    [DllImport("user32.dll")]
+    private static extern bool ReleaseCapture();
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SendMessage(IntPtr window, int message, IntPtr wParam, IntPtr lParam);
 }

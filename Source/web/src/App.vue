@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import DeathPanel from './components/DeathPanel.vue'
 import EventsPanel from './components/EventsPanel.vue'
 import UnitsPanel from './components/UnitsPanel.vue'
@@ -35,14 +35,13 @@ const {
   requestHistory,
   loadHistory,
   resumeLive,
+  windowMaximized,
 } = useSnapshot()
 const activeTab = ref<TabId>('deaths')
 const query = ref('')
 const victimFilter = ref<EventUnitFilter | null>(null)
 const sourceFilter = ref<EventUnitFilter | null>(null)
 const historyOpen = ref(false)
-const menuOpen = ref(false)
-const menuRoot = ref<HTMLElement | null>(null)
 
 const desktop = computed(() => snapshot.value.desktop)
 const connectionText = computed(() => {
@@ -53,7 +52,6 @@ const connectionText = computed(() => {
 })
 
 function openHistory() {
-  menuOpen.value = false
   historyOpen.value = true
   requestHistory()
 }
@@ -64,32 +62,19 @@ function selectHistory(sessionId: string) {
 }
 
 function backToLive() {
-  menuOpen.value = false
   resumeLive()
 }
 
-function menuFindGame() {
-  menuOpen.value = false
-  command('find-game')
+function sendNativeTitle(action: string) {
+  window.chrome?.webview?.postMessage({ type: 'dss-titlebar', action })
 }
 
-function menuOpenLogs() {
-  menuOpen.value = false
-  command('open-logs')
+function beginTitlebarDrag(event: PointerEvent) {
+  if (event.button !== 0) return
+  if ((event.target as HTMLElement).closest('button, input, a')) return
+  sendNativeTitle('drag')
+  event.preventDefault()
 }
-
-function menuOpenSettings() {
-  menuOpen.value = false
-  command('open-settings')
-}
-
-function closeMenuOnOutsideClick(event: PointerEvent) {
-  if (menuOpen.value && menuRoot.value && !menuRoot.value.contains(event.target as Node))
-    menuOpen.value = false
-}
-
-onMounted(() => document.addEventListener('pointerdown', closeMenuOnOutsideClick))
-onBeforeUnmount(() => document.removeEventListener('pointerdown', closeMenuOnOutsideClick))
 
 function loadEventPage(request: { page: number; pageSize: number }) {
   requestEventPage({
@@ -119,7 +104,7 @@ function loadSettlementPage(request: {
 
 <template>
   <main class="app-shell" :class="{ 'desktop-app': desktop }">
-    <header v-if="desktop" class="desktop-bar">
+    <header v-if="desktop" class="desktop-bar" @pointerdown="beginTitlebarDrag">
       <div class="brand">
         <span class="brand-mark">D</span>
         <div>
@@ -133,35 +118,41 @@ function loadSettlementPage(request: {
           <i />
           {{ connectionText }}
         </span>
-        <div ref="menuRoot" class="desktop-menu">
-          <button
-            type="button"
-            class="menu-trigger"
-            :aria-expanded="menuOpen"
-            aria-haspopup="menu"
-            @click="menuOpen = !menuOpen"
-          >
-            菜单 <span>▾</span>
-          </button>
-          <div v-if="menuOpen" class="desktop-menu-panel" role="menu">
-            <button type="button" role="menuitem" :disabled="busy" @click="menuFindGame">
-              查找游戏
-            </button>
-            <button type="button" role="menuitem" @click="openHistory">历史</button>
-            <button
-              v-if="desktop.mode === 'history'"
-              type="button"
-              role="menuitem"
-              class="menu-accent"
-              @click="backToLive"
-            >
-              回到实时
-            </button>
-            <div class="menu-separator" />
-            <button type="button" role="menuitem" @click="menuOpenLogs">打开日志</button>
-            <button type="button" role="menuitem" @click="menuOpenSettings">设置</button>
-          </div>
-        </div>
+        <button type="button" :disabled="busy" @click="command('find-game')">查找游戏</button>
+        <button type="button" @click="openHistory">历史</button>
+        <button
+          v-if="desktop.mode === 'history'"
+          type="button"
+          class="accent"
+          @click="backToLive"
+        >
+          回到实时
+        </button>
+        <button type="button" @click="command('open-logs')">日志</button>
+        <button type="button" @click="command('open-settings')">设置</button>
+      </div>
+
+      <div class="window-controls">
+        <button type="button" aria-label="最小化" title="最小化" @click="sendNativeTitle('minimize')">
+          —
+        </button>
+        <button
+          type="button"
+          :aria-label="windowMaximized ? '还原' : '最大化'"
+          :title="windowMaximized ? '还原' : '最大化'"
+          @click="sendNativeTitle('toggle-maximize')"
+        >
+          {{ windowMaximized ? '❐' : '□' }}
+        </button>
+        <button
+          type="button"
+          class="close"
+          aria-label="关闭"
+          title="关闭"
+          @click="sendNativeTitle('close')"
+        >
+          ×
+        </button>
       </div>
     </header>
 

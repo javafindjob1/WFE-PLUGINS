@@ -1016,18 +1016,18 @@ button {
 }
 
 .app-shell.desktop-app {
-  grid-template-rows: 58px 47px minmax(0, 1fr) 25px;
+  grid-template-rows: 52px 47px minmax(0, 1fr) 25px;
 }
 
 .desktop-bar {
   position: relative;
   z-index: 20;
   min-width: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 0 14px;
+  gap: 9px;
+  padding-left: 14px;
   border-bottom: 1px solid rgba(204, 170, 94, 0.3);
   background:
     linear-gradient(90deg, rgba(217, 170, 71, 0.09), transparent 34%),
@@ -1078,82 +1078,68 @@ button {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  justify-self: center;
+  gap: 5px;
 }
 
-.desktop-menu {
-  position: relative;
-}
-
-.menu-trigger {
+.desktop-actions > button {
   height: 27px;
-  padding: 0 11px;
+  padding: 0 8px;
   border: 1px solid rgba(208, 170, 85, 0.2);
   border-radius: 3px;
   color: #bfb49e;
   background: rgba(255, 255, 255, 0.025);
   font-size: 9px;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-.menu-trigger:hover,
-.menu-trigger[aria-expanded="true"] {
+.desktop-actions > button:hover,
+.desktop-actions > button:focus-visible {
   border-color: rgba(226, 184, 90, 0.52);
   color: #ffe0a0;
   background: rgba(213, 167, 67, 0.08);
 }
 
-.menu-trigger span {
-  margin-left: 5px;
-  color: var(--muted);
-  font-size: 8px;
-}
-
-.desktop-menu-panel {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  min-width: 154px;
-  padding: 5px;
-  border: 1px solid rgba(214, 173, 82, 0.38);
-  border-radius: 5px;
-  background: rgba(20, 21, 18, 0.99);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
-}
-
-.desktop-menu-panel button {
-  width: 100%;
-  height: 30px;
-  padding: 0 10px;
-  border: 0;
-  border-radius: 3px;
-  color: #c9c0ae;
-  background: transparent;
-  font-size: 10px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.desktop-menu-panel button:hover,
-.desktop-menu-panel button:focus-visible {
-  color: #ffe0a0;
-  background: rgba(213, 167, 67, 0.09);
-}
-
-.desktop-menu-panel button:disabled {
+.desktop-actions > button:disabled {
   opacity: 0.48;
   cursor: wait;
 }
 
-.desktop-menu-panel .menu-accent {
+.desktop-actions > button.accent {
   border-color: rgba(103, 194, 174, 0.4);
   color: #9edbd0;
 }
 
-.menu-separator {
-  height: 1px;
-  margin: 4px 7px;
-  background: rgba(204, 170, 94, 0.16);
+.window-controls {
+  height: 100%;
+  display: flex;
+  justify-self: stretch;
+}
+
+.window-controls button {
+  width: 38px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  color: #aaa394;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.window-controls button:hover,
+.window-controls button:focus-visible {
+  color: #ffe0a0;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.window-controls button.close:hover,
+.window-controls button.close:focus-visible {
+  color: #fff;
+  background: #a83d34;
 }
 
 .connection-pill {
@@ -1167,6 +1153,7 @@ button {
   color: #7e796f;
   background: rgba(0, 0, 0, 0.18);
   font-size: 8px;
+  white-space: nowrap;
 }
 
 .connection-pill i,
@@ -1344,13 +1331,8 @@ button {
 }
 
 @media (max-width: 980px) {
-  .brand small,
-  .connection-pill {
+  .brand small {
     display: none;
-  }
-
-  .menu-trigger {
-    padding: 0 7px;
   }
 
   .search-box {

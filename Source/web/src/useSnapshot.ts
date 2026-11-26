@@ -67,6 +67,7 @@ export function useSnapshot() {
   const settlementDetail = ref<SettlementDetail | null>(null)
   const settlementDetailLoading = ref(false)
   const settlementDetailError = ref('')
+  const windowMaximized = ref(false)
 
   let nextSettlementRequestId = 0
   let nextEventRequestId = 0
@@ -83,9 +84,14 @@ export function useSnapshot() {
       items?: HistoryItem[]
       error?: string
       busy?: boolean
+      maximized?: boolean
     } | null
     if (!value) return
 
+    if (value.type === 'window-state') {
+      windowMaximized.value = Boolean(value.maximized)
+      return
+    }
     if (value.type === 'history-list') {
       historyItems.value = value.items ?? []
       historyError.value = value.error ?? ''
@@ -227,5 +233,6 @@ export function useSnapshot() {
     requestHistory,
     loadHistory,
     resumeLive,
+    windowMaximized,
   }
 }
