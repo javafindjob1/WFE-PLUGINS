@@ -164,8 +164,8 @@ internal static class Program
             用法：
               War3DeathSettlement.exe                     打开图形界面（默认，双击即可）
               War3DeathSettlement.exe --probe              实机诊断：把内存结构逐项打出来
-              War3DeathSettlement.exe --monitor [--seconds 120] [--panel-test]
-                                                         无界面监视；--panel-test 连上后自动发一次游戏内预览
+              War3DeathSettlement.exe --monitor [--seconds 120]
+                                                        无界面监视并输出结算日志
               War3DeathSettlement.exe --selftest           离线自检记账/结算逻辑（不需要游戏）
               War3DeathSettlement.exe --help               显示本帮助
 

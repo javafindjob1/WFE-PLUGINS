@@ -116,7 +116,7 @@ public sealed class Settlement
     public IReadOnlyList<HookBreakdown.Combination>? HookCombos { get; set; }
 
     /// <summary>
-    /// 致命一击的钩子事件（血从 &gt;0 到 ≤0 的最后一条）；游戏内阵亡面板用它显示
+    /// 致命一击的钩子事件（血从 &gt;0 到 ≤0 的最后一条）；结算明细用它显示
     /// “谁打死的、多少伤害、普攻/技能、攻击/伤害类型”。没有钩子数据时为 null。
     /// </summary>
     public DamageHook.HookEvent? FatalHookEvent { get; set; }

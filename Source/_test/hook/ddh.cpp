@@ -1273,6 +1273,12 @@ static void TryHookSetEventDamage(void)
 }
 
 static int DdhIsHeroCode(uint32_t code);
+static int DdhIsHeroCode(uint32_t code)
+{
+    if (!code) return 0;
+    const char c = (char)((code >> 24) & 0xFF);
+    return (c >= 'A' && c <= 'Z') ? 1 : 0;
+}
 
 /* ---- 真正的“记录一次伤害�?--- */
 /* ---------------------------------------------------------------------------
@@ -1711,7 +1717,7 @@ static int32_t ResolveOwnerPid(uint32_t obj)
    只在游戏线程（属性填�?/ 伤害钩子）调用；整局只算成功一次，失败最多重�?64 次�?
    写进 hdr.reserved[1]，C# 只在 hdr.version >= 21 时读�?*/
 static uint32_t      g_allyMask = 0;
-static int           g_localPlayerId = -1;   /* v27：GetPlayerId(GetLocalPlayer())，给阵亡总结/C# 用 */
+static int           g_localPlayerId = -1;   /* v27：GetPlayerId(GetLocalPlayer())，给 C# 用 */
 static volatile LONG g_allyMaskTries = 0;
 static volatile LONG g_allyMaskDone = 0;
 static uint32_t      g_natPlayer = 0;
@@ -1749,7 +1755,7 @@ static void DdhComputeAllyMask(void)
     __except (EXCEPTION_EXECUTE_HANDLER) { local = 0; }
     if (!local) return;
 
-    /* 先解析本地玩家号：即使 IsPlayerAlly 不可用，也要把真实玩家号给阵亡总结/C#。
+    /* 先解析本地玩家号：即使 IsPlayerAlly 不可用，也要把真实玩家号给 C#。
        这个函数只在游戏线程（属性填充）调用，不在伤害钩子里调 JASS。 */
     uint32_t localId = 0xFFFFFFFFu;
     const uint32_t gpid = GetPlayerIdNative();
@@ -8442,9 +8448,6 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
 #define DDH_HK_ID_R   0xD0D1u
 #define DDH_HK_ID_S   0xD0D2u
 #define DDH_HK_ID_Q   0xD0D3u
-#define DDH_HK_ID_C   0xD0D4u
-#define DDH_HK_ID_D   0xD0D5u
-#define DDH_HK_ID_E   0xD0D6u   /* Ctrl+Alt+D：mock 数据演示图表（调样式用） */
 #ifndef MOD_NOREPEAT
 #define MOD_NOREPEAT  0x4000u
 #endif
@@ -8494,10 +8497,6 @@ static HANDLE         g_ddhHkThread    = NULL;
 static volatile LONG  g_ddhPendR       = 0;
 static volatile LONG  g_ddhPendS       = 0;
 static volatile LONG  g_ddhPendQ       = 0;
-static volatile LONG  g_ddhPendC       = 0;   /* Ctrl+Alt+C：用最近受击单位开一次承伤图表（调试/自测�?*/
-static volatile LONG  g_ddhPendD       = 0;
-static DWORD          g_ddhDllTick = 0;   /* DLL 加载时刻 ≈ 进图时刻（图表时间标签基准） */
-static volatile LONG  g_ddhPendE       = 0;   /* Ctrl+Alt+D：mock 数据演示图表（调样式�?*/
 static volatile LONG  g_ddhAutoSend    = 1;    /* 默认开；S 切换 */
 static volatile LONG  g_ddhHkPressLogged  = 0;
 static volatile LONG  g_ddhHkActionLogged = 0;
@@ -8513,11 +8512,6 @@ static float          g_ddhPanelHitL = 0.0f;
 static float          g_ddhPanelHitT = 0.0f;
 static float          g_ddhPanelHitW = 0.0f;
 static float          g_ddhPanelHitH = 0.0f;
-static int      g_ddhChartMode = 0;
-static int      g_ddhChartCollapsed = 1;   /* 默认收缩 */
-static float    g_ddhChartW = 0.34f, g_ddhChartH = 0.32f;
-static float    g_ddhChartWantX = 0.60f, g_ddhChartWantY = -0.10f;
-static float    g_ddhChartX = 0.60f, g_ddhChartY = -0.24f, g_ddhChartFh = 0.0135f;
 static volatile LONG  g_ddhPanelLastToggle = 0;
 static volatile LONG  g_ddhPanelClickLogged = 0;
 static volatile LONG  g_ddhMouseMsgLogged = 0;
@@ -8527,7 +8521,7 @@ static float          g_ddhPanelFrameT = 0.0f;
 static float          g_ddhPanelFrameR = 0.0f;
 static float          g_ddhPanelFrameB = 0.0f;
 
-/* v28：游戏内【死亡结算】按钮（常驻小按钮，点一下唤出/收起阵亡总结面板）。
+/* v28：游戏内【死亡结算】按钮（常驻小按钮，点一下打开/关闭结算页）。
    几何同样是 UI 坐标（0.8 x 0.6），左上锚点、y 向下为负。 */
 #define DDH_BTN_X       0.008f
 #define DDH_BTN_Y       (-0.040f)
@@ -9533,11 +9527,8 @@ static void DdhGlobalAdd(const DdhEvent* e)
     if (e->actual > v->maxHit) v->maxHit = e->actual;
 }
 
-static void DdhSelfSettleEvent(const DdhEvent* e);
-
 static void DdhTrackEvent(const DdhEvent* e)
 {
-    DdhSelfSettleEvent(e);
     DdhGlobalAdd(e);
 
     if (!e->victim || e->victim != g_ddhTrack.unit) return;
@@ -9625,314 +9616,6 @@ static void DdhTrackEvent(const DdhEvent* e)
 }
 
 /* v12：热键动作要**立刻**在游戏线程执�?—�?窗口消息通道（实现见 DdhProcessPending 之后�?*/
-/* ===========================================================================
-   v22：dll 自己出“阵亡总结”（不依赖 War3DeathSettlement.exe）
-   ---------------------------------------------------------------------------
-   只统计“本地玩家的英雄”（victimOwner == 本地玩家号 且 IsHeroUnitId(victimCode)）：
-     · 从英雄出现/复活开始累计：承受伤害、笔数、最大一击、最惨 1 秒、战斗时长、来源 Top4；
-     · 死亡事件（前血 > 0、后血 <= 0）时拼面板，交给 DdhProcessDeferred 在伤害函数
-       最外层退出后显示（避免在引擎扣血过程中调游戏显示函数）。
-   C# 端只要写过 panel（seq 变化且不是 dll 自己写的）就认为“外部面板接管”，dll 不再抢。
-   =========================================================================== */
-static uint32_t g_selfHero = 0;
-static uint32_t g_selfHeroCode = 0;
-static int      g_selfLife = 1;
-static int      g_selfDead = 0;
-static uint32_t g_selfLifeStartSeq = 0;
-static uint32_t g_selfHits = 0;
-static double   g_selfNet = 0.0, g_selfRaw = 0.0, g_selfMax = 0.0;
-static uint32_t g_selfFirstTick = 0, g_selfLastTick = 0;
-static uint32_t g_selfCurSec = 0;
-static double   g_selfCurSum = 0.0, g_selfPeak = 0.0;
-static int      g_selfSecInit = 0;
-static DdhSrcStat g_selfSrc[DDH_SRC_MAX];
-static uint32_t g_selfSrcCount = 0;
-static uint32_t g_selfFatalSource = 0, g_selfFatalCode = 0, g_selfFatalFlag = 0;
-static uint32_t g_selfFatalPhysical = 0;
-static double   g_selfFatalNet = 0.0;
-static char     g_selfFatalName[64];
-static uint32_t g_selfPanelSeq = 0;
-static int      g_selfPanelPending = 0;
-static int      g_selfCsPanel = 0;
-
-static void DdhSelfPanelShow(void);
-
-static int DdhLocalPid(void)
-{
-    /* 不在伤害钩子里调 JASS native（GetLocalPlayer/GetPlayerId 在引擎扣血过程中
-       会动 JASS 栈，实测会把 Storm.dll 写崩）。
-       本地玩家号由游戏线程的 DdhComputeAllyMask 解析并缓存；没解析到才退回 0。 */
-    if (g_localPlayerId >= 0 && g_localPlayerId < 24) return g_localPlayerId;
-    return 0;
-}
-
-static int DdhIsHeroCode(uint32_t code)
-{
-    if (!code) return 0;
-    /* 英雄类型码首字母大写（O00X/Hpal…），普通单位/creep 小写（e007/n05P…）。
-       这样不需要在钩子里调 IsHeroUnitId。 */
-    const char c = (char)((code >> 24) & 0xFF);
-    return (c >= 'A' && c <= 'Z') ? 1 : 0;
-}
-
-static void DdhNumFmt(double v, char* out, size_t cap)
-{
-    if (!out || cap < 2) return;
-    if (!(v == v)) v = 0.0;
-    if (v < 0.0) v = 0.0;
-    char raw[40];
-    DdhSprintf(raw, sizeof(raw), "%.0f", v);
-    size_t n = strlen(raw), pos = 0;
-    for (size_t i = 0; i < n && pos + 2 < cap; i++)
-    {
-        if (i > 0 && ((n - i) % 3) == 0) out[pos++] = ',';
-        out[pos++] = raw[i];
-    }
-    out[pos] = 0;
-}
-
-static void DdhSelfReset(uint32_t hero, uint32_t code, uint32_t seq)
-{
-    g_selfHero = hero;
-    g_selfHeroCode = code;
-    g_selfLifeStartSeq = seq;
-    g_selfHits = 0; g_selfNet = 0.0; g_selfRaw = 0.0; g_selfMax = 0.0;
-    g_selfFirstTick = 0; g_selfLastTick = 0;
-    g_selfCurSec = 0; g_selfCurSum = 0.0; g_selfPeak = 0.0; g_selfSecInit = 0;
-    g_selfSrcCount = 0;
-    memset(g_selfSrc, 0, sizeof(g_selfSrc));
-    g_selfFatalSource = 0; g_selfFatalCode = 0; g_selfFatalFlag = 0;
-    g_selfFatalPhysical = 0; g_selfFatalNet = 0.0; g_selfFatalName[0] = 0;
-}
-
-static DdhSrcStat* DdhSelfSrcGet(const DdhEvent* e)
-{
-    const uint32_t key = e->sourceCode ? e->sourceCode : e->source;
-    for (uint32_t i = 0; i < g_selfSrcCount; i++)
-    {
-        DdhSrcStat* s = &g_selfSrc[i];
-        if ((s->code ? s->code : s->source) == key) return s;
-    }
-    if (g_selfSrcCount >= DDH_SRC_MAX) return NULL;
-    DdhSrcStat* s = &g_selfSrc[g_selfSrcCount++];
-    memset(s, 0, sizeof(*s));
-    s->source = e->source;
-    s->code = e->sourceCode;
-    DdhUnitLabelSafe(e->source, e->sourceCode, s->label, sizeof(s->label));
-    return s;
-}
-
-static void DdhSelfSettleEvent(const DdhEvent* e)
-{
-    if (!g_shm || !e || !e->victim) return;
-
-    /* 外部（C#）写过面板：说明有人接管显示，dll 不抢。 */
-    if (g_shm->panel.seq != 0 && g_shm->panel.seq != g_selfPanelSeq)
-        g_selfCsPanel = 1;
-    if (g_selfCsPanel) return;
-
-    const int lp = DdhLocalPid();
-    if (lp < 0) return;
-
-    /* 还没锁定英雄：找“本地玩家拥有的英雄”。 */
-    if (g_selfHero == 0 || e->victim != g_selfHero)
-    {
-        if (e->victimOwner != lp || !DdhIsHeroCode(e->victimCode)) return;
-        DdhSelfReset(e->victim, e->victimCode, e->seq);
-        g_selfDead = 0;
-        g_selfLife = 1;
-        LogLine("v22 阵亡总结：锁定本地英雄 0x%08X（%s），开始累计", e->victim,
-                DdhCodeText(e->victimCode));
-    }
-    if (e->victim != g_selfHero) return;
-
-    /* 复活/新一条命：后血回到正数。 */
-    if (g_selfDead && e->hpValid && e->hpAfter > 0.0f)
-    {
-        DdhSelfReset(g_selfHero, e->victimCode, e->seq);
-        g_selfDead = 0;
-    }
-    if (!e->hpValid || e->seq < g_selfLifeStartSeq) return;
-
-    const double net = (double)e->actual;
-    const double hit = net > 0.0 ? net : 0.0;
-    if (g_selfFirstTick == 0) g_selfFirstTick = e->tickMs;
-    g_selfLastTick = e->tickMs;
-
-    if (hit > 0.005)
-    {
-        g_selfHits++;
-        g_selfNet += hit;
-        g_selfRaw += (double)e->amount;
-        if (hit > g_selfMax) g_selfMax = hit;
-
-        const uint32_t sec = e->tickMs / 1000u;
-        if (!g_selfSecInit) { g_selfSecInit = 1; g_selfCurSec = sec; g_selfCurSum = 0.0; }
-        if (sec != g_selfCurSec)
-        {
-            if (g_selfCurSum > g_selfPeak) g_selfPeak = g_selfCurSum;
-            g_selfCurSec = sec;
-            g_selfCurSum = 0.0;
-        }
-        g_selfCurSum += hit;
-
-        DdhSrcStat* s = DdhSelfSrcGet(e);
-        if (s)
-        {
-            s->hits++;
-            s->net += net;
-            s->raw += (double)e->amount;
-            if (hit > (double)s->maxHit) s->maxHit = (float)hit;
-        }
-    }
-
-    /* 死亡：前血 > 0、后血 <= 0。 */
-    if (e->hpBefore > 0.0f && e->hpAfter <= 0.0f)
-    {
-        if (g_selfCurSum > g_selfPeak) g_selfPeak = g_selfCurSum;
-        g_selfFatalSource = e->source;
-        g_selfFatalCode = e->sourceCode;
-        g_selfFatalFlag = e->flag;
-        g_selfFatalPhysical = e->isPhysical;
-        g_selfFatalNet = net;
-        DdhUnitLabelSafe(e->source, e->sourceCode, g_selfFatalName, sizeof(g_selfFatalName));
-        g_selfDead = 1;
-        g_selfPanelPending = 1;
-        g_selfLife++;
-    }
-}
-
-static void DdhSelfPanelShow(void)
-{
-    if (!g_shm || g_selfCsPanel) return;
-    if (g_selfHero == 0) return;
-
-    /* 与 C# 端“承伤图表”同一套渲染：只发 ChartReq{magic, victim}，
-       5 秒分桶、四类（物理/法术/纯粹/移除）、来源分段全部由 DdhChartBuild 现算。 */
-    {
-        DdhPanelBlock cp;
-        memset(&cp, 0, sizeof(cp));
-        cp.flags = DDH_PANEL_FLAG_SHOW | DDH_PANEL_FLAG_BG | DDH_PANEL_FLAG_CHART |
-                   ((uint32_t)3u << DDH_PANEL_COLLAPSED_SHIFT);
-        cp.ttlMs = 20000;
-        cp.anchor = 0;
-        cp.x = 0.60f;
-        cp.y = -0.24f;
-        cp.lineHeight = 0.0175f;
-        cp.fontHeight = 0.0135f;
-        strcpy_s(cp.fontName, sizeof(cp.fontName), "MasterFont");
-        uint32_t payload[2] = { DDH_CHART_MAGIC, g_selfHero };
-        memcpy(cp.lines, payload, sizeof(payload));
-        cp.seq = (uint32_t)InterlockedIncrement((volatile LONG*)&g_selfPanelSeq);
-        memcpy(&g_shm->panel, &cp, sizeof(cp));
-        MemoryBarrier();
-        LogLine("v22 阵亡总结：已推送承伤图表（victim=0x%08X）", g_selfHero);
-        return;
-    }
-
-    DdhPanelBlock p;
-    memset(&p, 0, sizeof(p));
-    p.flags = DDH_PANEL_FLAG_SHOW | DDH_PANEL_FLAG_BG |
-              ((uint32_t)3u << DDH_PANEL_COLLAPSED_SHIFT);
-    p.ttlMs = 20000;
-    p.anchor = 0;
-    p.x = 0.60f;
-    p.y = -0.24f;
-    p.lineHeight = 0.0175f;
-    p.fontHeight = 0.0135f;
-    strcpy_s(p.fontName, sizeof(p.fontName), "MasterFont");
-
-    int n = 0;
-    char buf[240];
-    char num1[40], num2[40], num3[40], num4[40];
-    DdhNumFmt(g_selfNet, num1, sizeof(num1));
-    DdhNumFmt(g_selfMax, num2, sizeof(num2));
-    DdhNumFmt(g_selfPeak, num3, sizeof(num3));
-
-    p.lines[n].color = 0xFFFFD700u;
-    strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, "阵亡总结");
-
-    char label[96] = "";
-    DdhUnitLabel(g_selfHero, g_selfHeroCode, label, sizeof(label));
-    char codeTxt[8] = { 0 };
-    DdhCodeText(g_selfHeroCode, codeTxt, sizeof(codeTxt));
-    if (label[0] && codeTxt[0] && strstr(label, codeTxt))
-        DdhSprintf(buf, sizeof(buf), "%s", label);
-    else
-        DdhSprintf(buf, sizeof(buf), "%s · %s", label[0] ? label : "?", codeTxt);
-    p.lines[n].color = 0xFFFFFFFFu;
-    strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, buf);
-
-    SYSTEMTIME st;
-    GetLocalTime(&st);
-    DdhSprintf(buf, sizeof(buf), "玩家 %d · 第 %d 条命 · 死亡 %02u:%02u:%02u",
-               DdhLocalPid() + 1, g_selfLife - 1, st.wHour, st.wMinute, st.wSecond);
-    p.lines[n].color = 0xFFB0B0B0u;
-    strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, buf);
-
-    DdhSprintf(buf, sizeof(buf), "承受伤害 %s", num1);
-    p.lines[n].color = 0xFFFFFFFFu;
-    strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, buf);
-
-    DdhSprintf(buf, sizeof(buf), "%u 笔 · 最大 %s · 最惨 1 秒 %s",
-               g_selfHits, num2, num3);
-    p.lines[n].color = 0xFFB0B0B0u;
-    strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, buf);
-
-    double secs = (g_selfFirstTick && g_selfLastTick > g_selfFirstTick)
-                  ? (double)(g_selfLastTick - g_selfFirstTick) / 1000.0 : 0.0;
-    DdhSprintf(buf, sizeof(buf), "战斗 %.1f 秒 · 秒伤 %.0f",
-               secs, secs > 0.05 ? g_selfNet / secs : 0.0);
-    p.lines[n].color = 0xFFB0B0B0u;
-    strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, buf);
-
-    DdhNumFmt(g_selfFatalNet, num4, sizeof(num4));
-    DdhSprintf(buf, sizeof(buf), "致命一击 %s %s（%s · %s）",
-               g_selfFatalName[0] ? g_selfFatalName : "?",
-               num4,
-               (g_selfFatalFlag & 0x100u) ? "普攻" : "技能",
-               g_selfFatalPhysical ? "物理" : "法术");
-    p.lines[n].color = 0xFFFF6666u;
-    strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, buf);
-
-    p.lines[n].color = 0xFFFFD700u;
-    strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, "伤害来源");
-
-    int used[DDH_SRC_MAX];
-    memset(used, 0, sizeof(used));
-    for (int k = 0; k < 4 && k < (int)g_selfSrcCount; k++)
-    {
-        int best = -1;
-        for (uint32_t i = 0; i < g_selfSrcCount; i++)
-        {
-            if (used[i]) continue;
-            if (best < 0 || g_selfSrc[i].net > g_selfSrc[best].net) best = (int)i;
-        }
-        if (best < 0) break;
-        used[best] = 1;
-        DdhSrcStat* s = &g_selfSrc[best];
-        DdhNumFmt(s->net, num2, sizeof(num2));
-        double pct = g_selfNet > 0.01 ? (s->net * 100.0 / g_selfNet) : 0.0;
-        DdhSprintf(buf, sizeof(buf), "%s %.1f%%  %s  %u笔",
-                   s->label[0] ? s->label : (s->code ? DdhCodeText(s->code) : "?"),
-                   pct, num2, s->hits);
-        p.lines[n].color = 0xFFFFFFFFu;
-        strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, buf);
-        if (n >= DDH_PANEL_MAX_LINES - 1) break;
-    }
-
-    DdhSprintf(buf, sizeof(buf), "0x%08X · ddh v%d", g_selfHero, DDH_VERSION);
-    p.lines[n].color = 0xFFB0B0B0u;
-    strcpy_s(p.lines[n++].text, DDH_PANEL_LINE_TEXT, buf);
-
-    p.lineCount = (uint32_t)n;
-    p.seq = (uint32_t)InterlockedIncrement((volatile LONG*)&g_selfPanelSeq);
-    memcpy(&g_shm->panel, &p, sizeof(p));
-    MemoryBarrier();
-    LogLine("v22 阵亡总结：已推送（%d 行，承伤 %.0f，%u 笔，来源 %u）",
-            n, g_selfNet, g_selfHits, g_selfSrcCount);
-}
-
 static int  DdhEnsureGameWnd(void);
 static void DdhPostHotkeyToGame(void);
 
@@ -9947,24 +9630,8 @@ static void DdhProcessPanelRequest(void);
 static void DdhProcessHeroRequest(void);
 static void DdhPanelTick(void);
 static void DdhMaybePostPanelAndHero(void);
-static void DdhPanelDemoOnce(void);
 static void DdhDoTogglePanel(void);
-/* `~` 显隐：键�?`~`（VK_OEM_3）显�?隐藏面板。返�?1 = 这次按键被面板消�?*/
-static int  DdhDoToggleVisible(void);
-/* 承伤图表（flags bit4）：渲染/隐藏/点击。实现见 DdhDoToggleVisible 之后�?*/
-static int  DdhChartApply(uint32_t ui, const DdhPanelBlock* p, uint32_t victim,
-                          float x, float y, float fh, const char* font);
-static void DdhChartHide(void);
-static void DdhChartClick(int x, int y);
-static void DdhChartDebugShow(void);
-static void DdhChartDemoShow(void);
-static void DdhChartToggleView(void);
-static void DdhChartReflow(void);
-static void DdhChartToggleCollapsed(void);
-static int  DdhChartEscCollapse(void);
-static void DdhChartReviveCheck(void);
 
-static void DdhPanelClickAt(int x, int y);
 static volatile LONG g_ddhPanelPostErrLogged = 0;
 
 /* v28：游戏内按钮（实现在 DdhPanelHide 之后；窗口过程/面板 tick 里用） */
@@ -9986,18 +9653,14 @@ static DWORD WINAPI DdhHotkeyThreadProc(LPVOID)
     const BOOL rR = RegisterHotKey(NULL, DDH_HK_ID_R, mod, 'R');
     const BOOL rS = RegisterHotKey(NULL, DDH_HK_ID_S, mod, 'S');
     const BOOL rQ = RegisterHotKey(NULL, DDH_HK_ID_Q, mod, 'Q');
-    const BOOL rC = RegisterHotKey(NULL, DDH_HK_ID_C, mod, 'C');
-    const BOOL rD = RegisterHotKey(NULL, DDH_HK_ID_D, mod, 'D');
-    const BOOL rE = RegisterHotKey(NULL, DDH_HK_ID_E, mod, 'E');
 
-    LogLine("热键：线程已启动 tid=%lu，Ctrl+Alt+R=%s S=%s Q=%s C=%s D=%s（注册失败一般是被别的软件占用）",
+    LogLine("热键：线程已启动 tid=%lu，Ctrl+Alt+R=%s S=%s Q=%s（注册失败一般是被别的软件占用）",
             (unsigned long)g_ddhHkThreadId,
-            rR ? "成功" : "失败", rS ? "成功" : "失败", rQ ? "成功" : "失败",
-            rC ? "成功" : "失败", rD ? "成功" : "失败");
+            rR ? "成功" : "失败", rS ? "成功" : "失败", rQ ? "成功" : "失败");
 
     if (!rR && !rS && !rQ)
     {
-        LogLine("热键：三个组合键一个都没注册上，本次热键不可用（伤害钩子/统计/面板 TTL 不受影响）");
+        LogLine("热键：三个组合键一个都没注册上，本次热键不可用（伤害钩子/统计不受影响）");
         /* �?return：仍要托管游戏窗口，面板 TTL tick / 属性投递还要靠这条线程�?*/
     }
 
@@ -10029,9 +9692,6 @@ static DWORD WINAPI DdhHotkeyThreadProc(LPVOID)
                     case DDH_HK_ID_R: InterlockedExchange(&g_ddhPendR, 1); keyName = 'R'; break;
                     case DDH_HK_ID_S: InterlockedExchange(&g_ddhPendS, 1); keyName = 'S'; break;
                     case DDH_HK_ID_Q: InterlockedExchange(&g_ddhPendQ, 1); keyName = 'Q'; break;
-                    case DDH_HK_ID_C: InterlockedExchange(&g_ddhPendC, 1); keyName = 'C'; break;
-                    case DDH_HK_ID_D: InterlockedExchange(&g_ddhPendD, 1); keyName = 'D'; break;
-                    case DDH_HK_ID_E: InterlockedExchange(&g_ddhPendE, 1); keyName = 'E'; break;
                     default: break;
                     }
                     /* 热键按下本身记一条（限流），真机排查“热键到底有没有被系统发给游戏”用 */
@@ -10068,9 +9728,6 @@ static DWORD WINAPI DdhHotkeyThreadProc(LPVOID)
     UnregisterHotKey(NULL, DDH_HK_ID_R);
     UnregisterHotKey(NULL, DDH_HK_ID_S);
     UnregisterHotKey(NULL, DDH_HK_ID_Q);
-    UnregisterHotKey(NULL, DDH_HK_ID_C);
-    UnregisterHotKey(NULL, DDH_HK_ID_D);
-    UnregisterHotKey(NULL, DDH_HK_ID_E);
     LogLine("热键：线程退出（tid=%lu）", (unsigned long)g_ddhHkThreadId);
     return 0;
 }
@@ -10250,9 +9907,6 @@ static void DdhProcessPending(void)
     if (InterlockedExchange(&g_ddhPendR, 0)) DdhDoRecord();
     if (InterlockedExchange(&g_ddhPendS, 0)) DdhDoToggle();
     if (InterlockedExchange(&g_ddhPendQ, 0)) DdhDoQuery();
-    if (InterlockedExchange(&g_ddhPendC, 0)) DdhChartDebugShow();
-    if (InterlockedExchange(&g_ddhPendD, 0)) DdhChartDemoShow();
-    if (InterlockedExchange(&g_ddhPendE, 0)) DdhChartToggleView();
     /* v10：顺手处理单位属性请�?—�?DdhDamageFunc 最外层返回时会走这里，
        所以没有游戏窗�?/ 热键线程没起来时属性也能刷新（假魔兽冒烟就靠它）�?*/
     DdhProcessAttrRequest();
@@ -10295,7 +9949,6 @@ static void DdhProcessPending(void)
 #define DDH_WM_PANEL  (WM_APP + 0xDF)
 #define DDH_WM_HERO   (WM_APP + 0xE0)
 #define DDH_WM_PANEL_TICK (WM_APP + 0xE1)
-#define DDH_WM_SELF_PANEL (WM_APP + 0xE2)
 #define DDH_WM_OVERLAY_CLICK (WM_APP + 0xE3)
 #define DDH_WM_CURSOR_STATE  (WM_APP + 0xE4)
 #define DDH_WM_DAMAGE_DEFERRED (WM_APP + 0xE5)
@@ -10362,48 +10015,6 @@ static BOOL CALLBACK DdhEnumWndProc(HWND hwnd, LPARAM lp)
     return TRUE;
 }
 
-/* 图表右上角伸缩按钮。按钮的绘制坐标仍使用 UI 坐标（0.8 x 0.6），
-   但鼠标点击必须按背景帧布局后的真实像素矩形换算，不能再假设客户区正好
-   等于虚拟 UI 画布。窗口非 4:3、带黑边或 UI 缩放时，旧换算会把按钮点偏。 */
-static int DdhChartToggleHitTest(int x, int y)
-{
-    if (!g_ddhChartMode) return 0;
-
-    const float uiL = g_ddhChartX + g_ddhChartW - 0.055f;
-    const float uiR = g_ddhChartX + g_ddhChartW + 0.012f;
-    const float uiT = g_ddhChartY + 0.020f;
-    const float uiB = g_ddhChartY - 0.042f;
-
-    int l = 0, r = 0, t = 0, b = 0;
-    if (g_ddhPanelFrameRectOk && g_ddhPanelHitW > 0.0f && g_ddhPanelHitH > 0.0f)
-    {
-        const float fw = g_ddhPanelFrameR - g_ddhPanelFrameL;
-        const float fh = g_ddhPanelFrameB - g_ddhPanelFrameT;
-        l = (int)(g_ddhPanelFrameL + (uiL - g_ddhPanelHitL) / g_ddhPanelHitW * fw);
-        r = (int)(g_ddhPanelFrameL + (uiR - g_ddhPanelHitL) / g_ddhPanelHitW * fw);
-        t = (int)(g_ddhPanelFrameT + (g_ddhPanelHitT - uiT) / g_ddhPanelHitH * fh);
-        b = (int)(g_ddhPanelFrameT + (g_ddhPanelHitT - uiB) / g_ddhPanelHitH * fh);
-    }
-    else
-    {
-        RECT rc = { 0 };
-        if (!g_gameWnd || !GetClientRect(g_gameWnd, &rc) ||
-            rc.right <= rc.left || rc.bottom <= rc.top)
-            return 0;
-        const float cw = (float)(rc.right - rc.left);
-        const float ch = (float)(rc.bottom - rc.top);
-        /* 魔兽 UI 坐标是左上原点：横向 0..0.8，纵向 0..-0.6。
-           不能按屏幕中心原点换算，否则整个命中区会向右下偏。 */
-        l = (int)(uiL * 1.25f * cw);
-        r = (int)(uiR * 1.25f * cw);
-        t = (int)(-uiT * (1.0f / 0.6f) * ch);
-        b = (int)(-uiB * (1.0f / 0.6f) * ch);
-    }
-
-    /* 按钮本身约 50x40 像素；再向外放 4 像素，照顾贴近图标边缘的点击。 */
-    return x >= l - 4 && x < r + 4 && y >= t - 4 && y < b + 4;
-}
-
 /* v17：鼠标命中测试。优先用背景帧布局后的实际矩形（若可读），否则用归一化矩形（默认左上锚点）�?*/
 static int DdhPanelHitTest(int x, int y)
 {
@@ -10413,10 +10024,6 @@ static int DdhPanelHitTest(int x, int y)
     const int cw = rc.right - rc.left;
     const int ch = rc.bottom - rc.top;
     if (cw <= 0 || ch <= 0) return 0;
-
-    /* 按钮优先于面板背景命中：收缩/展开后背景帧被重排，按钮区域在重排后的
-       第一帧就可能已经可点，不能等背景矩形缓存更新后才生效。 */
-    if (DdhChartToggleHitTest(x, y)) return 1;
 
     if (g_ddhPanelFrameRectOk)
     {
@@ -10430,14 +10037,6 @@ static int DdhPanelHitTest(int x, int y)
         return x >= l && x < r && y >= t && y < b;
     }
 
-    if (g_ddhChartMode)
-    {
-        const int l2 = (int)((g_ddhChartX - 0.012f) * 1.25f * (float)cw);
-        const int t2 = (int)(-(g_ddhChartY + 0.012f) * (1.0f / 0.6f) * (float)ch);
-        const int r2 = (int)((g_ddhChartX - 0.012f + g_ddhChartW + 0.024f) * 1.25f * (float)cw);
-        const int b2 = (int)((-(g_ddhChartY + 0.012f) + g_ddhChartH + 0.024f) * (1.0f / 0.6f) * (float)ch);
-        return x >= l2 && x < r2 && y >= t2 && y < b2;
-    }
     if (!(g_ddhPanelHitW > 0.0f && g_ddhPanelHitH > 0.0f)) return 0;
     const int l = (int)(g_ddhPanelHitL * (float)cw);
     const int t = (int)(-g_ddhPanelHitT * (float)ch);
@@ -10450,14 +10049,6 @@ static int DdhPanelHitTest(int x, int y)
 
 static LRESULT CALLBACK DdhGameWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-    if (msg == WM_LBUTTONDOWN && g_ddhChartMode &&
-        InterlockedIncrement(&g_ddhMouseMsgLogged) <= 16)
-    {
-        LogLine("图表鼠标：窗口收到左键 (%d,%d) 覆盖层打开=%d",
-                (int)(short)LOWORD(lp), (int)(short)HIWORD(lp),
-                DdhImGuiActive());
-    }
-
     __try
     {
         if (DdhImGuiWndProc(hwnd, msg, wp, lp)) return 0;
@@ -10512,20 +10103,6 @@ static LRESULT CALLBACK DdhGameWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
         return 0;
     }
 
-    /* v15：C# 的阵亡面�?/ 英雄查询请求 —�?同样只在游戏线程动引�?UI / JASS�?*/
-    if (msg == DDH_WM_SELF_PANEL)
-    {
-        /* 自建阵亡总结：在窗口线程写块并应用，绝不在伤害钩子里建 UI 帧。 */
-        __try { DdhSelfPanelShow(); }
-        __except (EXCEPTION_EXECUTE_HANDLER)
-        {
-            LogLine("阵亡总结 wnd 异常 code=%08X（已吞掉）", (unsigned)GetExceptionCode());
-        }
-        __try { DdhProcessPanelRequest(); }
-        __except (EXCEPTION_EXECUTE_HANDLER) { }
-        return 0;
-    }
-
     if (msg == DDH_WM_PANEL)
     {
         __try { DdhProcessPanelRequest(); }
@@ -10552,24 +10129,6 @@ static LRESULT CALLBACK DdhGameWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
         __except (EXCEPTION_EXECUTE_HANDLER) { }
         return 0;
     }
-
-    /* `~` 显隐：键�?`~`（VK_OEM_3）显�?隐藏面板。只有“真的有面板可切”时才吞键，
-       其余情况原样转发，避免抢掉用户给 `~` 绑的其他功能�?
-       注意：本函数在游戏线程；TranslateMessage 已经跑过，吞 WM_KEYDOWN 不会影响聊天字符�?*/
-    if (msg == WM_KEYDOWN && (UINT)wp == VK_OEM_3 && (lp & 0x40000000L) == 0)
-    {
-        int handled = 0;
-        __try { handled = DdhDoToggleVisible(); }
-        __except (EXCEPTION_EXECUTE_HANDLER)
-        {
-            LogLine("面板：~ 切换异常 code=%08X（已吞掉）", (unsigned)GetExceptionCode());
-        }
-        if (handled) return 0;
-    }
-
-    /* ESC：展开态下直接收缩面板（收缩态不拦截，保留游戏菜单） */
-    if (msg == WM_KEYDOWN && (UINT)wp == VK_ESCAPE && DdhChartEscCollapse())
-        return 0;
 
     const int imguiActive = DdhImGuiActive();
 
@@ -10701,7 +10260,7 @@ static LRESULT CALLBACK DdhGameWndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp
                 if ((DWORD)(now - (DWORD)g_ddhPanelLastToggle) >= 80)
                 {
                     g_ddhPanelLastToggle = (LONG)now;
-                    DdhPanelClickAt(x, y);   /* 图表模式：点柱子下钻/返回；文本模式：展开/收起 */
+                    DdhDoTogglePanel();
                 }
             }
             return 0;
@@ -10834,7 +10393,7 @@ static void DdhRestoreGameWnd(void)
 static void DdhProcessDeferred(void)
 {
     /* GetLocalPlayer/GetPlayerId 只能在游戏线程调用。即使单位属性扫描已关闭，
-       阵亡总结仍需要这个真实本地玩家号，因此每次最外层伤害退出时尝试一次，
+       C# 仍需要这个真实本地玩家号，因此每次最外层伤害退出时尝试一次，
        成功以后 g_allyMaskDone 会把后续调用短路。 */
     __try { DdhComputeAllyMask(); }
     __except (EXCEPTION_EXECUTE_HANDLER)
@@ -10873,19 +10432,6 @@ static void DdhProcessDeferred(void)
         LogLine("热键：处理待办异常 code=%08X（已吞掉，不影响伤害钩子）", (unsigned)GetExceptionCode());
     }
 
-    /* v15：首次最外层伤害退出后（游戏线程）显示 demo 面板，便于真机验证字�?坐标�?*/
-    if (g_selfPanelPending)
-    {
-        g_selfPanelPending = 0;
-        /* 不能在伤害钩子里直接建图表帧：交给游戏窗口线程（WndProc）去写/应用。 */
-        if (g_gameWnd) PostMessageW(g_gameWnd, (UINT)(WM_APP + 0xE2), 0, 0);
-    }
-
-    __try { DdhPanelDemoOnce(); }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        LogLine("面板 demo 异常 code=%08X（已吞掉）", (unsigned)GetExceptionCode());
-    }
 }
 
 /* ===========================================================================
@@ -10994,7 +10540,6 @@ static char           g_ddhPanelFontOverride[DDH_PANEL_FONT_NAME] = { 0 };
 static char           g_ddhPanelBgPath[128] = { 0 };
 static char           g_ddhPanelBgEdge[128] = { 0 };
 static float          g_ddhPanelBgWidth = 0.37f;
-static volatile LONG  g_ddhPanelDemoDone = 0;
 
 
 static int DdhEnvTruthy(const char* name)
@@ -11215,9 +10760,6 @@ static void DdhApplyCursorOver(int over, int useSystemCursor)
 
 static void DdhPanelHide(void)
 {
-    /* 图表模式：把图表�?文字/头像一起藏掉（帧对象保留，下次重建�?*/
-    DdhChartHide();
-
     /* 换图/UI 重建后旧帧对象可能已经释放：只有确认还是同一�?CGameUI 才碰它们�?
        不是同一�?UI 就把指针丢掉（不 free），等下次显示时按新 UI 重建�?*/
     if (g_ddhPanelFrameCount > 0 || g_ddhPanelBgFrame ||
@@ -11282,7 +10824,7 @@ static void DdhPanelHide(void)
 
    · 位置：左上菜单栏下方（UI 坐标 0.8 x 0.6，左上锚点）
    · 显示：只在“进图后”显示（主菜单/载入界面不显示）
-   · 点击：面板没开 -> 唤出上一次阵亡总结（和 `~` 同一条路径）；已开 -> 收起
+   · 点击：面板没开 -> 打开死亡结算页；已开 -> 收起
            还没有任何结算数据时 -> 弹一条提示，告诉用户打完一仗再来
    · 关闭：环境变量 DDH_NO_BUTTON=1（调试用）
    =========================================================================== */
@@ -11638,7 +11180,7 @@ static void DdhButtonShowHint(void)
     strcpy_s(p.lines[0].text, sizeof(p.lines[0].text), "死亡结算");
     p.lines[1].color = 0xFFB0B0B0u;
     strcpy_s(p.lines[1].text, sizeof(p.lines[1].text),
-             "本局还没有阵亡记录（本地英雄阵亡后自动记录，再看这里）");
+             "本局还没有死亡结算记录");
 
     g_ddhPanelCollapsed = 0;
     g_ddhPanelIconCount = 0;
@@ -11652,7 +11194,7 @@ static void DdhButtonShowHint(void)
         LogLine("按钮：点击（还没有结算数据）r=%d", r);
 }
 
-/* 游戏线程：点按钮 = 唤出/收起阵亡总结（和 `~` 一条路径）。 */
+/* 游戏线程：旧覆盖层入口只负责打开/关闭结算页。 */
 static void DdhButtonClick(void)
 {
     if (DdhImGuiActive()) return;
@@ -12157,22 +11699,6 @@ static int DdhPanelApply(const DdhPanelBlock* p)
     else
         strcpy_s(font, sizeof(font), "MasterFont");
 
-    /* flags bit4：承伤图表模式。C# 不再发文本行，而是�?lines 区放 DdhChartReq{victim}�?
-       具体 5 秒分�?四类分段/来源聚合全部�?ddh 从自己的事件环算（C# 不用再算一遍）�?*/
-    if ((p->flags & DDH_PANEL_FLAG_CHART) != 0)
-    {
-        uint32_t victim = 0;
-        const uint8_t* payload = (const uint8_t*)p->lines;
-        if (payload)
-        {
-            uint32_t magic = 0, v = 0;
-            memcpy(&magic, payload, 4);
-            memcpy(&v, payload + 4, 4);
-            if (magic == DDH_CHART_MAGIC) victim = v;
-        }
-        return DdhChartApply(ui, p, victim, x, y, fh, font);
-    }
-
     const uint32_t root = ui + DDH_OFF_UI_LAYOUT_SUB;
     const uint32_t relFrame = root;
 
@@ -12570,8 +12096,6 @@ static void DdhPanelTick(void)
         __except (EXCEPTION_EXECUTE_HANDLER) { }
     }
 
-    DdhChartReviveCheck();   /* 收缩态下英雄复活 3 秒清除 */
-
     /* `~` 显隐：`~` 手动唤出的面板不自动消失（再按一�?`~` 才隐藏） */
     if (g_ddhPanelShown && !g_ddhPanelPinned && (LONG)GetTickCount() >= g_ddhPanelHideAt)
     {
@@ -12651,1163 +12175,6 @@ static int DdhDoToggleVisible(void)
     if (InterlockedIncrement(&g_ddhHkPanelLogged) <= 30)
         LogLine("面板：~ 重新显示失败（返回 %d；UI 没就绪/已退图，稍后再按）", r);
     return 1;   /* 有面板数据但这次 UI 没就绪：仍吞键，避免漏到游戏里 */
-}
-
-/* ===========================================================================
-   承伤图表（flags bit4）：最�?5 秒柱状图 + 点柱子下钻的四类伤害条形�?
-   ---------------------------------------------------------------------------
-   · C# 只发 DdhChartReq{victim}�? 秒分桶、四类归类、按来源分段全部�?ddh 里用
-     自己的事件环（g_shm->ev）算，不扩共享内存�?
-   · 绘制只用引擎帧：CBackdropFrame 当柱�?色块（两�?SetPoint 定矩形）�?
-     CTextFrame 当文字，来源头像�?CBackdropFrame + BLP 贴图�?
-   · 点击复用现成的命中矩形通道；图表模式下滑到 DdhChartClick�?
-   · 颜色：引擎帧没有可靠的顶点色接口，A 版统一用暗色贴�?+ 文字标签区分四类�?
-   =========================================================================== */
-#define DDH_CHART_SECONDS    10
-#define DDH_CHART_TYPES      4
-#define DDH_CHART_MAX_SRC    8
-#define DDH_CHART_MAX_SEG    16
-#define DDH_CHART_FRAME_MAX  64
-#define DDH_CHART_TEXT_MAX   40
-#define DDH_CHART_ICON_MAX   12
-
-struct DdhChartSeg { uint8_t type; uint8_t src; uint16_t pad; float amount; };
-struct DdhChartSrc { uint32_t addr; uint32_t code; float total; };
-
-static struct {
-    int      valid;
-    uint32_t victim;
-    uint32_t endTick;
-    uint32_t fatalSource;
-    uint32_t fatalCode;
-    float    total[DDH_CHART_SECONDS];
-    float    maxTotal;
-    int      srcCount;
-    DdhChartSrc src[DDH_CHART_MAX_SRC];
-    int      segCount[DDH_CHART_SECONDS];
-    DdhChartSeg seg[DDH_CHART_SECONDS][DDH_CHART_MAX_SEG];
-} g_ddhChart;
-
-static int      g_ddhChartView = 0;          /* 0 = 5 秒总览�?..5 = �?1..5 个桶下钻 */
-static int      g_ddhChartDemo = 0;          /* 1 = 下一�?Apply �?mock 数据（调样式�?*/
-static uint32_t g_ddhChartUi = 0;
-static DWORD    g_ddhChartBaseTick = 0;
-static char     g_ddhChartFont[DDH_PANEL_FONT_NAME] = { 0 };
-static uint32_t g_ddhChartFrames[DDH_CHART_FRAME_MAX];
-static char     g_ddhChartFrameTex[DDH_CHART_FRAME_MAX][64];
-static uint32_t g_ddhChartTexts[DDH_CHART_TEXT_MAX];
-static uint32_t g_ddhChartIcons[DDH_CHART_ICON_MAX];
-static char     g_ddhChartIconPath[DDH_CHART_ICON_MAX][128];
-static float    g_ddhChartBar[DDH_CHART_SECONDS][4];   /* x0, x1, yTop, yBot（UI 归一化） */
-static int      g_ddhChartBarOk = 0;
-static volatile LONG g_ddhChartLogCount = 0;
-
-static int g_ddhChartUnitMode = 0;   /* 0=原值 1=万 2=亿（由总伤害决定，全表统一） */
-static void DdhChartFormatScaled(char* out, size_t cap, float v)
-{
-    if (g_ddhChartUnitMode == 2)      _snprintf_s(out, cap, _TRUNCATE, "%.2f亿", (double)(v / 100000000.0f));
-    else if (g_ddhChartUnitMode == 1) _snprintf_s(out, cap, _TRUNCATE, "%.1f万", (double)(v / 10000.0f));
-    else                              _snprintf_s(out, cap, _TRUNCATE, "%.0f", (double)v);
-}
-
-static void DdhChartFormatBar(char* out, size_t cap, float v)
-{
-    if (g_ddhChartUnitMode == 2)      _snprintf_s(out, cap, _TRUNCATE, "%.1f亿", (double)(v / 100000000.0f));
-    else if (g_ddhChartUnitMode == 1) _snprintf_s(out, cap, _TRUNCATE, "%.0f万", (double)(v / 10000.0f));
-    else                              _snprintf_s(out, cap, _TRUNCATE, "%.0f", (double)v);
-}
-
-static void DdhChartFormatAmount(char* out, size_t cap, float v)
-{
-    if (v >= 100000000.0f)      _snprintf_s(out, cap, _TRUNCATE, "%.2f亿", (double)(v / 100000000.0f));
-    else if (v >= 10000.0f)     _snprintf_s(out, cap, _TRUNCATE, "%.1f万", (double)(v / 10000.0f));
-    else                        _snprintf_s(out, cap, _TRUNCATE, "%.0f", (double)v);
-}
-
-/* 事件 �?四类�?=物理 1=法术 2=纯粹 3=生命移除（按 ddh 记录�?isPhysical/伤害类型掩码推） */
-/* 四类口径：物理 = 伤害类型 4；法术 = 攻击类型 0；
-   纯粹 = 攻击类型 != 0 且 伤害类型 != 4；移除 = 净掉血 - 地图伤害（Build 里按残差入账）。 */
-static int DdhChartKind(const DdhEvent* e)
-{
-    uint32_t m = e->damageMask;
-    int dt = -1;
-    if (m)
-    {
-        int b = 0;
-        while (b < 31 && (m & (1u << b)) == 0) ++b;
-        dt = b;                            /* 伤害类型 = log2(mask)（0x10 -> 4） */
-    }
-    if (e->attackType != 0 && dt != 4) return 2;   /* 纯粹（先判）：攻击类型 != 0 且 伤害类型 != 4 */
-    if (dt == 4) return 0;                        /* 物理：伤害类型 4 */
-    if (e->attackType == 0) return 1;             /* 法术：攻击类型 0 */
-    return 1;
-}
-
-static int DdhChartSrcSlot(uint32_t addr, uint32_t code)
-{
-    for (int i = 0; i < g_ddhChart.srcCount; ++i)
-        if (code ? (g_ddhChart.src[i].code == code) : (g_ddhChart.src[i].addr == addr)) return i;   /* 按单位类型合并 */
-    if (g_ddhChart.srcCount >= DDH_CHART_MAX_SRC) return -1;
-    int i = g_ddhChart.srcCount++;
-    g_ddhChart.src[i].addr = addr;
-    g_ddhChart.src[i].code = code;
-    g_ddhChart.src[i].total = 0.0f;
-    return i;
-}
-
-static void DdhChartAdd(int bucket, int type, uint32_t addr, uint32_t code, float amount)
-{
-    if (bucket < 0 || bucket >= DDH_CHART_SECONDS) return;
-    int src = DdhChartSrcSlot(addr, code);
-    if (src < 0) return;
-    g_ddhChart.src[src].total += amount;
-    g_ddhChart.total[bucket] += amount;
-
-    int n = g_ddhChart.segCount[bucket];
-    for (int i = 0; i < n; ++i)
-    {
-        if (g_ddhChart.seg[bucket][i].type == (uint8_t)type &&
-            g_ddhChart.seg[bucket][i].src == (uint8_t)src)
-        {
-            g_ddhChart.seg[bucket][i].amount += amount;
-            return;
-        }
-    }
-    if (n >= DDH_CHART_MAX_SEG) return;
-    g_ddhChart.seg[bucket][n].type = (uint8_t)type;
-    g_ddhChart.seg[bucket][n].src = (uint8_t)src;
-    g_ddhChart.seg[bucket][n].pad = 0;
-    g_ddhChart.seg[bucket][n].amount = amount;
-    g_ddhChart.segCount[bucket] = n + 1;
-}
-
-/* 从事件环里找 victim 最近一次事件的 tick */
-static int DdhChartFindEnd(uint32_t victim, uint32_t* outTick)
-{
-    if (!g_shm || !victim) return 0;
-    uint32_t count = g_shm->hdr.count;
-    uint32_t cap = g_shm->hdr.capacity ? g_shm->hdr.capacity : DDH_MAX_EVENTS;
-    uint32_t n = count < cap ? count : cap;
-    for (uint32_t k = 0; k < n; ++k)
-    {
-        uint32_t seq = count - k;
-        if (seq == 0) break;
-        const DdhEvent* e = &g_shm->ev[(seq - 1) % cap];
-        if (e->seq != seq) continue;
-        if (e->victim == victim) { *outTick = e->tickMs; return 1; }
-    }
-    return 0;
-}
-
-static int DdhChartBuild(uint32_t victim)
-{
-    memset(&g_ddhChart, 0, sizeof(g_ddhChart));
-    if (!g_shm || !victim) return 0;
-    uint32_t endTick = 0;
-    if (!DdhChartFindEnd(victim, &endTick)) return 0;
-
-    g_ddhChart.victim = victim;
-    g_ddhChart.endTick = endTick;
-
-    uint32_t count = g_shm->hdr.count;
-    uint32_t cap = g_shm->hdr.capacity ? g_shm->hdr.capacity : DDH_MAX_EVENTS;
-    uint32_t n = count < cap ? count : cap;
-    for (uint32_t k = 0; k < n; ++k)
-    {
-        uint32_t seq = count - k;
-        if (seq == 0) break;
-        const DdhEvent* e = &g_shm->ev[(seq - 1) % cap];
-        if (e->seq != seq) continue;
-        if (e->victim != victim) continue;
-        if ((int32_t)(endTick - e->tickMs) < 0) continue;
-        if (e->hpValid && e->hpBefore > 0.0f && e->hpAfter <= 0.0f &&
-            !g_ddhChart.fatalCode)
-        {
-            g_ddhChart.fatalSource = e->source;
-            g_ddhChart.fatalCode = e->sourceCode;
-        }
-        uint32_t dt = endTick - e->tickMs;
-        if (dt >= (uint32_t)(DDH_CHART_SECONDS * 1000)) continue;   /* 与桶数一致的窗口 */
-        int bucket = DDH_CHART_SECONDS - 1 - (int)(dt / 1000u);
-
-        const float net = (e->hpValid && e->actual > 0.01f) ? e->actual : 0.0f;
-        /* 只认地图伤害（出口 *out，v20 在“确实掉血”时置 bit0 可信）。
-           没有可信地图伤害的事件直接跳过，不再退回 engineDamage / amount / 净掉血。 */
-        if (!((e->finalFlags & 1u) && e->finalDamage > 0.01f)) continue;
-        const float eff = e->finalDamage;
-        const int kind = DdhChartKind(e);
-        DdhChartAdd(bucket, kind, e->source, e->sourceCode, eff);
-        const float removal = net - eff;                                     /* 移除 = 净掉血 - 地图伤害 */
-        if (removal > 0.01f) DdhChartAdd(bucket, 3, e->source, e->sourceCode, removal);
-    }
-
-    for (int i = 0; i < DDH_CHART_SECONDS; ++i)
-        if (g_ddhChart.total[i] > g_ddhChart.maxTotal) g_ddhChart.maxTotal = g_ddhChart.total[i];
-    if (!g_ddhChart.fatalCode)
-    {
-        int best = -1;
-        float bestTotal = 0.0f;
-        for (int i = 0; i < g_ddhChart.srcCount; ++i)
-        {
-            if (g_ddhChart.src[i].total <= bestTotal) continue;
-            best = i;
-            bestTotal = g_ddhChart.src[i].total;
-        }
-        if (best >= 0)
-        {
-            g_ddhChart.fatalSource = g_ddhChart.src[best].addr;
-            g_ddhChart.fatalCode = g_ddhChart.src[best].code;
-        }
-    }
-    g_ddhChart.valid = (g_ddhChart.maxTotal > 0.01f) ? 1 : 0;
-
-    /* 每桶内按金额降序（渲�?头像挑大头用�?*/
-    for (int b = 0; b < DDH_CHART_SECONDS; ++b)
-    {
-        for (int i = 1; i < g_ddhChart.segCount[b]; ++i)
-        {
-            DdhChartSeg t = g_ddhChart.seg[b][i];
-            int j = i - 1;
-            while (j >= 0 && g_ddhChart.seg[b][j].amount < t.amount)
-            {
-                g_ddhChart.seg[b][j + 1] = g_ddhChart.seg[b][j];
-                --j;
-            }
-            g_ddhChart.seg[b][j + 1] = t;
-        }
-    }
-    return 1;
-}
-
-/* ---- �?文字/头像 ---- */
-static uint32_t DdhChartFrame(int idx)
-{
-    if (idx < 0 || idx >= DDH_CHART_FRAME_MAX) return 0;
-    if (g_ddhChartFrames[idx]) return g_ddhChartFrames[idx];
-    if (!g_ddhUiCreateBackdrop || !g_ddhChartUi) return 0;
-    uint32_t f = 0;
-    __try { f = ((fn_ui_create_backdrop_t)(uintptr_t)g_ddhUiCreateBackdrop)(g_ddhChartUi, 0, 0); }
-    __except (EXCEPTION_EXECUTE_HANDLER) { f = 0; }
-    if (!f) return 0;
-    g_ddhChartFrames[idx] = f;
-    g_ddhChartFrameTex[idx][0] = 0;
-    __try { ((uint8_t*)(uintptr_t)f)[0xAC] = 0xFF; }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-    DdhFrameShowHide((void*)(uintptr_t)f, 0);
-    return f;
-}
-
-static int DdhChartFrameTexSet(int idx)
-{
-    uint32_t f = DdhChartFrame(idx);
-    if (!f) return 0;
-    static const char* kChartBarTex = "UI\\Widgets\\Glues\\LoadingBar\\Loading-BarFill.blp";
-    const char* tex = kChartBarTex;
-    if (_stricmp(g_ddhChartFrameTex[idx], tex) != 0)
-    {
-        __try
-        {
-            ((fn_ui_setbackdrop_t)(uintptr_t)g_ddhUiSetBackdrop)(
-                (void*)(uintptr_t)f, 0, tex, 0u, 0u, NULL, 1u);
-        }
-        __except (EXCEPTION_EXECUTE_HANDLER) { }
-        strncpy_s(g_ddhChartFrameTex[idx], sizeof(g_ddhChartFrameTex[idx]), tex, _TRUNCATE);
-    }
-    return 1;
-}
-
-/* 指定贴图（TeamColor 纯色）设置到某个槽位；同一槽位贴图变了才重设。 */
-static int DdhChartTexSetEx(int idx, const char* tex)
-{
-    uint32_t f = DdhChartFrame(idx);
-    if (!f) return 0;
-    if (_stricmp(g_ddhChartFrameTex[idx], tex) != 0)
-    {
-        __try
-        {
-            ((fn_ui_setbackdrop_t)(uintptr_t)g_ddhUiSetBackdrop)(
-                (void*)(uintptr_t)f, 0, tex, 0u, 0u, NULL, 1u);
-        }
-        __except (EXCEPTION_EXECUTE_HANDLER) { }
-        strncpy_s(g_ddhChartFrameTex[idx], sizeof(g_ddhChartFrameTex[idx]), tex, _TRUNCATE);
-    }
-    return 1;
-}
-
-static void DdhChartTint(uint32_t frame, uint32_t argb)
-{
-    (void)argb;   /* 引擎帧没有可靠的顶点色字段：0xB0 不是颜色，写 float 会把帧打崩。只保留 alpha。 */
-    if (!frame) return;
-    __try { ((uint8_t*)(uintptr_t)frame)[0xAC] = 0xFF; }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-}
-
-static void DdhChartRect(uint32_t frame, float x0, float yTop, float x1, float yBot)
-{
-    if (!frame) return;
-    uint32_t layout = g_ddhPanelNoSub ? frame : frame + DDH_OFF_UI_LAYOUT_SUB;
-    const uint32_t rel = g_ddhChartUi + DDH_OFF_UI_LAYOUT_SUB;
-    __try
-    {
-        ((fn_ui_setpoint_t)(uintptr_t)g_ddhUiSetPoint)((void*)(uintptr_t)layout, 0, 0u, rel, 0u, x0, yTop, 1);
-        ((fn_ui_setpoint_t)(uintptr_t)g_ddhUiSetPoint)((void*)(uintptr_t)layout, 0, 8u, rel, 0u, x1, yBot, 1);
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-}
-
-static uint32_t DdhChartTextFrame(int slot)
-{
-    if (slot < 0 || slot >= DDH_CHART_TEXT_MAX) return 0;
-    if (g_ddhChartTexts[slot]) return g_ddhChartTexts[slot];
-    if (!g_ddhUiCreateText || !g_ddhChartUi) return 0;
-    uint32_t f = 0;
-    __try { f = ((fn_ui_create_text_t)(uintptr_t)g_ddhUiCreateText)(g_ddhChartUi, 0, 0); }
-    __except (EXCEPTION_EXECUTE_HANDLER) { f = 0; }
-    if (!f) return 0;
-    g_ddhChartTexts[slot] = f;
-    __try
-    {
-        uint32_t* q = (uint32_t*)(uintptr_t)f;
-        q[0x0C / 4] |= q[0x10 / 4] | 2u;
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-    DdhFrameShowHide((void*)(uintptr_t)f, 0);
-    return f;
-}
-
-static void DdhChartText(int slot, const char* text, float x, float y, float fh, uint32_t argb)
-{
-    uint32_t frame = DdhChartTextFrame(slot);
-    if (!frame) return;
-    const char* font = g_ddhChartFont[0] ? g_ddhChartFont : "MasterFont";
-    uint32_t color = argb;
-    __try { ((fn_ui_set_font_t)(uintptr_t)g_ddhUiSetFont)((void*)(uintptr_t)frame, 0, font, fh, 0); }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-    __try { ((fn_ui_set_fontflags_t)(uintptr_t)g_ddhUiSetFontFlags)((void*)(uintptr_t)frame, 0, 0x3008u); }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-    __try { ((fn_ui_set_color_t)(uintptr_t)g_ddhUiSetColor)((void*)(uintptr_t)frame, 0, &color); }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-    __try { ((fn_ui_set_text_t)(uintptr_t)g_ddhUiSetText)((void*)(uintptr_t)frame, 0, text); }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-
-    uint32_t layout = g_ddhPanelNoSub ? frame : frame + DDH_OFF_UI_LAYOUT_SUB;
-    const uint32_t rel = g_ddhChartUi + DDH_OFF_UI_LAYOUT_SUB;
-    __try { ((fn_ui_setpoint_t)(uintptr_t)g_ddhUiSetPoint)((void*)(uintptr_t)layout, 0, 0u, rel, 0u, x, y, 1); }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-    DdhFrameShowHide((void*)(uintptr_t)frame, 1);
-}
-
-static int DdhChartIconPathOf(uint32_t code, char* out, size_t cap)
-{
-    if (!code) return 0;
-    if (DdhIconResolve(code, out, cap)) return 1;
-    uint32_t sw = (code >> 24) | ((code >> 8) & 0x0000FF00u) |
-                  ((code << 8) & 0x00FF0000u) | (code << 24);
-    if (sw != code && DdhIconResolve(sw, out, cap)) return 1;
-    return 0;
-}
-
-static void DdhChartIcon(int slot, uint32_t code, float x, float yTop, float size)
-{
-    if (slot < 0 || slot >= DDH_CHART_ICON_MAX) return;
-    char path[128] = { 0 };
-    if (!DdhChartIconPathOf(code, path, sizeof(path))) return;
-
-    uint32_t f = g_ddhChartIcons[slot];
-    if (!f)
-    {
-        if (!g_ddhUiCreateBackdrop || !g_ddhChartUi) return;
-        __try { f = ((fn_ui_create_backdrop_t)(uintptr_t)g_ddhUiCreateBackdrop)(g_ddhChartUi, 0, 0); }
-        __except (EXCEPTION_EXECUTE_HANDLER) { f = 0; }
-        if (!f) return;
-        g_ddhChartIcons[slot] = f;
-        g_ddhChartIconPath[slot][0] = 0;
-        __try { ((uint8_t*)(uintptr_t)f)[0xAC] = 0xFF; }
-        __except (EXCEPTION_EXECUTE_HANDLER) { }
-    }
-    if (_stricmp(g_ddhChartIconPath[slot], path) != 0)
-    {
-        __try
-        {
-            ((fn_ui_setbackdrop_t)(uintptr_t)g_ddhUiSetBackdrop)(
-                (void*)(uintptr_t)f, 0, path, 0u, 0u, NULL, 1u);
-        }
-        __except (EXCEPTION_EXECUTE_HANDLER) { }
-        strncpy_s(g_ddhChartIconPath[slot], sizeof(g_ddhChartIconPath[slot]), path, _TRUNCATE);
-    }
-    float aspect = 1.5f;
-    RECT rc = { 0 };
-    if (g_gameWnd && GetClientRect(g_gameWnd, &rc) && rc.right > 0 && rc.bottom > 0)
-        aspect = (float)rc.right / (float)rc.bottom;
-    const float h = size * 0.75f * aspect;   /* x/y 单位比例不同：按客户区宽高比换成像素正方形 */
-    DdhChartRect(f, x, yTop, x + size, yTop - h);
-    DdhFrameShowHide((void*)(uintptr_t)f, 1);
-}
-
-static void DdhChartHideAll(void)
-{
-    /* 只有还停在同一�?CGameUI 上才碰旧帧；换图/退图后引擎可能已经释放它们�?
-       这时只丢指针（不 free），避免 UAF�?*/
-    const uint32_t curUi = DdhGetGameUi();
-    const int sameUi = (g_ddhChartUi != 0 && curUi == g_ddhChartUi);
-    if (sameUi)
-    {
-        for (int i = 0; i < DDH_CHART_FRAME_MAX; ++i)
-            if (g_ddhChartFrames[i]) DdhFrameShowHide((void*)(uintptr_t)g_ddhChartFrames[i], 0);
-        for (int i = 0; i < DDH_CHART_TEXT_MAX; ++i)
-            if (g_ddhChartTexts[i]) DdhFrameShowHide((void*)(uintptr_t)g_ddhChartTexts[i], 0);
-        for (int i = 0; i < DDH_CHART_ICON_MAX; ++i)
-            if (g_ddhChartIcons[i]) DdhFrameShowHide((void*)(uintptr_t)g_ddhChartIcons[i], 0);
-        return;
-    }
-    memset(g_ddhChartFrames, 0, sizeof(g_ddhChartFrames));
-    memset(g_ddhChartFrameTex, 0, sizeof(g_ddhChartFrameTex));
-    memset(g_ddhChartTexts, 0, sizeof(g_ddhChartTexts));
-    memset(g_ddhChartIcons, 0, sizeof(g_ddhChartIcons));
-    memset(g_ddhChartIconPath, 0, sizeof(g_ddhChartIconPath));
-    g_ddhChartUi = 0;
-}
-
-static void DdhChartRenderOverview(void)
-{
-    char buf[96];
-    const float base = g_ddhChartY - 0.250f;
-    const float top  = g_ddhChartY - 0.050f;
-    const float maxH = top - base;
-    const float bw = 0.026f, gap = 0.012f;
-    const float x0 = g_ddhChartX + 0.02f;
-    const float mx = g_ddhChart.maxTotal > 0.01f ? g_ddhChart.maxTotal : 1.0f;
-    const int nowSec = g_ddhDllTick ? (int)((GetTickCount() - g_ddhDllTick) / 1000u) : 0;
-
-    DdhChartText(0, "承伤 · 最近 5 秒", g_ddhChartX,
-                 g_ddhChartY, g_ddhChartFh * 1.05f, 0xFFF0E0C0u);
-    g_ddhChartBarOk = 1;
-
-    for (int i = 0; i < DDH_CHART_SECONDS; ++i)
-    {
-        const float t = g_ddhChart.total[i];
-        float h = (t > 0.0f ? t / mx : 0.0f) * maxH;
-        const float bx0 = x0 + (float)i * (bw + gap);
-        const float bx1 = bx0 + bw;
-        const float yTop = base + (h > 0.012f ? h : 0.012f);
-
-        if (DdhChartFrameTexSet(i))
-        {
-            DdhChartRect(g_ddhChartFrames[i], bx0, yTop, bx1, base);
-            DdhFrameShowHide((void*)(uintptr_t)g_ddhChartFrames[i], 1);
-        }
-        g_ddhChartBar[i][0] = bx0;
-        g_ddhChartBar[i][1] = bx1;
-        g_ddhChartBar[i][2] = yTop;
-        g_ddhChartBar[i][3] = base;
-
-        DdhChartFormatAmount(buf, sizeof(buf), t);
-        DdhChartText(1 + i, buf, bx0 - 0.004f, yTop + 0.006f, g_ddhChartFh * 0.85f, 0xFFFFD080u);
-        {
-            int sec = nowSec - (DDH_CHART_SECONDS - 1 - i);
-            if (sec < 0) sec = 0;
-            _snprintf_s(buf, sizeof(buf), _TRUNCATE, "%02d:%02d", sec / 60, sec % 60);
-        }
-        DdhChartText(24 + i, buf, bx0 + 0.003f, base - g_ddhChartFh * 1.05f, g_ddhChartFh * 0.62f, 0xFFB0B0B0u);
-    }
-}
-
-static void DdhChartRenderDetail(int bucket)
-{
-    static const char* kNames[DDH_CHART_TYPES] = { "物理", "法术", "纯粹", "移除" };
-    static const uint32_t kColors[DDH_CHART_TYPES] = {
-        0xFFFF8888u, 0xFF88AAFFu, 0xFFFFFFFFu, 0xFFCC99FFu
-    };
-    char buf[96];
-    float typeTotal[DDH_CHART_TYPES] = { 0, 0, 0, 0 };
-    float typeMax = 0.0f;
-
-    const int nseg = g_ddhChart.segCount[bucket];
-    for (int i = 0; i < nseg; ++i)
-        typeTotal[g_ddhChart.seg[bucket][i].type] += g_ddhChart.seg[bucket][i].amount;
-    for (int t = 0; t < DDH_CHART_TYPES; ++t)
-        if (typeTotal[t] > typeMax) typeMax = typeTotal[t];
-
-    DdhChartFormatAmount(buf, sizeof(buf), g_ddhChart.total[bucket]);
-    {
-        char title[96];
-        _snprintf_s(title, sizeof(title), _TRUNCATE, "第 -%d 秒 · 承伤构成  %s",
-                    DDH_CHART_SECONDS - bucket, buf);
-        DdhChartText(0, title, g_ddhChartX,
-                     g_ddhChartY, g_ddhChartFh * 1.05f, 0xFFF0E0C0u);
-    }
-
-    const float barX0 = g_ddhChartX + 0.075f;
-    const float barMaxW = 0.150f;
-    const float barH = 0.016f;
-    int iconSlot = 0;
-
-    for (int t = 0; t < DDH_CHART_TYPES; ++t)
-    {
-        const float rowY = g_ddhChartY - 0.050f - (float)t * 0.058f;
-        const float rowBot = rowY - barH;
-
-        DdhChartText(1 + t * 2, kNames[t], g_ddhChartX + 0.004f, rowY - barH * 0.15f,
-                     g_ddhChartFh * 0.92f, kColors[t]);
-
-        DdhChartFormatAmount(buf, sizeof(buf), typeTotal[t]);
-        {
-            char vbuf[96];
-            const float pct = g_ddhChart.total[bucket] > 0.01f
-                ? typeTotal[t] * 100.0f / g_ddhChart.total[bucket] : 0.0f;
-            _snprintf_s(vbuf, sizeof(vbuf), _TRUNCATE, "%s (%.0f%%)", buf, (double)pct);
-            DdhChartText(2 + t * 2, vbuf, g_ddhChartX + 0.300f, rowY - barH * 0.15f,
-                         g_ddhChartFh * 0.85f, 0xFFC8C8C8u);
-        }
-
-        if (typeTotal[t] <= 0.01f) continue;
-
-        const float fullW = (typeTotal[t] / (typeMax > 0.01f ? typeMax : 1.0f)) * barMaxW;
-        float cx = barX0;
-        for (int i = 0; i < nseg && cx < barX0 + fullW - 0.001f; ++i)
-        {
-            const DdhChartSeg* sg = &g_ddhChart.seg[bucket][i];
-            if (sg->type != (uint8_t)t) continue;
-            float w = sg->amount / typeTotal[t] * fullW;
-            if (w < 0.003f) w = 0.003f;
-            const float segEnd = (cx + w > barX0 + fullW) ? barX0 + fullW : cx + w;
-            const int slot = 8 + t * 6 + (i % 6);
-            if (DdhChartFrameTexSet(slot))
-            {
-                DdhChartRect(g_ddhChartFrames[slot], cx, rowY, segEnd, rowBot);
-                DdhFrameShowHide((void*)(uintptr_t)g_ddhChartFrames[slot], 1);
-            }
-            /* 断点上方显示该来源头像（每个类型最�?3 个，避免糊成一片） */
-            if (iconSlot < DDH_CHART_ICON_MAX && (i % 3) == 0)
-            {
-                const uint32_t code = g_ddhChart.src[sg->src].code;
-                DdhChartIcon(iconSlot++, code, cx, rowY + 0.030f, 0.021f);
-            }
-            cx = segEnd + 0.0015f;
-        }
-    }
-
-    g_ddhChartBarOk = 0;
-    g_ddhChartBar[0][0] = g_ddhChartBar[0][1] = 0.0f;
-}
-
-/* Dota2 式单屏：左上伤害类型、右上来源（头像+伤害）、底部最近 5 秒柱状图；不再下钻。 */
-static void DdhChartRenderCombined(void)
-{
-    static const char* kNames[DDH_CHART_TYPES] = { "物理", "法术", "纯粹", "移除" };
-    static const uint32_t kLabel[DDH_CHART_TYPES] = { 0xFFFF7070u, 0xFF70B0FFu, 0xFFFFFFFFu, 0xFFC080FFu };
-    static const char* kTeam[DDH_CHART_TYPES] = {
-        "ReplaceableTextures\\TeamColor\\TeamColor00.blp",
-        "ReplaceableTextures\\TeamColor\\TeamColor01.blp",
-        "ReplaceableTextures\\TeamColor\\TeamColor08.blp",
-        "ReplaceableTextures\\TeamColor\\TeamColor03.blp" };
-    char buf[96];
-    float typeTotal[DDH_CHART_TYPES] = { 0, 0, 0, 0 };
-    float srcType[DDH_CHART_MAX_SRC][DDH_CHART_TYPES];
-    float srcTotal[DDH_CHART_MAX_SRC] = { 0 };
-    memset(srcType, 0, sizeof(srcType));
-    for (int b = 0; b < DDH_CHART_SECONDS; ++b)
-    {
-        for (int i = 0; i < g_ddhChart.segCount[b]; ++i)
-        {
-            const int ty = g_ddhChart.seg[b][i].type;
-            const int sr = g_ddhChart.seg[b][i].src;
-            const float am = g_ddhChart.seg[b][i].amount;
-            typeTotal[ty] += am;
-            srcType[sr][ty] += am;
-            srcTotal[sr] += am;
-        }
-    }
-    float grand = 0.0f, typeMax = 0.0f, srcMax = 0.0f;
-    for (int b = 0; b < DDH_CHART_SECONDS; ++b) grand += g_ddhChart.total[b];
-    for (int t = 0; t < DDH_CHART_TYPES; ++t) if (typeTotal[t] > typeMax) typeMax = typeTotal[t];
-    for (int s = 0; s < g_ddhChart.srcCount; ++s) if (srcTotal[s] > srcMax) srcMax = srcTotal[s];
-    g_ddhChartUnitMode = (grand > 10000000000.0f) ? 2 : (grand > 1000000.0f ? 1 : 0);
-
-    if (g_ddhChart.fatalCode)
-    {
-        DdhChartIcon(10, g_ddhChart.fatalCode,
-                     g_ddhChartX + 0.005f, g_ddhChartY + 0.001f, 0.024f);
-    }
-    DdhChartText(0, "阵亡总结", g_ddhChartX + 0.035f, g_ddhChartY,
-                 g_ddhChartFh * 1.08f, 0xFFF0E0C0u);
-    {
-        char tb[64]; DdhChartFormatScaled(tb, sizeof(tb), grand);
-        char tot[96]; _snprintf_s(tot, sizeof(tot), _TRUNCATE, "总伤害 %s", tb);
-        DdhChartText(23, tot, g_ddhChartX + 0.238f, g_ddhChartY, g_ddhChartFh * (strlen(tot) > 10 ? 0.80f : 0.95f), 0xFFFFD080u);
-    }
-
-    for (int t = 0; t < DDH_CHART_TYPES; ++t)
-    {
-        const float rowY = g_ddhChartY - 0.042f - (float)t * 0.028f;
-        DdhChartText(1 + t, kNames[t], g_ddhChartX + 0.004f, rowY + 0.0012f, g_ddhChartFh * 0.9f, kLabel[t]);
-        const int slot = 20 + t;
-        if (typeTotal[t] > 0.01f && DdhChartTexSetEx(slot, kTeam[t]))
-        {
-            float w = (typeTotal[t] / (typeMax > 0.01f ? typeMax : 1.0f)) * 0.085f;
-            if (w < 0.004f) w = 0.004f;
-            DdhChartRect(g_ddhChartFrames[slot], g_ddhChartX + 0.040f, rowY, g_ddhChartX + 0.040f + w, rowY - 0.012f);
-            DdhFrameShowHide((void*)(uintptr_t)g_ddhChartFrames[slot], 1);
-        }
-        {
-            char ab[64]; DdhChartFormatScaled(ab, sizeof(ab), typeTotal[t]);
-            float pct = (typeTotal[t] > 0.01f && grand > 0.01f) ? typeTotal[t] * 100.0f / grand : 0.0f;
-            _snprintf_s(buf, sizeof(buf), _TRUNCATE, "%.0f%%", (double)pct);
-        }
-        DdhChartText(5 + t, buf, g_ddhChartX + 0.134f, rowY + 0.0003f, g_ddhChartFh * (strlen(buf) > 9 ? 0.66f : 0.78f), 0xFFE0E0E0u);
-    }
-
-    int order[DDH_CHART_MAX_SRC]; int n = 0;
-    for (int s = 0; s < g_ddhChart.srcCount; ++s) order[n++] = s;
-    for (int i = 1; i < n; ++i) { int v = order[i], j = i - 1; while (j >= 0 && srcTotal[order[j]] < srcTotal[v]) { order[j + 1] = order[j]; --j; } order[j + 1] = v; }
-    for (int k = 0; k < 4 && k < n; ++k)
-    {
-        const int s = order[k];
-        const float rowY = g_ddhChartY - 0.042f - (float)k * 0.028f;
-        DdhChartIcon(k, g_ddhChart.src[s].code, g_ddhChartX + 0.212f, rowY + 0.0012f, 0.011f);
-        float cur = g_ddhChartX + 0.230f;
-        for (int t = 0; t < DDH_CHART_TYPES; ++t)
-        {
-            if (srcType[s][t] <= 0.01f) continue;
-            const int slot = 30 + k * DDH_CHART_TYPES + t;
-            if (!DdhChartTexSetEx(slot, kTeam[t])) continue;
-            float w = (srcType[s][t] / (srcMax > 0.01f ? srcMax : 1.0f)) * 0.055f;
-            if (w < 0.003f) w = 0.003f;
-            DdhChartRect(g_ddhChartFrames[slot], cur, rowY, cur + w, rowY - 0.012f);
-            DdhFrameShowHide((void*)(uintptr_t)g_ddhChartFrames[slot], 1);
-            cur += w;
-        }
-        {
-            char ab[64]; DdhChartFormatScaled(ab, sizeof(ab), srcTotal[s]);
-            float pct = (srcTotal[s] > 0.01f && grand > 0.01f) ? srcTotal[s] * 100.0f / grand : 0.0f;
-            _snprintf_s(buf, sizeof(buf), _TRUNCATE, "%.0f%%", (double)pct);
-        }
-        DdhChartText(9 + k, buf, g_ddhChartX + 0.298f, rowY + 0.0003f, g_ddhChartFh * (strlen(buf) > 9 ? 0.64f : 0.76f), 0xFFE0E0E0u);
-    }
-
-    const float base = g_ddhChartY - 0.262f;
-    const float top = g_ddhChartY - 0.196f;
-    const float maxH = top - base;
-    const float bw = 0.024f, gap = 0.0092f;
-    const float x0 = g_ddhChartX + 0.004f;
-    const float mx = g_ddhChart.maxTotal > 0.01f ? g_ddhChart.maxTotal : 1.0f;
-    const int nowSec = g_ddhDllTick ? (int)((GetTickCount() - g_ddhDllTick) / 1000u) : 0;
-    for (int i = 0; i < DDH_CHART_SECONDS; ++i)
-    {
-        const float tv = g_ddhChart.total[i];
-        float h = (tv > 0.0f ? tv / mx : 0.0f) * maxH;
-        const float bx0 = x0 + (float)i * (bw + gap);
-        const float yTop = base + h;
-        if (tv > 0.01f && DdhChartTexSetEx(i, "UI\\Widgets\\Glues\\LoadingBar\\Loading-BarFill.blp"))
-        {
-            DdhChartRect(g_ddhChartFrames[i], bx0, yTop, bx0 + bw, base);
-            DdhFrameShowHide((void*)(uintptr_t)g_ddhChartFrames[i], 1);
-        }
-        DdhChartFormatAmount(buf, sizeof(buf), tv);
-        DdhChartFormatBar(buf, sizeof(buf), tv);
-        if (tv > 0.01f)
-        DdhChartText(13 + i, buf, bx0 - 0.002f, yTop + 0.006f,
-            g_ddhChartFh * (g_ddhChartUnitMode ? 0.46f : 0.55f), 0xFFFFD080u);
-        {
-            int sec = nowSec - (DDH_CHART_SECONDS - 1 - i);
-            if (sec < 0) sec = 0;
-            _snprintf_s(buf, sizeof(buf), _TRUNCATE, "%02d:%02d", sec / 60, sec % 60);
-        }
-        DdhChartText(24 + i, buf, bx0 + 0.003f, base - g_ddhChartFh * 1.05f, g_ddhChartFh * 0.62f, 0xFFB0B0B0u);
-    }
-}
-
-
-static void DdhChartRender(void);
-static void DdhChartToggleCollapsed(void);
-static void DdhChartReviveCheck(void);
-
-/* ---------- 收缩 / 展开 ---------- */
-static float g_ddhChartIconL = 0.0f, g_ddhChartIconT = 0.0f;
-static float g_ddhChartIconW = 0.026f, g_ddhChartIconH = 0.014f;
-static DWORD g_ddhReviveAliveSince = 0;
-
-static void DdhChartIconRect(void)
-{
-    g_ddhChartIconW = 0.026f;
-    g_ddhChartIconH = 0.014f;
-    g_ddhChartIconL = g_ddhChartX + g_ddhChartW - 0.030f;
-    g_ddhChartIconT = g_ddhChartY - 0.003f;
-}
-
-static void DdhChartDrawToggle(void)
-{
-    DdhChartIconRect();
-    const int slot = 44;
-    if (DdhChartTexSetEx(slot, "UI\\Widgets\\BattleNet\\bnet-tooltip-background.blp"))
-    {
-        DdhChartRect(g_ddhChartFrames[slot],
-                     g_ddhChartIconL - 0.005f, g_ddhChartIconT + 0.003f,
-                     g_ddhChartIconL + g_ddhChartIconW + 0.003f, g_ddhChartIconT - g_ddhChartIconH - 0.004f);
-        DdhFrameShowHide((void*)(uintptr_t)g_ddhChartFrames[slot], 1);
-    }
-    DdhChartText(38, g_ddhChartCollapsed ? "<<<" : ">>>",
-                 g_ddhChartIconL, g_ddhChartIconT,
-                 g_ddhChartFh * 0.85f, 0xFFFFD080u);
-}
-
-/* 收缩态：小面板（标题 + 总伤害 + 彩色条） */
-static void DdhChartRenderCollapsed(void)
-{
-    static const char* kTeam[DDH_CHART_TYPES] = {
-        "ReplaceableTextures\\TeamColor\\TeamColor00.blp",
-        "ReplaceableTextures\\TeamColor\\TeamColor01.blp",
-        "ReplaceableTextures\\TeamColor\\TeamColor08.blp",
-        "ReplaceableTextures\\TeamColor\\TeamColor03.blp" };
-    float tt[DDH_CHART_TYPES] = { 0, 0, 0, 0 };
-    float grand = 0.0f;
-    for (int b = 0; b < DDH_CHART_SECONDS; ++b)
-        for (int i = 0; i < g_ddhChart.segCount[b]; ++i)
-        {
-            const int ty = g_ddhChart.seg[b][i].type;
-            tt[ty] += g_ddhChart.seg[b][i].amount;
-            grand += g_ddhChart.seg[b][i].amount;
-        }
-    const float iconX = g_ddhChartX + 0.005f;
-    const float textX = g_ddhChartX + 0.035f;
-    if (g_ddhChart.fatalCode)
-    {
-        DdhChartIcon(10, g_ddhChart.fatalCode,
-                     iconX, g_ddhChartY + 0.001f, 0.024f);
-    }
-    DdhChartText(0, "阵亡总结", textX,
-                 g_ddhChartY - 0.002f, g_ddhChartFh * 0.72f, 0xFFF0E0C0u);
-    {
-        char tb[64]; DdhChartFormatScaled(tb, sizeof(tb), grand);
-        char tot[96]; _snprintf_s(tot, sizeof(tot), _TRUNCATE, "总伤害 %s", tb);
-        DdhChartText(39, tot, textX,
-                     g_ddhChartY - 0.024f, g_ddhChartFh * 0.58f, 0xFFFFD080u);
-    }
-    const float barL = g_ddhChartX + 0.004f;
-    const float barR = g_ddhChartX + g_ddhChartW - 0.006f;
-    const float barW = (barR > barL) ? (barR - barL) : 0.0f;
-    const float y0 = g_ddhChartY - 0.050f;
-    const float y1 = g_ddhChartY - 0.070f;
-    float cur = barL;
-    const float den = (grand > 0.01f) ? grand : 1.0f;
-    for (int t = 0; t < DDH_CHART_TYPES; ++t)
-    {
-        if (tt[t] <= 0.01f) continue;
-        float w = tt[t] / den * barW;
-        if (w < 0.002f) w = 0.002f;
-        const int slot = 40 + t;
-        if (!DdhChartTexSetEx(slot, kTeam[t])) continue;
-        DdhChartRect(g_ddhChartFrames[slot], cur, y0, cur + w, y1);
-        DdhFrameShowHide((void*)(uintptr_t)g_ddhChartFrames[slot], 1);
-        cur += w;
-    }
-}
-
-static void DdhChartToggleCollapsed(void)
-{
-    g_ddhChartCollapsed = g_ddhChartCollapsed ? 0 : 1;
-    DdhChartReflow();
-    DdhChartRender();
-    g_ddhPanelHideAt = (LONG)(GetTickCount() + 60000);
-    LogLine("图表：%s", g_ddhChartCollapsed ? "已收缩" : "已展开");
-}
-
-/* 收缩态下英雄复活：满 3 秒清掉面板 */
-static int DdhChartEscCollapse(void)
-{
-    if (!(g_ddhPanelShown && g_ddhChartMode && !g_ddhChartCollapsed)) return 0;
-    DdhChartToggleCollapsed();
-    return 1;
-}
-
-static void DdhChartReviveCheck(void)
-{
-    if (!(g_ddhPanelShown && g_ddhChartMode && g_ddhChartCollapsed && g_ddhChart.victim)) return;
-    float hp = 0.0f;
-    if (!(ReadUnitHp(g_ddhChart.victim, &hp) && hp > 0.5f)) { g_ddhReviveAliveSince = 0; return; }
-    const DWORD now = GetTickCount();
-    if (!g_ddhReviveAliveSince) { g_ddhReviveAliveSince = now; return; }
-    if (now - g_ddhReviveAliveSince >= 3000)
-    {
-        g_ddhReviveAliveSince = 0;
-        LogLine("面板：英雄已复活，收缩态面板 3 秒到，清除");
-        DdhPanelHide();
-    }
-}
-
-static void DdhChartReflow(void)
-{
-    const float fullW = 0.34f, fullH = 0.32f;
-    const float w = g_ddhChartCollapsed ? 0.1433f : fullW;
-    const float h = g_ddhChartCollapsed ? 0.070f : fullH;
-    float cx = g_ddhChartCollapsed ? (g_ddhChartWantX + fullW - w) : g_ddhChartWantX;
-    float cy = g_ddhChartWantY;
-    if (cx < 0.005f) cx = 0.005f;
-    if (cx + w > 0.795f) cx = 0.795f - w;
-    if (cy > -0.005f) cy = -0.005f;
-    if (cy - h < -0.595f) cy = -0.595f + h;
-    g_ddhChartX = cx; g_ddhChartY = cy; g_ddhChartW = w; g_ddhChartH = h;
-    float hitL = cx - 0.012f, hitT = cy + 0.012f;
-    float hitW = w + 0.024f, hitH = h + 0.024f;
-    if (hitL + hitW > 0.995f) hitL = 0.995f - hitW;
-    if (hitL < -0.995f) hitL = -0.995f;
-    if (hitT - hitH < -0.995f) hitT = -0.995f + hitH;
-    g_ddhPanelHitL = hitL; g_ddhPanelHitT = hitT;
-    g_ddhPanelHitW = hitW; g_ddhPanelHitH = hitH;
-    if (!g_ddhPanelBgFrame) return;
-    uint32_t bl = g_ddhPanelNoSub ? g_ddhPanelBgFrame : g_ddhPanelBgFrame + DDH_OFF_UI_LAYOUT_SUB;
-    const uint32_t rel = g_ddhChartUi + DDH_OFF_UI_LAYOUT_SUB;
-    __try
-    {
-        ((fn_ui_setpoint_t)(uintptr_t)g_ddhUiSetPoint)((void*)(uintptr_t)bl, 0, 0u, rel, 0u, hitL, hitT, 1);
-        ((fn_ui_setpoint_t)(uintptr_t)g_ddhUiSetPoint)((void*)(uintptr_t)bl, 0, 8u, rel, 0u, hitL + hitW, hitT - hitH, 1);
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER) { }
-    DdhFrameShowHide((void*)(uintptr_t)g_ddhPanelBgFrame, 1);
-}
-
-
-static void DdhChartRender(void)
-{
-    if (!g_ddhChartMode) return;
-    DdhChartHideAll();
-    if (g_ddhChartCollapsed) DdhChartRenderCollapsed();
-    else DdhChartRenderCombined();
-    DdhChartDrawToggle();
-}
-
-static void DdhChartHide(void)
-{
-    if (g_ddhPanelBgFrame) DdhFrameShowHide((void*)(uintptr_t)g_ddhPanelBgFrame, 0);
-    DdhChartHideAll();
-    g_ddhChartMode = 0;
-    g_ddhChartView = 0;
-    g_ddhChartBarOk = 0;
-}
-
-/* 图表点击：总览点柱�?�?下钻该秒；下钻任意位�?�?回总览�?*/
-static void DdhChartClick(int px, int py)
-{
-    static DWORD lastClick = 0;
-    const DWORD nowClick = GetTickCount();
-    if (nowClick - lastClick < 120u) return;   /* 一次点击会来两条 UP，防抖只作用于点击 */
-    lastClick = nowClick;
-    const int toggleHit = DdhChartToggleHitTest(px, py);
-    if (InterlockedIncrement(&g_ddhPanelClickLogged) <= 12)
-        LogLine("图表点击：进入 (%d,%d) 伸缩按钮=%d 帧矩形=%d",
-                px, py, toggleHit, (int)g_ddhPanelFrameRectOk);
-    if (toggleHit)
-    {
-        DdhChartToggleCollapsed();
-        return;
-    }
-    if (!g_ddhChartMode) return;
-    RECT rc = { 0 };
-    if (!g_gameWnd || !GetClientRect(g_gameWnd, &rc)) return;
-    const int cw = rc.right - rc.left;
-    const int ch = rc.bottom - rc.top;
-    if (cw <= 0 || ch <= 0) return;
-
-    const float u = (float)px / (float)cw;
-    const float v = -(float)py / (float)ch;
-
-    int changed = 0;
-    if (g_ddhChartView == 0)
-    {
-        for (int i = 0; i < DDH_CHART_SECONDS && g_ddhChartBarOk; ++i)
-        {
-            if (u >= g_ddhChartBar[i][0] && u <= g_ddhChartBar[i][1] &&
-                v <= g_ddhChartBar[i][2] && v >= g_ddhChartBar[i][3])
-            {
-                g_ddhChartView = i + 1;
-                changed = 1;
-                break;
-            }
-        }
-        if (!changed) return;                     /* 点空白：保持总览 */
-    }
-    else
-    {
-        g_ddhChartView = 0;                       /* 下钻里点任何位置都回总览 */
-        changed = 1;
-    }
-
-    if (changed)
-    {
-        DdhChartRender();
-        uint32_t ttl = g_ddhPendingPanel.ttlMs;
-        if (ttl == 0) ttl = 20000;
-        if (ttl < 1000) ttl = 1000;
-        if (ttl > 600000) ttl = 600000;
-        g_ddhPanelHideAt = (LONG)(GetTickCount() + ttl);
-        if (InterlockedIncrement(&g_ddhChartLogCount) <= 40)
-            LogLine("图表：点击 -> %s", g_ddhChartView ? "下钻" : "总览");
-    }
-}
-
-/* mock 数据�? 个桶�? 个来源�? 类伤害都有，专门用来调样式（不需要真的挨�?死亡）�?*/
-static void DdhChartDemoFill(void)
-{
-    memset(&g_ddhChart, 0, sizeof(g_ddhChart));
-    static const uint32_t kCodes[4] = { 0x4870616Cu, 0x68666F6Fu, 0x6E776C74u, 0x486D6B67u };
-    static const uint32_t kAddrs[4] = { 0x10001000u, 0x10002000u, 0x10003000u, 0x10004000u };
-    for (int i = 0; i < 4; ++i)
-    {
-        g_ddhChart.src[i].addr = kAddrs[i];
-        g_ddhChart.src[i].code = kCodes[i];
-        g_ddhChart.src[i].total = 0.0f;
-    }
-    g_ddhChart.srcCount = 4;
-
-    struct { int b, t, s; float a; } demo[] = {
-        { 0, 0, 0,  140.0f }, { 0, 2, 1,   60.0f },
-        { 1, 0, 1,  220.0f }, { 1, 1, 2,   90.0f },
-        { 2, 0, 0,  300.0f }, { 2, 3, 3,   80.0f },
-        { 3, 0, 2,  260.0f }, { 3, 1, 0,  120.0f },
-        { 4, 0, 1,  180.0f }, { 4, 2, 3,   70.0f },
-        { 5, 0, 0,  320.0f }, { 5, 1, 1,  140.0f },
-        { 6, 0, 1,  820.0f }, { 6, 2, 3,  260.0f }, { 6, 1, 0, 160.0f },
-        { 7, 0, 0,   90.0f }, { 7, 3, 2,  110.0f },
-        { 8, 0, 0, 1450.0f }, { 8, 1, 3,  920.0f }, { 8, 2, 1, 700.0f }, { 8, 3, 2, 640.0f },
-        { 9, 0, 1,  980.0f }, { 9, 1, 0,  860.0f }, { 9, 0, 3, 520.0f }
-    };
-    for (int i = 0; i < (int)(sizeof(demo) / sizeof(demo[0])); ++i)
-        DdhChartAdd(demo[i].b, demo[i].t, kAddrs[demo[i].s], kCodes[demo[i].s], demo[i].a * 105.374f);   /* mock 总伤害 ≈ 999999 */
-
-    for (int i = 0; i < DDH_CHART_SECONDS; ++i)
-        if (g_ddhChart.total[i] > g_ddhChart.maxTotal) g_ddhChart.maxTotal = g_ddhChart.total[i];
-
-    for (int b = 0; b < DDH_CHART_SECONDS; ++b)
-    {
-        for (int i = 1; i < g_ddhChart.segCount[b]; ++i)
-        {
-            DdhChartSeg t = g_ddhChart.seg[b][i];
-            int j = i - 1;
-            while (j >= 0 && g_ddhChart.seg[b][j].amount < t.amount)
-            {
-                g_ddhChart.seg[b][j + 1] = g_ddhChart.seg[b][j];
-                --j;
-            }
-            g_ddhChart.seg[b][j + 1] = t;
-        }
-    }
-    g_ddhChart.valid = 1;
-    g_ddhChart.victim = 0xC0FFEE00u;
-    int usedAlt = 0;
-    const uint32_t selected = DdhReadSelection(&usedAlt);
-    const uint32_t selectedCode = SafeCode(selected);
-    g_ddhChart.fatalSource = selected;
-    g_ddhChart.fatalCode = selectedCode;
-    if (!selected || !selectedCode)
-    {
-        g_ddhChart.fatalSource = 0x10004000u;
-        g_ddhChart.fatalCode = 0x486D6B67u;
-    }
-}
-
-static int DdhChartApply(uint32_t ui, const DdhPanelBlock* p, uint32_t victim,
-                         float x, float y, float fh, const char* font)
-{
-    if (g_ddhPanelDisabled) return -1;
-    if (!g_ddhUiCreateBackdrop || !g_ddhUiSetBackdrop || !g_ddhUiCreateText)
-        return -1;
-
-    /* 换图/UI 重建：旧帧对象可能已被引擎释放，只丢指针�?free，按�?UI 重建（与面板同策略）�?*/
-    if (g_ddhChartBaseTick == 0) g_ddhChartBaseTick = GetTickCount();
-    if (g_ddhChartUi != ui)
-    {
-        memset(g_ddhChartFrames, 0, sizeof(g_ddhChartFrames));
-        memset(g_ddhChartFrameTex, 0, sizeof(g_ddhChartFrameTex));
-        memset(g_ddhChartTexts, 0, sizeof(g_ddhChartTexts));
-        memset(g_ddhChartIcons, 0, sizeof(g_ddhChartIcons));
-        memset(g_ddhChartIconPath, 0, sizeof(g_ddhChartIconPath));
-    }
-
-    /* 屏幕内钳制：图表总宽/高固定，先把左上角拉�?[-0.99, 0.99]�?
-       否则 x 偏右时会像之前那样被窗口右边缘裁掉一半�?*/
-    const float fullW = 0.34f, fullH = 0.32f;
-    const float chartW = g_ddhChartCollapsed ? 0.1433f : fullW;
-    const float chartH = g_ddhChartCollapsed ? 0.070f : fullH;
-    float cx = g_ddhChartCollapsed ? (x + fullW - chartW) : x;
-    float cy = -0.10f;
-    if (cx < 0.005f) cx = 0.005f;
-    if (cx + chartW > 0.795f) cx = 0.795f - chartW;
-    if (cy > -0.005f) cy = -0.005f;
-    if (cy - chartH < -0.595f) cy = -0.595f + chartH;
-
-    g_ddhChartUi = ui;
-    g_ddhPanelUi = ui;
-    g_ddhChartX = cx;
-    g_ddhChartY = cy;
-    g_ddhChartFh = fh;
-    g_ddhChartW = chartW;
-    g_ddhChartH = chartH;
-    g_ddhChartWantX = x;
-    g_ddhChartWantY = cy;
-
-    g_ddhChartUi = ui;
-    g_ddhPanelUi = ui;
-    g_ddhChartX = cx;
-    g_ddhChartY = cy;
-    g_ddhChartFh = fh;
-    strncpy_s(g_ddhChartFont, sizeof(g_ddhChartFont), font, _TRUNCATE);
-    g_ddhChartView = 0;
-    g_ddhChartMode = 1;
-
-    int ok = 1;
-    if (g_ddhChartDemo)
-    {
-        g_ddhChartDemo = 0;
-        DdhChartDemoFill();
-    }
-    else
-    {
-        ok = DdhChartBuild(victim);
-        if (!ok && InterlockedIncrement(&g_ddhChartLogCount) <= 10)
-            LogLine("图表：victim 0x%08X 最近 5 秒没有可用伤害事件（victim=%d）", victim, victim ? 1 : 0);
-    }
-
-    /* 面板命中区：整个图表区域（点柱子再细分） */
-    float hitL = cx - 0.012f, hitT = cy + 0.012f;
-    float hitW = chartW + 0.024f, hitH = chartH + 0.024f;
-    if (hitL + hitW > 0.995f) hitL = 0.995f - hitW;
-    if (hitL < -0.995f) hitL = -0.995f;
-    if (hitT - hitH < -0.995f) hitT = -0.995f + hitH;
-    g_ddhPanelHitL = hitL;
-    g_ddhPanelHitT = hitT;
-    g_ddhPanelHitW = hitW;
-    g_ddhPanelHitH = hitH;
-    g_ddhPanelFrameRectOk = 0;
-    g_ddhPanelClickOk = 1;
-    g_ddhPanelMouseDown = 0;
-
-    /* 背景：图表模式没走文本面板那条路，这里单独建/摆一次面板背景帧（暗�?+ 边框），
-       否则亮地形上根本看不清柱子和文字�?*/
-    DdhPanelEnsureBackdrop(ui, 1);
-    if (g_ddhPanelBgFrame)
-    {
-        uint32_t bl = g_ddhPanelNoSub ? g_ddhPanelBgFrame : g_ddhPanelBgFrame + DDH_OFF_UI_LAYOUT_SUB;
-        const uint32_t rel = ui + DDH_OFF_UI_LAYOUT_SUB;
-        __try
-        {
-            ((fn_ui_setpoint_t)(uintptr_t)g_ddhUiSetPoint)(
-                (void*)(uintptr_t)bl, 0, 0u, rel, 0u, hitL, hitT, 1);
-            ((fn_ui_setpoint_t)(uintptr_t)g_ddhUiSetPoint)(
-                (void*)(uintptr_t)bl, 0, 8u, rel, 0u, hitL + hitW, hitT - hitH, 1);
-        }
-        __except (EXCEPTION_EXECUTE_HANDLER) { }
-        DdhFrameShowHide((void*)(uintptr_t)g_ddhPanelBgFrame, 1);
-    }
-
-    DdhChartRender();
-
-    uint32_t ttl = p->ttlMs;
-    if (ttl == 0) ttl = 20000;
-    if (ttl < 1000) ttl = 1000;
-    if (ttl > 600000) ttl = 600000;
-    g_ddhPanelHideAt = (LONG)(GetTickCount() + ttl);
-    g_ddhPanelShown = 1;
-
-    if (InterlockedIncrement(&g_ddhChartLogCount) <= 10)
-        LogLine("图表：已显示（victim=0x%08X，5 秒总伤 %.0f，最大桶 %.0f，来源 %d 个，ui=0x%08X，ttl=%u）",
-                victim, (double)g_ddhChart.total[0] + g_ddhChart.total[1] + g_ddhChart.total[2] +
-                g_ddhChart.total[3] + g_ddhChart.total[4],
-                (double)g_ddhChart.maxTotal, g_ddhChart.srcCount, ui, ttl);
-    return 1;
-}
-
-static void DdhChartToggleView(void)
-{
-    if (!g_ddhChartMode) { LogLine("图表：Ctrl+Alt+E 但没有图表"); return; }
-    g_ddhChartView = (g_ddhChartView == 0) ? 4 : 0;
-    DdhChartRender();
-    g_ddhPanelHideAt = (LONG)(GetTickCount() + 60000);
-    LogLine("图表：Ctrl+Alt+E -> %s", g_ddhChartView ? "下钻（第 -2 秒）" : "总览");
-}
-
-static void DdhPanelClickAt(int x, int y)
-{
-    if (g_ddhChartMode) { DdhChartClick(x, y); return; }
-    DdhDoTogglePanel();
-}
-
-/* Ctrl+Alt+C：调�?自测——用事件环里“最近一次受击的单位”直接开一张承伤图表，
-   不需要英雄死亡、也不需�?C# 参与；伤害数据照样来�?ddh 自己的事件环�?*/
-static void DdhChartDebugShow(void)
-{
-    if (!DdhInitUiFuncs()) { LogLine("图表调试：UI 函数未就绪"); return; }
-    uint32_t ui = DdhGetGameUi();
-    if (!ui) { LogLine("图表调试：GetGameUI 为空（还没进图？）"); return; }
-
-    uint32_t victim = 0;
-    if (g_shm && g_shm->hdr.count)
-    {
-        const uint32_t cap = g_shm->hdr.capacity ? g_shm->hdr.capacity : DDH_MAX_EVENTS;
-        const uint32_t count = g_shm->hdr.count;
-        for (uint32_t k = 0; k < cap && k < count; ++k)
-        {
-        uint32_t seq = count - k;
-        if (seq == 0) break;
-            const DdhEvent* e = &g_shm->ev[(seq - 1) % cap];
-            if (e->seq != seq) continue;
-            victim = e->victim;
-            break;
-        }
-    }
-    if (!victim)
-    {
-        LogLine("图表调试：事件环里还没有伤害事件（先让任意单位挨一下）");
-        return;
-    }
-
-    DdhPanelReadEnvOnce();
-    DdhPanelBlock blk;
-    memset(&blk, 0, sizeof(blk));
-    blk.flags = DDH_PANEL_FLAG_SHOW | DDH_PANEL_FLAG_BG | DDH_PANEL_FLAG_CHART;
-    blk.ttlMs = 20000;
-    blk.anchor = 0;
-    blk.x = 0.60f;
-    blk.y = -0.10f;
-    blk.fontHeight = 0.0135f;
-    blk.lineHeight = 0.0175f;
-    strcpy_s(blk.fontName, sizeof(blk.fontName), "MasterFont");
-
-    /* 存一份：~ 隐藏后再按还能出来；点击重置 TTL 也用同一�?*/
-    memcpy(&g_ddhLastPanel, &blk, sizeof(g_ddhLastPanel));
-    g_ddhHaveLastPanel = 1;
-    g_ddhPanelPinned = 0;
-
-    DdhChartApply(ui, &blk, victim, blk.x, blk.y, blk.fontHeight, blk.fontName);
-    if (InterlockedIncrement(&g_ddhChartLogCount) <= 40)
-        LogLine("图表调试：Ctrl+Alt+C -> victim 0x%08X", victim);
-}
-
-/* Ctrl+Alt+D：mock 数据演示（调样式用；不依赖伤害事件、不依赖死亡、不依赖 C#）�?*/
-static void DdhChartDemoShow(void)
-{
-    if (!DdhInitUiFuncs()) { LogLine("图表演示：UI 函数未就绪"); return; }
-    uint32_t ui = DdhGetGameUi();
-    if (!ui) { LogLine("图表演示：GetGameUI 为空（还没进图？）"); return; }
-    DdhPanelReadEnvOnce();
-
-    DdhPanelBlock blk;
-    memset(&blk, 0, sizeof(blk));
-    blk.flags = DDH_PANEL_FLAG_SHOW | DDH_PANEL_FLAG_BG | DDH_PANEL_FLAG_CHART;
-    blk.ttlMs = 60000;
-    blk.anchor = 0;
-    blk.x = 0.60f;
-    blk.y = -0.10f;
-    blk.fontHeight = 0.0135f;
-    blk.lineHeight = 0.0175f;
-    strcpy_s(blk.fontName, sizeof(blk.fontName), "MasterFont");
-
-    memcpy(&g_ddhLastPanel, &blk, sizeof(g_ddhLastPanel));
-    g_ddhHaveLastPanel = 1;
-    g_ddhPanelPinned = 0;
-
-    g_ddhChartDemo = 1;
-    DdhChartApply(ui, &blk, 0, blk.x, blk.y, blk.fontHeight, blk.fontName);
-    LogLine("图表演示：Ctrl+Alt+D（mock 数据，60 秒 TTL）");
 }
 
 /* ---- 英雄查询�?6 槽，�?rawcode 缓存�?---- */
@@ -13933,70 +12300,6 @@ static void DdhMaybePostPanelAndHero(void)
         if (PostMessageW(g_gameWnd, DDH_WM_PANEL_TICK, 0, 0))
             g_ddhPanelTickPost = (LONG)GetTickCount();
     }
-}
-
-/* ---- demo：不依赖 C#，第一次最外层伤害退出后显示一屏示例，方便真机验证字体/坐标 ---- */
-static int DdhPanelDemoOn(void)
-{
-    if (DdhEnvTruthy("DDH_PANEL_DEMO")) return 1;
-    char dir[MAX_PATH] = { 0 };
-    if (g_logPath[0]) strncpy_s(dir, sizeof(dir), g_logPath, _TRUNCATE);
-    char* slash = strrchr(dir, '\\');
-    if (!slash) slash = strrchr(dir, '/');
-    if (slash) slash[1] = 0; else dir[0] = 0;
-    char path[MAX_PATH] = { 0 };
-    DdhSprintf(path, sizeof(path), "%sddh_paneldemo.on", dir);
-    const DWORD attr = GetFileAttributesA(path);
-    return attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY);
-}
-
-static void DdhPanelDemoOnce(void)
-{
-    if (InterlockedCompareExchange(&g_ddhPanelDemoDone, 1, 0) != 0) return;
-    if (!DdhPanelDemoOn()) return;
-
-    DdhPanelBlock p;
-    memset(&p, 0, sizeof(p));
-    p.seq = 1;
-    p.flags = DDH_PANEL_FLAG_SHOW | DDH_PANEL_FLAG_BG |
-              ((uint32_t)3u << DDH_PANEL_COLLAPSED_SHIFT);
-    p.ttlMs = 60000;
-    p.anchor = 0;
-    p.x = 0.60f;
-    p.y = -0.24f;
-    p.lineHeight = 0.0175f;
-    p.fontHeight = 0.0135f;
-    strcpy_s(p.fontName, sizeof(p.fontName), "MasterFont");
-
-    static const char* demo[] = {
-        "\xE3\x80\x90\xE9\x98\xB5\xE4\xBA\xA1\xE6\x80\xBB\xE7\xBB\x93\xE3\x80\x91",              /* 【阵亡总结�?*/
-        "\xE5\x89\x91\xE5\x9C\xA3\xEF\xBC\x88Hmkg\xEF\xBC\x89",                                    /* 剑圣（Hmkg�?*/
-        "\xE7\x8E\xA9\xE5\xAE\xB6 1 \xC2\xB7 \xE7\xAC\xAC 2 \xE6\x9D\xA1\xE5\x91\xBD",            /* 玩家 1 · �?2 条命 */
-        "\xE6\x89\xBF\xE5\x8F\x97\xE4\xBC\xA4\xE5\xAE\xB3 3,200",                                  /* 承受伤害 3,200 */
-        "\xE6\x9C\x80\xE6\x83\xA8 1 \xE7\xA7\x92 1,746",                                            /* 最�?1 �?1,746 */
-        "\xE5\xB1\xB1\xE4\xB8\x98\xE4\xB9\x8B\xE7\x8E\x8B(Hmkg) 45.9% 1,468",                      /* 山丘之王(Hmkg) ... */
-        "\xE8\xBF\x91\xE6\x88\x98 1,668 / \xE8\xBF\x9C\xE7\xA8\x8B 1,532",                          /* 近战 / 远程 */
-        "\xE8\x87\xAA\xE6\xB5\x8B\xE9\x9D\xA2\xE6\x9D\xBF demo\xEF\xBC\x9A\xE5\xAD\x97\xE4\xBD\x93\xE4\xB8\x8E\xE5\x9D\x90\xE6\xA0\x87", /* 自测面板 demo：字体与坐标 */
-    };
-    const int n = (int)(sizeof(demo) / sizeof(demo[0]));
-    p.lineCount = (uint32_t)n;
-    const uint32_t colors[8] = {
-        0xFFFFCC66u, 0xFFFFFFFFu, 0xFFB0B0B0u, 0xFFFFFFFFu,
-        0xFFB0B0B0u, 0xFFFF6666u, 0xFFFFFFFFu, 0xFF88DD88u,
-    };
-    for (int i = 0; i < n; i++)
-    {
-        p.lines[i].color = colors[i % 8];
-        strncpy_s(p.lines[i].text, sizeof(p.lines[i].text), demo[i], _TRUNCATE);
-    }
-    g_ddhPanelCollapsed = ((p.flags & DDH_PANEL_FLAG_COLLAPSED) != 0) ? 1 : 0;
-    g_ddhPanelCollapsedLines = 3;
-    g_ddhPanelIconCount = 0;   /* demo 不带图标，避免沿用上一条面�?*/
-    memcpy(&g_ddhPendingPanel, &p, sizeof(g_ddhPendingPanel));   /* 让鼠标点击也能切�?demo */
-    const int r = DdhPanelApply(&p);
-    if (r < 0) DdhPanelFallback(&p);
-    LogLine("面板 demo 异常 code=%08X（已吞掉）",
-            r > 0 ? "已显示" : "不可用，已走兜底", n);
 }
 
 /* ===========================================================================
@@ -15201,7 +13504,6 @@ static DWORD WINAPI DdhCoreAttachThread(LPVOID)
 
 BOOL APIENTRY DllMain(HMODULE mod, DWORD reason, LPVOID)
 {
-    if (g_ddhDllTick == 0) g_ddhDllTick = GetTickCount();
     if (reason == DLL_PROCESS_ATTACH)
     {
         g_self = mod;

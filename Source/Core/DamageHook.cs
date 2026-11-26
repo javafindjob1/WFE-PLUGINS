@@ -298,35 +298,6 @@ public sealed class DamageHook : IDisposable
     /// <summary>最近一次属性请求 / 读取的错误（不抛异常，只记录）。</summary>
     public string LastAttrError { get; private set; } = "";
 
-    // ---- v15：游戏内阵亡面板 / 英雄查询（追加在属性块之后，旧块偏移不变） ----
-    private long _panelBlockOffset;
-    private long _heroBlockOffset;
-    private long _iconBlockOffset;
-    private uint _panelRequestSeq;
-    private uint _panelAppliedSeq;
-    private uint _panelRequestTick;
-    private uint _heroRequestSeq;
-    private uint _heroAppliedSeq;
-    private uint _heroRequestTick;
-    private uint _iconRequestSeq;
-    private uint _iconAppliedSeq;
-    private uint _iconRequestTick;
-    /// <summary>最近一次面板请求 / 读取的错误（不抛异常，只记录）。</summary>
-    public string LastPanelError { get; private set; } = "";
-    /// <summary>这个 ddh 支持游戏内面板（协议 &gt;= 15 且共享内存够长）。</summary>
-    public bool PanelSupported => _view != null && Version >= 15 && _panelBlockOffset > 0;
-    /// <summary>这个 ddh 支持面板背景/展开收起（协议 &gt;= 16；块布局与 v15 相同）。</summary>
-    public bool PanelStyleSupported => PanelSupported && InGamePanelWire.StyleSupported(Version);
-    /// <summary>这个 ddh 支持英雄查询（与面板同一版本门槛）。</summary>
-    public bool HeroSupported => PanelSupported && _heroBlockOffset > 0;
-    /// <summary>这个 ddh 支持 v17 伤害来源头像块。</summary>
-    public bool IconSupported => PanelSupported && InGamePanelWire.IconSupported(Version) && _iconBlockOffset > 0;
-    /// <summary>这个 ddh 支持承伤图表（flags bit4；能力标记在 hdr.reserved[2] = 'CHT1'）。</summary>
-    public bool ChartSupported { get; private set; }
-    public long PanelBlockOffset => _panelBlockOffset;
-    public long HeroBlockOffset => _heroBlockOffset;
-    public long IconBlockOffset => _iconBlockOffset;
-
     public string MapName { get; private set; } = "";
     public bool HookOk { get; private set; }
     public uint GameDllBase { get; private set; }
@@ -396,7 +367,6 @@ public sealed class DamageHook : IDisposable
                     HookRva = h.HookRva;
                     TotalEvents = h.Count;
                     Version = h.Version;
-                    ChartSupported = h.R2 == InGamePanelWire.ChartMagic;
                     AllyMask = h.Version >= 21 ? h.R1 : 0;
                     LocalPid = DecodeLocalPid(h.Version, h.R3);
                     HpSupported = h.Version >= 3 && h.R0 != 0;
@@ -437,61 +407,6 @@ public sealed class DamageHook : IDisposable
                                       $"（重启 C# 不会卡在旧序号）");
                     }
 
-                    // v15：面板 / 英雄块紧跟在属性块之后（只在版本 >=15 且有足够空间时才认）。
-                    _panelBlockOffset = 0;
-                    _heroBlockOffset = 0;
-                    _iconBlockOffset = 0;
-                    if (h.Version >= 15 && _attrBlockOffset > 0)
-                    {
-                        long panel = _attrBlockOffset + UnitAttrWire.BlockSize;
-                        long hero = panel + InGamePanelWire.PanelBlockSize;
-                        if (hero + InGamePanelWire.HeroBlockSize <= _view.Capacity)
-                        {
-                            _panelBlockOffset = panel;
-                            _heroBlockOffset = hero;
-                            // 接续 ddh 当前序号（C# 重启时 ddh 还活着，从 1 开始会被当旧序号忽略）。
-                            _panelRequestSeq = _view.ReadUInt32(_panelBlockOffset);
-                            _panelAppliedSeq = _view.ReadUInt32(_panelBlockOffset + 4);
-                            if (unchecked((int)(_panelAppliedSeq - _panelRequestSeq)) > 0)
-                                _panelAppliedSeq = _panelRequestSeq;
-                            _panelRequestTick = unchecked((uint)Environment.TickCount);
-                            _heroRequestSeq = _view.ReadUInt32(_heroBlockOffset);
-                            _heroAppliedSeq = _view.ReadUInt32(_heroBlockOffset + 4);
-                            if (unchecked((int)(_heroAppliedSeq - _heroRequestSeq)) > 0)
-                                _heroAppliedSeq = _heroRequestSeq;
-                            _heroRequestTick = unchecked((uint)Environment.TickCount);
-
-                            if (h.Version >= 17 &&
-                                hero + InGamePanelWire.HeroBlockSize + InGamePanelWire.IconBlockSize <= _view.Capacity)
-                            {
-                                _iconBlockOffset = hero + InGamePanelWire.HeroBlockSize;
-                                _iconRequestSeq = _view.ReadUInt32(_iconBlockOffset);
-                                _iconAppliedSeq = _view.ReadUInt32(_iconBlockOffset + 4);
-                                if (unchecked((int)(_iconAppliedSeq - _iconRequestSeq)) > 0)
-                                    _iconAppliedSeq = _iconRequestSeq;
-                                _iconRequestTick = unchecked((uint)Environment.TickCount);
-                            }
-
-                            Log.Write($"面板块：偏移={_panelBlockOffset} 块长={InGamePanelWire.PanelBlockSize}；" +
-                                      $"英雄块：偏移={_heroBlockOffset} 块长={InGamePanelWire.HeroBlockSize}；" +
-                                      $"头像块：偏移={_iconBlockOffset} 块长={InGamePanelWire.IconBlockSize}" +
-                                      $"（C# 布局，ddh v{h.Version}）");
-                            if (InGamePanelWire.StyleSupported(h.Version))
-                                Log.Write($"面板 v{h.Version}：支持深色背景 / 鼠标点击展开收起（flags bit2/3/8..15）");
-                            else
-                                Log.Write($"面板 v{h.Version}：不支持背景/展开收起（需要 ddh v16；文字面板仍可用）");
-                            if (InGamePanelWire.IconSupported(h.Version))
-                                Log.Write($"面板 v{h.Version}：支持伤害来源头像（IconBlock）");
-                        }
-                        else
-                        {
-                            LastPanelError = "共享内存长度不够放面板/英雄块";
-                            Log.Warn("面板：ddh 报 v" + h.Version + "，但共享内存容量不够（" +
-                                     _view.Capacity + " 字节），游戏内面板不可用");
-                        }
-                    }
-                    if (h.Version < 15)
-                        LastPanelError = $"ddh v{h.Version} 不支持游戏内面板（需要 v15：重新编译/部署 hook\\ddh.dll）";
                     _lastSeq = h.Count;      // 从当前开始，只取注入之后的新事件
                     return true;
                 }
@@ -757,157 +672,6 @@ public sealed class DamageHook : IDisposable
                 }
             }
             catch (Exception ex) { LastAttrError = ex.Message; }
-        }
-        return list;
-    }
-
-    // ==================================================================
-    // v15：游戏内阵亡面板 / 英雄查询
-    // ==================================================================
-
-    /// <summary>
-    /// 把一块已经组好的 PanelBlock 写进共享内存，并把 seq 最后写（ddh 看到 seq 才去拷内容）。
-    /// 上一块 ddh 还没 applied 时返回 false（调用方下一轮重试，绝不覆盖半截/未消费的内容）。
-    /// <paramref name="block"/> 的 seq 字段由本方法重新编号，调用方传 0 即可。
-    /// <paramref name="iconBlock"/> 可选（v17）；旧 ddh 不支持时自动忽略，不影响面板。
-    /// </summary>
-    public bool TryPublishPanel(byte[]? block, byte[]? iconBlock = null)
-    {
-        if (block == null || block.Length != InGamePanelWire.PanelBlockSize)
-        {
-            LastPanelError = "面板块长度不对";
-            return false;
-        }
-        if (!PanelSupported)
-        {
-            LastPanelError = string.IsNullOrEmpty(LastPanelError)
-                ? "这个 ddh 不支持游戏内面板（需要 v15）"
-                : LastPanelError;
-            return false;
-        }
-        lock (_io)
-        {
-            try
-            {
-                Thread.MemoryBarrier();
-                uint applied = _view!.ReadUInt32(_panelBlockOffset + InGamePanelWire.OffsetAppliedSeq);
-                _panelAppliedSeq = applied;
-                uint now = unchecked((uint)Environment.TickCount);
-                if (_panelRequestSeq != _panelAppliedSeq &&
-                    unchecked(now - _panelRequestTick) < 5000)
-                    return false;   // ddh 还没消费上一块
-
-                // v17：先把头像块写好（ddh 处理面板时一起取），再做面板序号。
-                if (iconBlock != null && iconBlock.Length == InGamePanelWire.IconBlockSize &&
-                    IconSupported)
-                {
-                    try
-                    {
-                        uint iconApplied = _view.ReadUInt32(_iconBlockOffset + InGamePanelWire.OffsetIconAppliedSeq);
-                        _iconAppliedSeq = iconApplied;
-                        if (_iconRequestSeq == _iconAppliedSeq ||
-                            unchecked(now - _iconRequestTick) >= 5000)
-                        {
-                            _view.Write(_iconBlockOffset + InGamePanelWire.OffsetIconSeq, 0u);
-                            _view.WriteArray(_iconBlockOffset, iconBlock, 0, iconBlock.Length);
-                            Thread.MemoryBarrier();
-                            uint iseq = _iconRequestSeq + 1;
-                            if (iseq == 0) iseq = 1;
-                            _iconRequestSeq = iseq;
-                            _iconRequestTick = now;
-                            _view.Write(_iconBlockOffset + InGamePanelWire.OffsetIconSeq, iseq);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LastPanelError = "头像块写入失败：" + ex.Message;
-                        // 头像失败不影响文字面板，继续写面板。
-                    }
-                }
-
-                _view.Write(_panelBlockOffset + InGamePanelWire.OffsetSeq, 0u);
-                _view.WriteArray(_panelBlockOffset, block, 0, block.Length);
-                Thread.MemoryBarrier();
-                uint seq = _panelRequestSeq + 1;
-                if (seq == 0) seq = 1;
-                _panelRequestSeq = seq;
-                _panelRequestTick = now;
-                _view.Write(_panelBlockOffset + InGamePanelWire.OffsetSeq, seq);
-                LastPanelError = "";
-                return true;
-            }
-            catch (Exception ex)
-            {
-                LastPanelError = ex.Message;
-                return false;
-            }
-        }
-    }
-
-    /// <summary>隐藏游戏内面板（只写 seq/flags，不读文本）。</summary>
-    public bool TryHidePanel() => TryPublishPanel(InGamePanelWire.BuildHidePanelBlock(0));
-
-    /// <summary>
-    /// 写一批英雄查询（addr + JASS 顺序 rawcode）；ddh 在游戏线程调 IsHeroUnitId 后填 res。
-    /// 与面板共用“上一轮未 applied 不覆盖”的节流。
-    /// </summary>
-    public bool TryRequestHeroChecks(IReadOnlyList<(uint Addr, uint RawCode)>? items)
-    {
-        if (!HeroSupported)
-        {
-            LastPanelError = "这个 ddh 不支持英雄查询（需要 v15）";
-            return false;
-        }
-        var block = InGamePanelWire.BuildHeroRequestBlock(0, items);
-        lock (_io)
-        {
-            try
-            {
-                Thread.MemoryBarrier();
-                uint applied = _view!.ReadUInt32(_heroBlockOffset + InGamePanelWire.OffsetHeroAppliedSeq);
-                _heroAppliedSeq = applied;
-                uint now = unchecked((uint)Environment.TickCount);
-                if (_heroRequestSeq != _heroAppliedSeq &&
-                    unchecked(now - _heroRequestTick) < 5000)
-                    return false;
-
-                _view.Write(_heroBlockOffset + InGamePanelWire.OffsetHeroSeq, 0u);
-                _view.WriteArray(_heroBlockOffset, block, 0, block.Length);
-                Thread.MemoryBarrier();
-                uint seq = _heroRequestSeq + 1;
-                if (seq == 0) seq = 1;
-                _heroRequestSeq = seq;
-                _heroRequestTick = now;
-                _view.Write(_heroBlockOffset + InGamePanelWire.OffsetHeroSeq, seq);
-                LastPanelError = "";
-                return true;
-            }
-            catch (Exception ex)
-            {
-                LastPanelError = ex.Message;
-                return false;
-            }
-        }
-    }
-
-    /// <summary>取回已完成的英雄查询结果；没有新结果返回空列表。</summary>
-    public List<(uint Addr, uint RawCode, int IsHero, int IsIllusion)> PollHeroChecks()
-    {
-        var list = new List<(uint, uint, int, int)>();
-        if (!HeroSupported || _heroRequestSeq == 0) return list;
-        lock (_io)
-        {
-            try
-            {
-                Thread.MemoryBarrier();
-                uint applied = _view!.ReadUInt32(_heroBlockOffset + InGamePanelWire.OffsetHeroAppliedSeq);
-                if (applied == 0 || applied == _heroAppliedSeq) return list;
-                var buf = new byte[InGamePanelWire.HeroBlockSize];
-                _view.ReadArray(_heroBlockOffset, buf, 0, buf.Length);
-                list.AddRange(InGamePanelWire.ParseHeroResults(buf));
-                _heroAppliedSeq = applied;
-            }
-            catch (Exception ex) { LastPanelError = ex.Message; }
         }
         return list;
     }

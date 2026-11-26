@@ -239,30 +239,6 @@ public sealed class MonitorEngine : IDisposable
     private string _ignoreUnitNames = Settings.DefaultIgnoreUnitNames;
     private string[] _ignoreKeywords = UnitNameFilter.Parse(Settings.DefaultIgnoreUnitNames);
 
-    // ---- v1.1：游戏内阵亡面板（ddh v15；C# 组行、ddh 借引擎 CTextFrame 显示） ----
-    private InGamePanelSettings _panelSettings = new();
-    private readonly List<Settlement> _panelQueue = new();
-    private readonly HashSet<string> _panelPushedKeys = new();
-    private readonly Dictionary<uint, int> _panelHeroKnown = new();
-    private readonly Dictionary<uint, int> _panelIllusionKnown = new();
-    private DateTime _panelShownAt = DateTime.MinValue;
-    private bool _panelShown;
-    private bool _panelWarned;
-    private bool _panelStyleWarned;
-    private bool _panelIconWarned;
-    private bool _panelHeroRequested;
-    private DateTime _panelHeroRequestAt = DateTime.MinValue;
-    private int _panelHeroTries;
-    private int _panelPublishTries;
-    private string _panelStatus = "未启用";
-
-    /// <summary>游戏内面板最近一次状态（成功/失败原因；界面/日志用）。</summary>
-    public string InGamePanelStatus => _panelStatus;
-
-    /// <summary>绑定 ini 里的 in_game_panel_*（启动时由 MainForm 调一次即可）。</summary>
-    public void SetInGamePanelSettings(InGamePanelSettings settings) =>
-        _panelSettings = settings ?? new InGamePanelSettings();
-
     /// <summary>
     /// 手动按名字忽略的单位（可选，默认空）：名字包含任一关键字就不进死亡结算（也不进历史 settlements / 分组统计）；
     /// 逗号/分号分隔。注意：这是用户自定义名单，**不参与马甲判定** ——
@@ -313,9 +289,6 @@ public sealed class MonitorEngine : IDisposable
 
     /// <summary>这个 ddh 支持单位属性请求（v12 起，96 槽）。老 DLL / 没注入时界面属性列显示 ?。</summary>
     public bool HookAttrSupported => _hook.IsOpen && _hook.AttrSupported;
-
-    /// <summary>这个 ddh 支持游戏内阵亡面板（v15 起；工具栏【游戏内预览】据此启用）。</summary>
-    public bool HookPanelSupported => _hook.IsOpen && _hook.PanelSupported;
 
     /// <summary>本地玩家号（0 基；没连上/读不到 = -1）。盟友/敌人判定用。</summary>
     public int LocalPlayerIndex
@@ -707,20 +680,6 @@ public sealed class MonitorEngine : IDisposable
         _lastSettlementCount = -1;
         _settlementSnapshot = Array.Empty<Settlement>();
 
-        // v1.1：换图/清空时把面板队列、英雄判定缓存、去重键一起清掉，并主动隐藏游戏内面板。
-        _panelQueue.Clear();
-        _panelPushedKeys.Clear();
-        _panelHeroKnown.Clear();
-        _panelIllusionKnown.Clear();
-        ResetPanelHeroRequest();
-        _panelPublishTries = 0;
-        if (_panelShown)
-        {
-            try { _hook.TryHidePanel(); } catch { }
-            _panelShown = false;
-        }
-        _panelStatus = _panelSettings.Enabled ? "等待本地英雄死亡" : "已关闭";
-
         if (resetHook)
         {
             _lastHookSeq = 0;
@@ -883,10 +842,6 @@ public sealed class MonitorEngine : IDisposable
                 // 这批事件一到就回头补挂一次，否则这条结算会一直被“无来源”过滤掉、看起来像没结算。
                 if (HookEventCount != hookCountBefore) RetryLateHookAttach();
 
-                // v1.1：本地英雄面板（英雄判定 / 等钩子行 / 推送 / TTL 隐藏）。
-                try { PumpInGamePanel(g); }
-                catch (Exception ex) { Log.Error("游戏内面板循环异常：" + ex.Message); }
-
                 Publish(g, sc, stats);
             }
             catch (Exception ex)
@@ -944,13 +899,6 @@ public sealed class MonitorEngine : IDisposable
 
     private void HandleGameGone(string why)
     {
-        // v1.1：游戏没了，游戏内面板自然也不存在；清队列/状态，避免重连后还挂旧结算。
-        _panelQueue.Clear();
-        _panelHeroKnown.Clear();
-        _panelIllusionKnown.Clear();
-        ResetPanelHeroRequest();
-        _panelShown = false;
-        _panelStatus = "游戏已退出";
         lock (_gate)
         {
             if (Game == null) return;
@@ -1424,8 +1372,6 @@ public sealed class MonitorEngine : IDisposable
         // 先挂到“等来源”队列：插件日志通常是同一瞬间写出来的，稍后补上
         if (ReadPluginLog) _awaitingAttribution.Add(s);
 
-        // 本地玩家英雄死亡 → 排队等游戏内面板（钩子行/英雄判定齐了再推，见 PumpInGamePanel）。
-        QueueInGamePanel(s);
     }
 
     /// <summary>
@@ -1518,279 +1464,6 @@ public sealed class MonitorEngine : IDisposable
             if (sum > peak) peak = sum;
         }
         return peak;
-    }
-
-    // ==================================================================
-    // v1.1：游戏内阵亡面板（本地玩家英雄；ddh v15 引擎文字帧）
-    // ==================================================================
-
-    private static string PanelKey(Settlement s) => InGamePanel.DedupeKey(s);
-
-    private string TitleForPanel(uint addr, string typeCode) =>
-        TryGetTitle(addr, typeCode, out string title) ? title : "";
-
-    /// <summary>结算建立后筛“本地玩家 + 死亡”，排队等钩子行/英雄判定齐了再推。</summary>
-    private void QueueInGamePanel(Settlement s)
-    {
-        if (!_panelSettings.Enabled || s == null) return;
-        if (!HookAttached || !_hook.PanelSupported)
-        {
-            WarnPanelOnce();
-            return;
-        }
-        if (s.Kind != "死亡") return;
-
-        // 阵亡总结严格要求 JASS GetLocalPlayer()->GetPlayerId()。
-        // 该值未知时宁可不显示，也不退回地址布局猜测。
-        int local = _hook.IsOpen ? _hook.LocalPid : -1;
-        if (!InGamePanel.IsLocalDeath(s, local)) return;
-        if (IsLocust(s.Addr, s.TypeCode, out _, out _) || IsAttrLocust(s.Addr, s.TypeCode)) return;
-        if (IsIgnoredByName(s)) return;
-
-        string key = PanelKey(s);
-        if (_panelPushedKeys.Contains(key) || _panelQueue.Any(x => PanelKey(x) == key)) return;
-        if (_panelQueue.Count >= 4) _panelQueue.RemoveAt(0);
-        if (_panelQueue.Count == 0) ResetPanelHeroRequest();   // 只有队列空时才重置；“队首还在等”不能被新死亡重置
-        _panelQueue.Add(s);
-        _panelStatus = "排队中";
-        Log.Write($"游戏内面板：本地玩家单位 {s.DisplayName} 0x{s.Addr:X8} 死亡（玩家 {local + 1}），排队等英雄判定");
-    }
-
-    private void WarnPanelOnce()
-    {
-        if (_panelWarned) return;
-        _panelWarned = true;
-        string why = !HookEnabled ? "hook_enable=0"
-            : !HookAttached ? "伤害钩子未连上"
-            : (_hook.LastPanelError.Length > 0 ? _hook.LastPanelError : "ddh 不支持 v15 面板");
-        _panelStatus = "不可用：" + why;
-        Log.Warn("游戏内面板不可用：" + why);
-    }
-
-    private void PollPanelHeroResponses()
-    {
-        if (!_hook.HeroSupported) return;
-        foreach (var r in _hook.PollHeroChecks())
-        {
-            if (r.IsHero >= 0) _panelHeroKnown[r.Addr] = r.IsHero; // 1=英雄 0=非英雄
-            if (r.IsIllusion >= -1) _panelIllusionKnown[r.Addr] = r.IsIllusion; // 1=镜像 0=不是 -1=未知
-        }
-    }
-
-    private void ResetPanelHeroRequest()
-    {
-        _panelHeroRequested = false;
-        _panelHeroTries = 0;
-        _panelHeroRequestAt = DateTime.MinValue;
-    }
-
-    private void DropPanelFront(string why)
-    {
-        if (_panelQueue.Count == 0) return;
-        var s = _panelQueue[0];
-        _panelQueue.RemoveAt(0);
-        ResetPanelHeroRequest();
-        _panelPublishTries = 0;
-        _panelStatus = "跳过：" + why;
-        Log.Write($"游戏内面板：跳过 {s.DisplayName} 0x{s.Addr:X8}（{why}）");
-    }
-
-    /// <summary>每轮监视循环调用：英雄判定 → 等钩子行 → 组行 → 写 ddh；同时处理 TTL 隐藏。</summary>
-    private void PumpInGamePanel(Wc3Game g)
-    {
-        if (!_panelSettings.Enabled)
-        {
-            if (_panelShown)
-            {
-                if (_hook.TryHidePanel()) { _panelShown = false; _panelStatus = "已关闭（ini 关闭面板）"; }
-            }
-            return;
-        }
-        if (!_hook.PanelSupported)
-        {
-            WarnPanelOnce();
-            _panelQueue.Clear();
-            return;
-        }
-        if (!_panelStyleWarned && !_hook.PanelStyleSupported &&
-            (_panelSettings.Background || _panelSettings.StartCollapsed))
-        {
-            _panelStyleWarned = true;
-            Log.Warn("游戏内面板：当前 ddh 是 v" + _hook.Version +
-                     "，不支持深色背景/展开收起（需要 v16）；文字面板照常显示，请更新 hook\\ddh.dll");
-        }
-
-        if (!_panelIconWarned && !_hook.IconSupported && _panelSettings.Icons)
-        {
-            _panelIconWarned = true;
-            Log.Warn("游戏内面板：当前 ddh 是 v" + _hook.Version +
-                     "，不支持伤害来源头像（需要 v17）；文字面板照常显示，请更新 hook\\ddh.dll");
-        }
-
-        PollPanelHeroResponses();
-
-        // TTL：v16 由 ddh 自己 tick 隐藏（这样鼠标点击切换后重置的 TTL 不会被 C# 提前砍掉）；
-        // v15 仍由 C# 到点发 hide。两者都保留 60 秒极端兜底。
-        double shownMs = _panelShown ? (DateTime.Now - _panelShownAt).TotalMilliseconds : 0;
-        if (_panelShown)
-        {
-            bool hide = _hook.PanelStyleSupported
-                ? shownMs >= _panelSettings.TtlMs + 60000
-                : shownMs >= _panelSettings.TtlMs;
-            if (hide && _hook.TryHidePanel())
-            {
-                _panelShown = false;
-                _panelStatus = _hook.PanelStyleSupported ? "已自动隐藏（兜底）" : "已自动隐藏（TTL）";
-            }
-        }
-        if (_panelQueue.Count == 0) return;
-
-        // 结算可能已经被替换/移除（补建结算/马甲/重开图），别推一条不存在的。
-        var s = _panelQueue[0];
-        if (!Tracker.Settlements.Contains(s))
-        {
-            _panelQueue.RemoveAt(0);
-            ResetPanelHeroRequest();
-            return;
-        }
-        int local = _hook.IsOpen ? _hook.LocalPid : -1;
-        if (local < 0) return;                         // GetLocalPlayer 尚未解析好，继续等
-        if (!InGamePanel.IsLocalDeath(s, local))
-        {
-            DropPanelFront($"不是本地玩家（GetLocalPlayer={local + 1}，单位玩家={s.OwnerSlot + 1}）");
-            return;
-        }
-        // 兜底：英雄判定/钩子数据怎么都等不到时，别让队首永久占位（最多 6 秒）。
-        if ((DateTime.Now - s.DiedAt).TotalSeconds > 6)
-        {
-            DropPanelFront("等待英雄判定/钩子数据超时");
-            return;
-        }
-
-        // ---- 英雄 / 镜像判定（英雄判定只在 HeroOnly；镜像始终查）----
-        bool heroKnown = _panelHeroKnown.ContainsKey(s.Addr);
-        bool illusionKnown = _panelIllusionKnown.ContainsKey(s.Addr);
-        if ((_panelSettings.HeroOnly && !heroKnown) || !illusionKnown)
-        {
-            var now = DateTime.Now;
-            if (!_panelHeroRequested || (now - _panelHeroRequestAt).TotalMilliseconds > 500)
-            {
-                var req = new[] { (s.Addr, InGamePanelWire.ToJassRawCode(s.TypeCode)) };
-                if (_hook.TryRequestHeroChecks(req))
-                {
-                    _panelHeroRequested = true;
-                    _panelHeroRequestAt = now;
-                    _panelHeroTries++;
-                }
-            }
-            if (_panelHeroTries >= 3 && (DateTime.Now - _panelHeroRequestAt).TotalSeconds > 2)
-                DropPanelFront("英雄/镜像判定超时（IsHeroUnitId/IsUnitIllusion 不可用）");
-            return;
-        }
-        if (_panelIllusionKnown.TryGetValue(s.Addr, out int illusion) && illusion > 0)
-        {
-            DropPanelFront("镜像/幻象单位");
-            return;
-        }
-        if (_panelSettings.HeroOnly)
-        {
-            int hero = _panelHeroKnown.TryGetValue(s.Addr, out int h) ? h : -1;
-            if (hero <= 0)
-            {
-                DropPanelFront(hero == 0 ? "不是英雄" : "英雄判定未知");
-                return;
-            }
-        }
-
-        // ---- 等钩子来源/类型行（最多 1.5 秒；超时仍出基础行）----
-        bool hasHook = s.HookSources is { Count: > 0 };
-        if (!hasHook && (DateTime.Now - s.DiedAt).TotalSeconds < 1.5) return;
-
-        string key = PanelKey(s);
-        if (_panelPushedKeys.Contains(key)) { _panelQueue.RemoveAt(0); return; }
-
-        var settings = _panelSettings;
-        byte[] block;
-        byte[] iconBlock;
-        string what;
-        if (_hook.ChartSupported)
-        {
-            /* ddh 承伤图表（flags bit4）：C# 只给 victim 地址，5 秒分桶/四类/来源全在 ddh 里算。
-               原来的文本行 / 来源头像 / 展开收起全部废弃。 */
-            block = InGamePanelWire.BuildChartBlock(
-                0, s.Addr, (uint)Math.Clamp(settings.TtlMs, 1000, 600000),
-                settings.Anchor, settings.X, settings.Y, settings.FontName, settings.Background);
-            iconBlock = InGamePanelWire.BuildIconBlock(0, null);
-            what = "承伤图表（最近 5 秒）";
-        }
-        else
-        {
-            var content = InGamePanel.BuildContent(s, TitleForPanel, settings);
-            block = InGamePanelWire.BuildPanelBlock(
-                0, content.Lines,
-                (uint)Math.Clamp(settings.TtlMs, 1000, 600000),
-                settings.Anchor, settings.X, settings.Y,
-                settings.LineHeight, settings.FontHeight, settings.FontName,
-                settings.Background, settings.StartCollapsed, settings.CollapsedLines);
-            iconBlock = InGamePanelWire.BuildIconBlock(0, content.Icons);
-            what = $"{content.Lines.Count} 行";
-        }
-
-        if (_hook.TryPublishPanel(block, iconBlock))
-        {
-            _panelPushedKeys.Add(key);
-            _panelQueue.RemoveAt(0);
-            ResetPanelHeroRequest();
-            _panelPublishTries = 0;
-            _panelShown = true;
-            _panelShownAt = DateTime.Now;
-            _panelStatus = $"已显示：{s.DisplayName} {what}";
-            Log.Write($"游戏内面板：已推送 {s.DisplayName} 0x{s.Addr:X8}（{what}，ttl {settings.TtlMs}ms" +
-                      $"，hook {(hasHook ? "有" : "无")}，致命 {(s.FatalHookEvent != null ? "有" : "无")}）");
-        }
-        else
-        {
-            _panelPublishTries++;
-            if (_panelPublishTries >= 60)
-            {
-                string why = string.IsNullOrEmpty(_hook.LastPanelError) ? "ddh 一直未消费" : _hook.LastPanelError;
-                DropPanelFront("推送失败：" + why);
-            }
-            else if (_panelPublishTries == 1 || _panelPublishTries % 20 == 0)
-            {
-                Log.Write($"游戏内面板：推送暂未成功（第 {_panelPublishTries} 次）：{_hook.LastPanelError}，稍后重试");
-            }
-        }
-    }
-
-    /// <summary>工具栏【游戏内预览】：把示例面板直接推给 ddh（不需要死亡、不需要英雄判定）。</summary>
-    public bool PreviewInGamePanel(out string message)
-    {
-        if (!HookAttached || !_hook.PanelSupported)
-        {
-            message = !HookAttached ? "伤害钩子还没连上" : (_hook.LastPanelError.Length > 0 ? _hook.LastPanelError : "ddh 不支持 v15 面板");
-            return false;
-        }
-        var settings = _panelSettings;
-        var content = InGamePanel.PreviewContent(settings.Icons);
-        var lines = content.Lines;
-        var block = InGamePanelWire.BuildPanelBlock(
-            0, lines, (uint)Math.Clamp(settings.TtlMs, 1000, 600000),
-            settings.Anchor, settings.X, settings.Y,
-            settings.LineHeight, settings.FontHeight, settings.FontName,
-            settings.Background, settings.StartCollapsed, settings.CollapsedLines);
-        var iconBlock = InGamePanelWire.BuildIconBlock(0, content.Icons);
-        if (!_hook.TryPublishPanel(block, iconBlock))
-        {
-            message = "推送失败：" + (_hook.LastPanelError.Length > 0 ? _hook.LastPanelError : "ddh 未消费")
-                      + "（若是旧 ddh，请更新 hook\\ddh.dll 到 v17）";
-            return false;
-        }
-        _panelShown = true;
-        _panelShownAt = DateTime.Now;
-        _panelStatus = $"已发送预览（{lines.Count} 行）";
-        message = $"已发送游戏内预览（{lines.Count} 行；鼠标点击面板可展开/收起；看不到就看 hook\\ddh-<pid>.log 的“面板：”行）";
-        return true;
     }
 
     /// <summary>这个进程里是否已经有 ddh：共享内存能打开，或模块列表里有 ddh.dll（WFE/ASI 预加载）。</summary>

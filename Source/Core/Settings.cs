@@ -39,26 +39,6 @@ public sealed class Settings
     public string DamageTypeLabels = "";
     public string PluginLogPath = @"C:\3rd\wc3gamesearcher\WFE\Application\Libraries\UDamageWatcher.log";
 
-    // ---- v1.1：游戏内阵亡面板（ddh v15 的引擎文字帧）----
-    public bool InGamePanel = true;
-    public int InGamePanelTtlMs = 20000;
-    public string InGamePanelFont = "MasterFont";
-    public float InGamePanelFontHeight = 0.0135f;
-    public float InGamePanelLineHeight = 0.0175f;
-    public float InGamePanelX = 0.60f;
-    public float InGamePanelY = -0.24f;
-    public uint InGamePanelAnchor = 0;
-    public bool InGamePanelHeroOnly = true;
-    public int InGamePanelMaxLines = 18;
-    /// <summary>v16：面板不透明背景（默认开）。</summary>
-    public bool InGamePanelBackground = true;
-    /// <summary>v16：死亡弹出时默认收起（默认展开）。</summary>
-    public bool InGamePanelCollapsed = false;
-    /// <summary>v16：收起时显示前几行（默认 3）。</summary>
-    public int InGamePanelCollapsedLines = 3;
-    /// <summary>v17：伤害来源行左侧显示头像（默认开）。</summary>
-    public bool InGamePanelIcons = true;
-
     /// <summary>
     /// 手动按名字忽略单位的默认关键字：**空**。
     /// 马甲单位不再按名字写死，而是由 ddh 对每个伤害目标实测
@@ -100,8 +80,6 @@ public sealed class Settings
             // 环境变量先读出来：即使没有 ini 也要能覆盖（自动化测试就是靠它）。
             var envIgnoreNames = Environment.GetEnvironmentVariable("DSS_IGNORE_UNIT_NAMES");
             if (envIgnoreNames != null) s.IgnoreUnitNames = envIgnoreNames;
-            var envPanel = Environment.GetEnvironmentVariable("DSS_PANEL");
-            if (envPanel != null) s.InGamePanel = envPanel is "1" or "true" or "yes" or "on";
             if (!File.Exists(path)) return s;
             foreach (var raw in File.ReadAllLines(path, Encoding.UTF8))
             {
@@ -131,41 +109,11 @@ public sealed class Settings
                 case "dtype_labels": s.DamageTypeLabels = v; break;
                 case "ignore_unit_names": s.IgnoreUnitNames = v; break;
                 case "ally_slots": s.AllySlots = v; break;
-                // v1.1：游戏内阵亡面板（布局/字体都可调，改完重启生效）
-                case "in_game_panel": s.InGamePanel = v is "1" or "true" or "yes" or "on"; break;
-                case "in_game_panel_ttl_ms": if (int.TryParse(v, out int ttl)) s.InGamePanelTtlMs = Math.Clamp(ttl, 1000, 600000); break;
-                case "in_game_panel_font": if (v.Length > 0) s.InGamePanelFont = v; break;
-                case "in_game_panel_font_height":
-                    if (float.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out float fh))
-                        s.InGamePanelFontHeight = Math.Clamp(fh, 0.006f, 0.05f);
-                    break;
-                case "in_game_panel_line_height":
-                    if (float.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out float lh))
-                        s.InGamePanelLineHeight = Math.Clamp(lh, 0.006f, 0.08f);
-                    break;
-                case "in_game_panel_x":
-                    if (float.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out float px))
-                        s.InGamePanelX = Math.Clamp(px, -2f, 2f);
-                    break;
-                case "in_game_panel_y":
-                    if (float.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out float py))
-                        s.InGamePanelY = Math.Clamp(py, -2f, 2f);
-                    break;
-                case "in_game_panel_anchor":
-                    if (uint.TryParse(v, out uint an)) s.InGamePanelAnchor = an > 8 ? 0u : an;
-                    break;
-                case "in_game_panel_hero_only": s.InGamePanelHeroOnly = v is "1" or "true" or "yes" or "on"; break;
-                case "in_game_panel_max_lines": if (int.TryParse(v, out int ml)) s.InGamePanelMaxLines = Math.Clamp(ml, 6, 20); break;
-                case "in_game_panel_background": s.InGamePanelBackground = v is "1" or "true" or "yes" or "on"; break;
-                case "in_game_panel_collapsed": s.InGamePanelCollapsed = v is "1" or "true" or "yes" or "on"; break;
-                case "in_game_panel_collapsed_lines": if (int.TryParse(v, out int cl)) s.InGamePanelCollapsedLines = Math.Clamp(cl, 1, 3); break;
-                case "in_game_panel_icons": s.InGamePanelIcons = v is "1" or "true" or "yes" or "on"; break;
                 }
             }
 
             // 环境变量优先于 ini（没有 ini 时前面已经生效，这里再覆盖一次，避免被 ini 里的值盖掉）
             if (envIgnoreNames != null) s.IgnoreUnitNames = envIgnoreNames;
-            if (envPanel != null) s.InGamePanel = envPanel is "1" or "true" or "yes" or "on";
         }
         catch (Exception ex) { Log.Warn("读设置失败：" + ex.Message); }
         return s;
@@ -208,35 +156,6 @@ public sealed class Settings
         sb.AppendLine("; ally_slots : 盟友玩家号（0 基，逗号分隔，例如 1,2）。战场单位按 盟友→敌人→名称 排序；本地玩家自己的单位恒为盟友。中立玩家(12~15)不显示");
         sb.AppendLine($"ally_slots={AllySlots}");
         sb.AppendLine();
-        sb.AppendLine("; ===== 游戏内阵亡面板（ddh v15 的引擎文字帧；只在本机显示，不影响其他玩家）=====");
-        sb.AppendLine("; in_game_panel : 1 = 本地玩家操控的英雄死亡时，在游戏画面右侧显示阵亡总结（需要 hook_enable=1 且 ddh v18）");
-        sb.AppendLine("; in_game_panel_ttl_ms : 面板停留毫秒（1000~600000，默认 20000）");
-        sb.AppendLine("; in_game_panel_font : 引擎字体名（war3skins 里的名字，默认 MasterFont；中文不显示/乱码时可换 ChatFont）");
-        sb.AppendLine("; in_game_panel_font_height : 字号（屏幕比例，默认 0.0135；调大更醒目）");
-        sb.AppendLine("; in_game_panel_line_height : 行距（默认 0.0175）");
-        sb.AppendLine("; in_game_panel_x / in_game_panel_y : 面板左上角坐标（屏幕比例；x 向右为正、y 向下为负；默认 0.60 / -0.24）");
-        sb.AppendLine("; in_game_panel_anchor : 锚点枚举 0=左上 1=上 2=右上 3=左 4=中 5=右 6=左下 7=下 8=右下（默认 0）");
-        sb.AppendLine("; in_game_panel_hero_only : 1 = 只显示确认是英雄的单位（默认 1）");
-        sb.AppendLine("; in_game_panel_max_lines : 最多行数（6~20，默认 18）");
-        sb.AppendLine("; in_game_panel_background : 1 = 面板带深色背景（需要 ddh v16；默认 1）");
-        sb.AppendLine("; in_game_panel_collapsed : 1 = 死亡弹出时默认收起（默认 0 = 展开）");
-        sb.AppendLine("; in_game_panel_collapsed_lines : 收起时显示前几行（1~3，默认 3）");
-        sb.AppendLine("; in_game_panel_icons : 1 = 伤害来源行左侧显示单位图标（需要 ddh v18；默认 1）");
-        sb.AppendLine("; 鼠标左键点击面板可展开/收起");
-        sb.AppendLine($"in_game_panel={(InGamePanel ? 1 : 0)}");
-        sb.AppendLine($"in_game_panel_ttl_ms={InGamePanelTtlMs}");
-        sb.AppendLine($"in_game_panel_font={InGamePanelFont}");
-        sb.AppendLine($"in_game_panel_font_height={InGamePanelFontHeight.ToString("0.####", CultureInfo.InvariantCulture)}");
-        sb.AppendLine($"in_game_panel_line_height={InGamePanelLineHeight.ToString("0.####", CultureInfo.InvariantCulture)}");
-        sb.AppendLine($"in_game_panel_x={InGamePanelX.ToString("0.####", CultureInfo.InvariantCulture)}");
-        sb.AppendLine($"in_game_panel_y={InGamePanelY.ToString("0.####", CultureInfo.InvariantCulture)}");
-        sb.AppendLine($"in_game_panel_anchor={InGamePanelAnchor}");
-        sb.AppendLine($"in_game_panel_hero_only={(InGamePanelHeroOnly ? 1 : 0)}");
-        sb.AppendLine($"in_game_panel_max_lines={InGamePanelMaxLines}");
-        sb.AppendLine($"in_game_panel_background={(InGamePanelBackground ? 1 : 0)}");
-        sb.AppendLine($"in_game_panel_collapsed={(InGamePanelCollapsed ? 1 : 0)}");
-        sb.AppendLine($"in_game_panel_collapsed_lines={InGamePanelCollapsedLines}");
-        sb.AppendLine($"in_game_panel_icons={(InGamePanelIcons ? 1 : 0)}");
             File.WriteAllText(path, sb.ToString(), new UTF8Encoding(false));
         }
         catch (Exception ex) { Log.Warn("写设置失败：" + ex.Message); }

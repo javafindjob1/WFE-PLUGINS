@@ -15,8 +15,6 @@ public sealed class CliOptions
     public string? ForceVersion;
     /// <summary>无界面监视多少秒后退出。</summary>
     public int Seconds = 60;
-    /// <summary>--panel-test：连上后自动发一次【游戏内预览】，用于自动化面板/头像测试。</summary>
-    public bool PanelTest;
     /// <summary>游戏内插件日志路径（null = 用默认/设置里的路径）。</summary>
     public string? PluginLogPath;
     /// <summary>完全关闭插件日志读取。</summary>
@@ -41,7 +39,6 @@ public sealed class CliOptions
                 case "--probe": o.Probe = true; break;
                 case "--selftest": o.SelfTest = true; break;
                 case "--monitor": o.Headless = true; break;
-                case "--panel-test": o.PanelTest = true; break;
                 case "--no-handle": o.NoHandleTable = true; break;
                 case "--no-selection": o.NoSelection = true; break;
                 case "--help" or "-h" or "/?": o.Help = true; break;

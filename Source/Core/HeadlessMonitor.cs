@@ -54,28 +54,10 @@ public static class HeadlessMonitor
         // 和 GUI 完全同一套轮询：从全部单位里连续取 96 个（循环），不是只取前 96 个。
         var unitPoll = new UnitAttrPoller();
         int unitPollPid = -1;
-        bool panelTestDone = false;
-        var panelTestWaitUntil = DateTime.UtcNow.AddSeconds(2);
-
         while (DateTime.UtcNow < deadline)
         {
             Thread.Sleep(300);
             var snap = engine.Current;
-
-            // --panel-test：连上且面板能力就绪后自动发一次预览，供日志/头像自动化验收。
-            if (opt.PanelTest && !panelTestDone && DateTime.UtcNow >= panelTestWaitUntil &&
-                engine.HookAttached && engine.HookPanelSupported)
-            {
-                if (engine.PreviewInGamePanel(out string panelMsg))
-                {
-                    panelTestDone = true;
-                    Console.WriteLine("[panel-test] " + panelMsg);
-                }
-                else
-                {
-                    Console.WriteLine("[panel-test] 等待：" + panelMsg);
-                }
-            }
 
             // 无界面模式也驱动 ddh v12 的属性请求/回读（每秒一轮）：
             // 这样 `--monitor --hook` 也能产出 ddh 的 ATTR dump/自动匹配日志，
