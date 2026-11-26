@@ -64,7 +64,7 @@
      净掉血   = 前后血差（不变�?
    �?JASS native 钩子保留，但默认关闭；要诊断"地图读了几次/改了几次"就设
    环境变量 DDH_NATIVE_DAMAGE_HOOKS=1�?*/
-#define DDH_VERSION   38
+#define DDH_VERSION   39
 #define DDH_MAX_EVENTS 512
 #define DDH_MAXDEPTH  16      /* 伤害事件最大嵌套层数（地图�?DOT/追加伤害会套进来�?*/
 
@@ -86,6 +86,17 @@ struct DdhHeader
     uint32_t selfTest;      /* 1 = 注入成功但还没看到伤害事�?*/
     uint32_t lastTick;
     uint32_t reserved[5];
+};
+
+struct DdhUnitCombatSnapshot
+{
+    uint32_t flags;
+    float    attackRange;
+    float    damageMin;
+    float    damageMax;
+    float    armor;
+    float    attackInterval;
+    float    attackSpeed;
 };
 
 struct DdhEvent
@@ -142,6 +153,9 @@ struct DdhEvent
     /* ---- v8：victimOwner/sourceOwner = CUnit+0x58 player slot (-1 = unknown) ---- */
     int32_t  victimOwner;
     int32_t  sourceOwner;
+    /* v39: combat properties captured from both live CUnit pointers at damage entry. */
+    DdhUnitCombatSnapshot victimCombat;
+    DdhUnitCombatSnapshot sourceCombat;
 };
 #pragma pack(pop)
 
@@ -151,6 +165,13 @@ struct DdhEvent
 #define DDH_EVENT_FLAG_SOURCE_HERO     (1u << 4)
 #define DDH_EVENT_FLAG_SOURCE_LOCUST   (1u << 5)
 
+#define DDH_COMBAT_RANGE         (1u << 0)
+#define DDH_COMBAT_DAMAGE        (1u << 1)
+#define DDH_COMBAT_ARMOR         (1u << 2)
+#define DDH_COMBAT_INTERVAL      (1u << 3)
+#define DDH_COMBAT_ATTACK_SPEED  (1u << 4)
+#define DDH_COMBAT_LOCUST        (1u << 5)
+
 /* 进程内事件环：不再创建命名共享内存。 */
 struct DdhShared
 {
@@ -158,7 +179,7 @@ struct DdhShared
     DdhEvent  ev[DDH_MAX_EVENTS];
 };
 #define DDH_SHM_SIZE ((uint32_t)sizeof(DdhShared))
-typedef char DdhRingSizeIs120896[(sizeof(DdhShared) == 120896u) ? 1 : -1];
+typedef char DdhRingSizeIs149568[(sizeof(DdhShared) == 149568u) ? 1 : -1];
 static DdhShared      g_localRing;
 static DdhShared*     g_shm = &g_localRing;
 extern uint32_t       g_modBase;
@@ -1140,6 +1161,112 @@ static int DdhUnitIllusionStateByObj(uint32_t obj)
    ydbase 没加载时返回 0。 */
 /* 一次性探针：Game.dll 是否导出 WAR3API_GetTypeMemoryAddressByTypeId（平台插件就是调它取类型对象）。 */
 /* War3Trainer 的选区链：module+BE4238 → unitList → a2 → player → +0x34 selection → +0x1F0 链表 → +8 单位指针 */
+static bool DdhPeekF32(uint32_t addr, float* out)
+{
+    uint32_t bits = 0;
+    if (!out || !PeekU32(addr, &bits)) return false;
+    memcpy(out, &bits, sizeof(bits));
+    return _finite((double)*out) != 0;
+}
+
+static bool DdhPeekI32(uint32_t addr, int32_t* out)
+{
+    uint32_t bits = 0;
+    if (!out || !PeekU32(addr, &bits)) return false;
+    *out = (int32_t)bits;
+    return true;
+}
+
+static void DdhCaptureCombatByUnit(uint32_t unit, DdhUnitCombatSnapshot* out)
+{
+    if (!out) return;
+    memset(out, 0, sizeof(*out));
+    if (unit < 0x10000u || unit > 0x7FFFFFFFu) return;
+
+    float armor = 0.0f;
+    if (DdhPeekF32(unit + 0xE0u, &armor) && armor >= -100.0f && armor <= 1000.0f)
+    {
+        out->armor = armor;
+        out->flags |= DDH_COMBAT_ARMOR;
+    }
+
+    uint32_t property = 0;
+    if (!PeekU32(unit + 0x1E8u, &property) || property < 0x10000u || property > 0x7FFFFFFFu)
+        return;
+
+    int32_t dice = 0, side = 0, base = 0, bonus = 0;
+    if (DdhPeekI32(property + 0x88u, &dice) &&
+        DdhPeekI32(property + 0x94u, &side) &&
+        DdhPeekI32(property + 0xA0u, &base) &&
+        DdhPeekI32(property + 0xACu, &bonus) &&
+        dice >= 0 && dice <= 1000 && side >= 0 && side <= 1000 &&
+        base >= -1000000 && base <= 1000000 &&
+        bonus >= -1000000 && bonus <= 1000000)
+    {
+        const int64_t minDamage = (int64_t)base + (int64_t)bonus + (int64_t)dice;
+        const int64_t maxDamage = (int64_t)base + (int64_t)bonus + (int64_t)dice * (int64_t)side;
+        if (minDamage >= 0 && maxDamage >= minDamage && maxDamage <= 1000000)
+        {
+            out->damageMin = (float)minDamage;
+            out->damageMax = (float)maxDamage;
+            out->flags |= DDH_COMBAT_DAMAGE;
+        }
+    }
+
+    float range = 0.0f;
+    if (DdhPeekF32(property + 0x258u, &range) && range >= 0.0f && range <= 5000.0f)
+    {
+        out->attackRange = range;
+        out->flags |= DDH_COMBAT_RANGE;
+    }
+
+    float interval = 0.0f;
+    if (DdhPeekF32(property + 0x158u, &interval) && interval >= 0.05f && interval <= 10.0f)
+    {
+        out->attackInterval = interval;
+        out->flags |= DDH_COMBAT_INTERVAL;
+    }
+
+    float attackSpeed = 0.0f;
+    if (DdhPeekF32(property + 0x1B0u, &attackSpeed) &&
+        attackSpeed > 0.0f && attackSpeed <= 10000.0f)
+    {
+        out->attackSpeed = attackSpeed;
+        out->flags |= DDH_COMBAT_ATTACK_SPEED;
+    }
+}
+
+struct DdhLocustCacheEntry
+{
+    uint32_t code;
+    int8_t   value;
+};
+
+static DdhLocustCacheEntry g_ddhLocustCache[128];
+static uint32_t            g_ddhLocustCacheCount = 0;
+
+static int DdhLocustByUnit(uint32_t unit, uint32_t code)
+{
+    if (!code || unit < 0x10000u || unit > 0x7FFFFFFFu) return -1;
+    for (uint32_t i = 0; i < g_ddhLocustCacheCount; ++i)
+    {
+        if (g_ddhLocustCache[i].code == code)
+            return g_ddhLocustCache[i].value ? 1 : 0;
+    }
+
+    const int state = DdhAbilityInUnitList(unit, 0x636F6C41u);
+    if (state < 0) return -1;
+
+    DdhLocustCacheEntry* slot = NULL;
+    if (g_ddhLocustCacheCount < 128)
+        slot = &g_ddhLocustCache[g_ddhLocustCacheCount++];
+    else
+        slot = &g_ddhLocustCache[127];
+    slot->code = code;
+    slot->value = state > 0 ? 1 : 0;
+    return state > 0 ? 1 : 0;
+}
+
 static uint32_t DdhSelectedUnitPtr(void)
 {
     uint32_t list = 0, player = 0, sel = 0, head = 0;
@@ -1784,6 +1911,13 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
     e->victimCode = SafeCode(victim);
     e->source     = source;
     e->sourceCode = SafeCode(source);
+    DdhCaptureCombatByUnit(victim, &e->victimCombat);
+    if (source)
+        DdhCaptureCombatByUnit(source, &e->sourceCombat);
+    else
+        memset(&e->sourceCombat, 0, sizeof(e->sourceCombat));
+    const int victimLocust = DdhLocustByUnit(victim, e->victimCode);
+    const int sourceLocust = source ? DdhLocustByUnit(source, e->sourceCode) : -1;
     /* Capture names while both CUnit objects are still valid. The type code is read
        from CUnit+0x30 and the result is cached by type code. */
     if (e->victimCode)
@@ -1835,6 +1969,10 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
         e->flags |= DDH_EVENT_FLAG_VICTIM_ILLUSION;
     if (source && DdhUnitIllusionStateByObj(source) > 0)
         e->flags |= DDH_EVENT_FLAG_SOURCE_ILLUSION;
+    if (victimLocust > 0)
+        e->flags |= 1u;
+    if (sourceLocust > 0)
+        e->flags |= DDH_EVENT_FLAG_SOURCE_LOCUST;
     DdhQueuePendingMeta(seq);
     g_shm->hdr.lastTick = e->tickMs;
     MemoryBarrier();
@@ -4447,7 +4585,7 @@ static void SetupShared()
     LogLine("进程内事件环就绪（%u 字节，不创建共享内存）", DDH_SHM_SIZE);
     LogLine("ddh 版本 v%d：事件记录 %u 字节/条，名字字段各 %u 字节（UTF-8 安全截断，最多 63 字节+NUL）",
             DDH_VERSION, (unsigned)sizeof(DdhEvent), (unsigned)sizeof(((DdhEvent*)0)->victimName));
-    LogLine("ddh 协议 v38：仅进程内伤害事件环（%u 头 + %u 事件 = %u 字节），不再包含属性块",
+    LogLine("ddh 协议 v39：进程内伤害事件环（%u 头 + %u 事件 = %u 字节），事件内含双单位战斗属性快照",
             (unsigned)sizeof(DdhHeader), (unsigned)(DDH_MAX_EVENTS * sizeof(DdhEvent)),
             (unsigned)sizeof(DdhShared));
 }

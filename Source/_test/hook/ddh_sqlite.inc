@@ -528,6 +528,13 @@ struct DdhDbEventUnit
     bool     hero;
     bool     locust;
     bool     dirty;
+    uint32_t combatFlags;
+    float    attackRange;
+    float    damageMin;
+    float    damageMax;
+    float    armor;
+    float    attackInterval;
+    float    attackSpeed;
     char     typeCode[5];
     char     name[64];
     char     title[64];
@@ -593,6 +600,18 @@ static void DdhDbMergeEventUnit(const char* sessionId, const DdhEvent* e, bool s
     u->locust |= source
         ? (e->flags & DDH_EVENT_FLAG_SOURCE_LOCUST) != 0
         : (e->flags & 1u) != 0;
+
+    const DdhUnitCombatSnapshot* combat = source ? &e->sourceCombat : &e->victimCombat;
+    u->combatFlags |= combat->flags;
+    if (combat->flags & DDH_COMBAT_RANGE)        u->attackRange = combat->attackRange;
+    if (combat->flags & DDH_COMBAT_DAMAGE)
+    {
+        u->damageMin = combat->damageMin;
+        u->damageMax = combat->damageMax;
+    }
+    if (combat->flags & DDH_COMBAT_ARMOR)        u->armor = combat->armor;
+    if (combat->flags & DDH_COMBAT_INTERVAL)     u->attackInterval = combat->attackInterval;
+    if (combat->flags & DDH_COMBAT_ATTACK_SPEED) u->attackSpeed = combat->attackSpeed;
 
     char typeCode[5] = { 0 };
     for (int i = 0; i < 4; ++i)
@@ -673,11 +692,11 @@ static void DdhDbWriteEventUnits(void)
         g_sqlBindText(g_dbUnitStmt, 4, u->name, -1, DDH_SQLITE_TRANSIENT);
         g_sqlBindText(g_dbUnitStmt, 5, u->title, -1, DDH_SQLITE_TRANSIENT);
         g_sqlBindI64(g_dbUnitStmt, 6, (long long)u->owner);
-        g_sqlBindDouble(g_dbUnitStmt, 7, 0.0);
-        g_sqlBindDouble(g_dbUnitStmt, 8, 0.0);
-        g_sqlBindDouble(g_dbUnitStmt, 9, 0.0);
-        g_sqlBindDouble(g_dbUnitStmt, 10, 0.0);
-        g_sqlBindDouble(g_dbUnitStmt, 11, 0.0);
+        g_sqlBindDouble(g_dbUnitStmt, 7, u->attackRange);
+        g_sqlBindDouble(g_dbUnitStmt, 8, u->damageMin);
+        g_sqlBindDouble(g_dbUnitStmt, 9, u->damageMax);
+        g_sqlBindDouble(g_dbUnitStmt, 10, u->attackInterval);
+        g_sqlBindDouble(g_dbUnitStmt, 11, u->armor);
         g_sqlBindDouble(g_dbUnitStmt, 12, 0.0);  /* CUnit property scan removed */
         g_sqlBindDouble(g_dbUnitStmt, 13, 0.0);  /* sightDay */
         g_sqlBindDouble(g_dbUnitStmt, 14, 0.0);  /* sightNight */
@@ -689,7 +708,7 @@ static void DdhDbWriteEventUnits(void)
         g_sqlBindI64(g_dbUnitStmt, 20, u->illusion ? 1 : 0);
         g_sqlBindI64(g_dbUnitStmt, 21, 0);
         g_sqlBindI64(g_dbUnitStmt, 22, u->locust ? 1 : 0);
-        g_sqlBindDouble(g_dbUnitStmt, 23, 0.0);
+        g_sqlBindDouble(g_dbUnitStmt, 23, u->attackSpeed);
         if (g_sqlStep(g_dbUnitStmt) != DDH_SQLITE_DONE)
         {
             ok = 0;
