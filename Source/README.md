@@ -135,7 +135,7 @@
 | 路径 | 职责 |
 | --- | --- |
 | `Core/` | 只读连接、扫描、伤害模型、监视引擎、历史与自检 |
-| `_test/hook/ddh.cpp` | 游戏内伤害钩子和 SQLite 写入 |
+| `Native/ddh.cpp` | 游戏内伤害钩子和 SQLite 写入 |
 | `WebHost/Models.cs`、`SnapshotReader.cs` | 供桌面程序复用的 SQLite 查询模型 |
 | `DesktopHost/` | 桌面包壳、历史切换和实时快照 |
 | `web/src/` | Vue 3 页面、交互和样式 |
@@ -147,6 +147,7 @@
 powershell -ExecutionPolicy Bypass -File tools\package_release.ps1
 ```
 
+发布包默认写入仓库根目录 `../release/`，不会放入 `Source/release/`。
 只修改 Vue 页面时重新构建桌面程序的内嵌页面；修改 `ddh.dll` 后，
 必须完全退出并重启 WFE 再进游戏。
 
@@ -430,7 +431,7 @@ CUnit + 0xB0 = HP 回复率      CUnit + 0x16C = 坐标索引（+0x78 = X，+0x7
     `mov eax,ds:[6FBE40A8]`（ThisGame）→ `cmp ecx,[eax+0x1C]`（容量上限）→ `mov eax,[eax+0x0C]`（表基址）
     → `cmp dword ptr [eax+ecx*8], 0FFFFFFFEh`（8 字节一项）。
     所以本软件也**照引擎的规矩**用 `ThisGame+0x1C` 卡索引上限（挡“凑巧像单位”的内存）。
-* **动态**：`_test\fakegame\` 那个假魔兽（内存布局与外部可见的魔兽一致）跑端到端，
+* **动态**：`..\TempAnalysis\source-test-20261127\fakegame\` 那个假魔兽（内存布局与外部可见的魔兽一致）跑端到端，
   验证单位跟踪、伤害事件与死亡结算。
 * **实测**：真机跑一局即可确认（见下）。
 内置版本表：War3Trainer 的 13 个版本（`1.20.4.6074` … `1.27.0.52240`），
@@ -450,58 +451,31 @@ CUnit + 0xB0 = HP 回复率      CUnit + 0x16C = 坐标索引（+0x78 = X，+0x7
 | `logs\selftest.txt` | 离线自检报告 |
 | WFE `Application\Libraries\ddh-<PID>.log` | ddh 注入、伤害 Hook、SQLite 和面板日志 |
 
-> **编码统一 UTF-8（2026-11-01 起）**：`ddh\ddh-<PID>.log` 与 `_test\hook\ddh.cpp`
+> **编码统一 UTF-8（2026-11-01 起）**：`ddh\ddh-<PID>.log` 与 `Native\ddh.cpp`
 > 源码都是 UTF-8。属性 SEEDPROBE/UNITDUMP 诊断已删除。
 
-## 6. 旧只读桌面源码结构
+## 6. 旧只读桌面源码
 
-当前完整分层以 §0.7 为准；下面是保留的旧 WinForms 只读模块清单。
-
-```
-Source\
-  War3DeathSettlement.csproj
-  Program.cs                 入口（默认开界面；--probe / --selftest / --help）
-  Core\
-    Native.cs                Win32 声明（OpenProcess / ReadProcessMemory / VirtualQueryEx / Toolhelp）
-    RemoteProcess.cs         只读内存访问 + 虚拟内存表 + 模块表
-    Wc3Versions.cs           版本表 / CUnit 字段偏移
-    Wc3VersionTable.cs       War3Trainer 的 13 个版本地址表（从 IL 抠出）
-    Wc3Game.cs               连接 war3、读全局（ctx / ThisGame / 游戏内存表 / 玩家表）
-    UnitScanner.cs           句柄表/选区链发现 + 单位校验 + 拥有者自发现
-    DamageTracker.cs         血量差记账 + 死亡/消失结算
-    Settlement.cs            结算模型 + 文本输出
-    MonitorEngine.cs         后台线程「扫描 → 记账 → 快照」
-    Probe.cs                 实机诊断报告
-    SelfTest.cs              离线自检
-    Log.cs                   日志
-  Ui\MainForm.cs             界面
-```
-
-构建 / 发布：
-
-```powershell
-cd Source
-dotnet build   -c Release
-dotnet publish -c Release --self-contained true -o publish
-.\publish\War3DeathSettlement.exe
-```
+旧 WinForms 入口、页面和旧 `.csproj` 已迁至
+`..\TempAnalysis\source-cleanup-20261127\legacy-winforms\`，仅作为回滚参考，
+不参与当前构建或发布。
 
 ## 7. 自测靶子（不用真游戏也能端到端验证）
 
-`_test\fakegame\` 里有一个**假魔兽**：一个 32 位进程，内存布局跟“外部能读到的魔兽”一致
+`..\TempAnalysis\source-test-20261127\fakegame\` 里有一个**假魔兽**：一个 32 位进程，内存布局跟“外部能读到的魔兽”一致
 （`game.dll` 里 12MB 的填充让 `+0xBE40A8/+0xBE4238` 真实存在；堆上有假的 CUnit、生命对象表、
 选区链、句柄表；还有一个线程不停扣血让单位真的死掉）。
 
 ```powershell
 # 1) 编译靶子（需要 MSVC + Windows SDK，脚本会自己找）
-powershell -ExecutionPolicy Bypass -File _test\fakegame\build_fake.ps1
+powershell -ExecutionPolicy Bypass -File ..\TempAnalysis\source-test-20261127\fakegame\build_fake.ps1
 
 # 2) 起一个“假魔兽”（存活 300 秒；第二个参数见下）
 #    宿主的进程名故意叫 fakewar3（不是 war3），免得跟真游戏混了 —— 所以用它必须带 --pid
-cmd /c "_test\fakegame\run_fake.cmd 300"
-cmd /c "_test\fakegame\run_fake.cmd 300 weird"    # 故意换偏移 → 排障靶子
-cmd /c "_test\fakegame\run_fake.cmd 300 perf"     # 500 单位 + 256MB 堆 + 诱饵 → 规模/性能
-cmd /c "_test\fakegame\run_fake.cmd 300 big"      # 1200 单位 + 512MB 堆
+cmd /c "..\TempAnalysis\source-test-20261127\fakegame\run_fake.cmd 300"
+cmd /c "..\TempAnalysis\source-test-20261127\fakegame\run_fake.cmd 300 weird"
+cmd /c "..\TempAnalysis\source-test-20261127\fakegame\run_fake.cmd 300 perf"
+cmd /c "..\TempAnalysis\source-test-20261127\fakegame\run_fake.cmd 300 big"
 $pid2 = (Get-Process fakewar3).Id
 
 # 也可以直接用环境变量：FAKE_UNITS=N / FAKE_HEAP_MB=M / FAKE_DECOY=1 / FAKE_LAYOUT=weird

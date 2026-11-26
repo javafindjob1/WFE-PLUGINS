@@ -11,12 +11,6 @@ __pycache__/
 *.pyc
 pylibs/
 
-# ---- test evidence (screenshots, probe dumps) ----
-_test/**/*.png
-_test/hook/ddh-*.log
-_test/*.log
-_test/*.txt
-
 # ---- extracted map data (large, regenerate with mpq.py) ----
 _map_tj/
 _map_xf/
@@ -27,5 +21,11 @@ lua_scan/
 debug.log
 logs/
 _verify_*
-_test/
 TempAnalysis/
+node_modules/
+*.tsbuildinfo
+Source/web/dist/
+Source/Native/ddh.dll
+Source/Native/*.obj
+Source/Native/*.exp
+Source/Native/*.lib

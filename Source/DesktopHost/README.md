@@ -19,10 +19,10 @@ cd <DeathSettlement>
 
 脚本会：
 
-1. 构建 `web`。
-2. 发布自包含、单文件的 `publish_vue\War3DeathSettlement.exe`。
-3. 将新 exe 复制到正式目录 `publish\War3DeathSettlement.exe`。
-4. 同步游戏内 Vue 资源到 WFE `Application\Libraries`。
+1. 安装前端依赖并构建 `web`。
+2. 重新编译 `Native\ddh.dll`。
+3. 发布自包含、单文件的桌面程序。
+4. 将发布包写入仓库根目录 `..\release\`。
 
 ## 桌面命令
 

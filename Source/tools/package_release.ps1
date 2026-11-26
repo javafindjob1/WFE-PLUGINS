@@ -27,11 +27,19 @@ New-Item -ItemType Directory -Force -Path $desktopDir, $wfeDir | Out-Null
 Write-Host '== build Vue ==' -ForegroundColor Cyan
 Push-Location (Join-Path $sourceRoot 'web')
 try {
+    npm ci
+    if ($LASTEXITCODE -ne 0) { throw "npm ci failed ($LASTEXITCODE)" }
     npm run build
     if ($LASTEXITCODE -ne 0) { throw "Vue build failed ($LASTEXITCODE)" }
 }
 finally {
     Pop-Location
+}
+
+Write-Host '== build native ddh.dll ==' -ForegroundColor Cyan
+& (Join-Path $sourceRoot 'Native\build_hook.ps1')
+if (-not (Test-Path -LiteralPath (Join-Path $sourceRoot 'Native\ddh.dll'))) {
+    throw 'Native build did not produce Native\ddh.dll'
 }
 
 Write-Host '== publish desktop ==' -ForegroundColor Cyan
@@ -46,7 +54,7 @@ dotnet publish (Join-Path $sourceRoot 'DesktopHost\War3DeathSettlement.Desktop.c
 if ($LASTEXITCODE -ne 0) { throw "Desktop publish failed ($LASTEXITCODE)" }
 
 Write-Host '== collect game files ==' -ForegroundColor Cyan
-Copy-Item -LiteralPath (Join-Path $sourceRoot '_test\hook\ddh.dll') -Destination $wfeDir -Force
+Copy-Item -LiteralPath (Join-Path $sourceRoot 'Native\ddh.dll') -Destination $wfeDir -Force
 
 $desktopDocs = @(
     @{ Source = 'README.md'; Name = 'README.md' }
