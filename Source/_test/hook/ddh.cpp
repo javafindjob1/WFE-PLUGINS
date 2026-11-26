@@ -64,7 +64,7 @@
      净掉血   = 前后血差（不变�?
    �?JASS native 钩子保留，但默认关闭；要诊断"地图读了几次/改了几次"就设
    环境变量 DDH_NATIVE_DAMAGE_HOOKS=1�?*/
-#define DDH_VERSION   36
+#define DDH_VERSION   37
 #define DDH_MAX_EVENTS 512
 #define DDH_MAXDEPTH  16      /* 伤害事件最大嵌套层数（地图�?DOT/追加伤害会套进来�?*/
 
@@ -277,7 +277,7 @@ typedef char DdhAttrBlockSizeIs20360[(sizeof(DdhAttrBlock) == 20360) ? 1 : -1];
 #define DDH_ATTR_RESP_OFFSET  (8u + DDH_ATTR_MAX * 4u)
 #define DDH_ATTR_BLOCK_SIZE   (DDH_ATTR_RESP_OFFSET + DDH_ATTR_MAX * (uint32_t)sizeof(DdhUnitAttr))
 
-/* 当前共享结构只保留伤害事件环和单位属性块。 */
+/* 进程内事件环：不再创建命名共享内存。 */
 struct DdhShared
 {
     DdhHeader    hdr;
@@ -285,9 +285,9 @@ struct DdhShared
     DdhAttrBlock attrs;
 };
 #define DDH_SHM_SIZE ((uint32_t)sizeof(DdhShared))
-typedef char DdhSharedSizeIs141256[(sizeof(DdhShared) == 141256u) ? 1 : -1];
-static HANDLE         g_map = NULL;
-static DdhShared*     g_shm = NULL;
+typedef char DdhRingSizeIs141256[(sizeof(DdhShared) == 141256u) ? 1 : -1];
+static DdhShared      g_localRing;
+static DdhShared*     g_shm = &g_localRing;
 extern uint32_t       g_modBase;
 static HANDLE         g_instanceMutex = NULL;
 static bool           g_duplicateInstance = false;
@@ -412,7 +412,6 @@ static LARGE_INTEGER g_qpcStart[DDH_MAXDEPTH];
 static volatile LONG g_hpLogCount = 0;
 static bool           g_namesEnabled = true;   /* 查单位名（失败会自动退回类型码�?*/
 
-static char           g_mapName[128];
 static int            g_logEnabled = 0;   /* 1 = 写日志（发布包默认关闭，放 ddh_log.on 打开） */
 static char           g_logPath[MAX_PATH];
 
@@ -10852,7 +10851,6 @@ static void DdhCleanupOldLogs(const char* dir, int days)
 static void SetupShared()
 {
     DWORD pid = GetCurrentProcessId();
-    DdhSprintf(g_mapName, sizeof(g_mapName), "Local\\DdhRing_%lu", pid);
     /* 日志放哪：① �?ddh.dll 同目录（最常见、肯定可写、也最好找�?
                  �?C:\ddh-<pid>.log（老版本位置，兼容既有说明/习惯�?
                  �?%TEMP%\ddh-<pid>.log（兜底）
@@ -10903,11 +10901,7 @@ static void SetupShared()
     }
 
     QueryPerformanceFrequency(&g_qpcFreq);
-    g_map = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, DDH_SHM_SIZE, g_mapName);
-    if (!g_map) { LogLine("CreateFileMapping 失败 %lu", GetLastError()); return; }
-    g_shm = (DdhShared*)MapViewOfFile(g_map, FILE_MAP_ALL_ACCESS, 0, 0, DDH_SHM_SIZE);
-    if (!g_shm) { LogLine("MapViewOfFile 失败 %lu", GetLastError()); return; }
-
+    g_shm = &g_localRing;
     memset(g_shm, 0, sizeof(DdhShared));
     g_shm->hdr.magic = DDH_MAGIC;
     g_shm->hdr.version = DDH_VERSION;
@@ -10916,10 +10910,10 @@ static void SetupShared()
     g_shm->hdr.hookRva = HOOK_RVA;
     g_shm->hdr.selfTest = 1;
     g_shm->hdr.reserved[0] = 0;        /* v3：先占位，InstallHook 确认能力后再�?1 */
-    LogLine("共享内存 %s 就绪（%u 字节）", g_mapName, DDH_SHM_SIZE);
+    LogLine("进程内事件环就绪（%u 字节，不创建共享内存）", DDH_SHM_SIZE);
     LogLine("ddh 版本 v%d：事件记录 %u 字节/条，名字字段各 %u 字节（UTF-8 安全截断，最多 63 字节+NUL）",
             DDH_VERSION, (unsigned)sizeof(DdhEvent), (unsigned)sizeof(((DdhEvent*)0)->victimName));
-    LogLine("ddh 协议 v36 单位属性块（单元 208 字节；请求槽 96）：块偏移=%u（= %u 头 + %u 事件），请求槽 %u 个，响应槽偏移=%u，单元 %u 字节，块长 %u，共享内存结构总长 %u；v36 +165=unit_property+0x1B0 攻击速度；flags 0x%X=蝗虫（Aloc）",
+    LogLine("ddh 协议 v37 进程内事件/属性块（单元 208 字节；请求槽 96）：块偏移=%u（= %u 头 + %u 事件），请求槽 %u 个，响应槽偏移=%u，单元 %u 字节，块长 %u，结构总长 %u；v37 +165=unit_property+0x1B0 攻击速度；flags 0x%X=蝗虫（Aloc）",
             (unsigned)DDH_ATTR_BLOCK_OFFSET, (unsigned)sizeof(DdhHeader),
             (unsigned)(DDH_MAX_EVENTS * sizeof(DdhEvent)), (unsigned)DDH_ATTR_MAX,
             (unsigned)DDH_ATTR_RESP_OFFSET, (unsigned)sizeof(DdhUnitAttr),
@@ -11249,8 +11243,7 @@ BOOL APIENTRY DllMain(HMODULE mod, DWORD reason, LPVOID)
                 LogLine("已卸钩");
             }
         }
-        if (g_shm) { UnmapViewOfFile(g_shm); g_shm = NULL; }
-        if (g_map) { CloseHandle(g_map); g_map = NULL; }
+        g_shm = &g_localRing;
         if (g_instanceMutex) { CloseHandle(g_instanceMutex); g_instanceMutex = NULL; }
     }
     return TRUE;

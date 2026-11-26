@@ -29,7 +29,7 @@
 
 ### 0.2 从进图到显示结算的数据流
 
-1. WFE 注入 `ddh.dll`，延迟 3 秒后在游戏进程内完成初始化、挂载钩子并创建共享内存。
+1. WFE 注入 `ddh.dll`，延迟 3 秒后在游戏进程内完成初始化并挂载钩子。
 2. ddh 挂钩 `game.dll+0x67DC40` 伤害函数；入口记录原始伤害、来源和触发单位，出口读取最终伤害与前后血。
 3. ddh 将事件写入内存事件环，同时批量写入 SQLite 的 `game_events`、`game_settlements`、`game_units`。
 4. 桌面程序每 0.5 秒读取当前会话摘要；死亡结算页和伤害事件页都按页查询。
@@ -212,8 +212,6 @@ ini 的 `ignore_unit_names` 是**可选的手动名字忽略名单**（默认空
 War3DeathSettlement.exe --probe               实机诊断，报告写进 logs\probe-*.txt
 War3DeathSettlement.exe --monitor [--seconds 120]
                                               无界面监视，死亡结算直接打在控制台
-War3DeathSettlement.exe --monitor --hook --seconds 60
-                                              无界面 + 强行打开伤害钩子（等同 ini 里 hook_enable=1）
 War3DeathSettlement.exe --selftest            离线自检记账/结算逻辑（不需要游戏）
 War3DeathSettlement.exe --help
 
@@ -222,8 +220,6 @@ War3DeathSettlement.exe --help
   --name <名字[,名字]>     额外的进程名
   --force-version <版本>   强制用某个版本的地址表，例如 1.27.0.52240
   --no-handle / --no-selection   单独关掉某一条发现路径（排障用）
-  --hook / --no-hook       强制打开/关闭伤害钩子（无界面模式下也能用）
-  --hook-dll <文件>        指定 ddh.dll（默认 exe 目录下 hook\ddh.dll）
 ```
 
 ### 1.2 游戏内结算按钮已删除（2.2.11）

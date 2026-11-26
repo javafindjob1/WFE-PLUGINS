@@ -1,7 +1,7 @@
 War3DeathSettlement 发布包
 ==========================
 
-版本：2.2.12
+版本：2.2.13
 构建形式：单个 .NET 10 自包含 x64 桌面程序，WFE 使用单个 ddh.dll。
 
 运行前置条件：
@@ -11,10 +11,6 @@ War3DeathSettlement 发布包
 ------------
 Desktop\War3DeathSettlement.exe
   桌面结算程序，已内嵌死亡结算、伤害事件和战场单位页面。
-Desktop\hook\ddh.dll
-Desktop\hook\ddh_inject.exe
-  不依赖 WFE 的独立注入文件。
-
 Game\WFE-Libraries\ddh.dll
   WFE 加载的单一伤害采集模块，只负责伤害钩子和 SQLite 落库。
 
@@ -23,7 +19,8 @@ Game\WFE-Libraries\ddh.dll
 - 游戏内不显示任何结算按钮。
 - 游戏内不显示结算页、覆盖层、阵亡总结或承伤图表。
 - 不启动 ddh_web，不创建游戏内画面共享内存。
-- 共享内存协议升级为 v36，只保留伤害事件环和单位属性块，总长 141256 字节。
+- ddh 协议升级为 v37，进程内事件环总长 141256 字节。
+- 本版已完全删除共享内存和桌面注入：ddh 使用进程内事件环，桌面只读 SQLite。
 - 单位死亡数据仍写入 SQLite，可在桌面程序里查看。
 
 三、安装游戏内采集
@@ -41,11 +38,10 @@ Game\WFE-Libraries\ddh.dll
 桌面版是 .NET 10 自包含单文件程序，无需另装 .NET；历史、日志和设置路径仍按程序配置
 写入用户目录。
 
-不依赖 WFE 独立运行：
-1. 不使用 WFE，正常启动魔兽并进入地图。
-2. 右键以管理员身份运行 Desktop\War3DeathSettlement.exe。
-3. 程序会连接游戏，并使用 Desktop\hook\ddh_inject.exe 注入 Desktop\hook\ddh.dll。
-4. 如果平台以管理员权限启动魔兽，桌面程序也必须以管理员身份运行。
+桌面程序不注入游戏：
+1. 采集必须由 WFE 加载 Game\WFE-Libraries\ddh.dll。
+2. 桌面程序只读取 ddh 写入的 SQLite。
+3. 找不到 WFE 采集数据时，桌面程序显示等待状态。
 
 五、当前界面要点
 ----------------

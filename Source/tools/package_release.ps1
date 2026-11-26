@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '2.2.12',
+    [string]$Version = '2.2.13',
     [string]$OutputRoot = '',
     [string]$NuGetSource = 'https://api.nuget.org/v3/index.json'
 )
@@ -19,10 +19,9 @@ if (Test-Path -LiteralPath $packageDir) { throw "Package directory already exist
 if (Test-Path -LiteralPath $zipPath) { throw "Package zip already exists: $zipPath" }
 
 $desktopDir = Join-Path $packageDir 'Desktop'
-$desktopHookDir = Join-Path $desktopDir 'hook'
 $gameDir = Join-Path $packageDir 'Game'
 $wfeDir = Join-Path $gameDir 'WFE-Libraries'
-New-Item -ItemType Directory -Force -Path $desktopDir, $desktopHookDir, $wfeDir | Out-Null
+New-Item -ItemType Directory -Force -Path $desktopDir, $wfeDir | Out-Null
 
 Write-Host '== build Vue ==' -ForegroundColor Cyan
 Push-Location (Join-Path $root 'web')
@@ -47,8 +46,6 @@ if ($LASTEXITCODE -ne 0) { throw "Desktop publish failed ($LASTEXITCODE)" }
 
 Write-Host '== collect game files ==' -ForegroundColor Cyan
 Copy-Item -LiteralPath (Join-Path $root '_test\hook\ddh.dll') -Destination $wfeDir -Force
-Copy-Item -LiteralPath (Join-Path $root '_test\hook\ddh.dll') -Destination $desktopHookDir -Force
-Copy-Item -LiteralPath (Join-Path $root '_test\hook\ddh_inject.exe') -Destination $desktopHookDir -Force
 
 $desktopDocs = @(
     @{ Source = 'README.md'; Name = 'README.md' }
@@ -73,11 +70,8 @@ if (Test-Path -LiteralPath (Join-Path $wfeDir 'ddh_core.bin')) {
 if (-not (Test-Path -LiteralPath (Join-Path $wfeDir 'ddh.dll'))) {
     throw 'Missing ddh.dll in WFE-Libraries'
 }
-if (-not (Test-Path -LiteralPath (Join-Path $desktopHookDir 'ddh.dll'))) {
-    throw 'Missing ddh.dll for standalone Desktop mode'
-}
-if (-not (Test-Path -LiteralPath (Join-Path $desktopHookDir 'ddh_inject.exe'))) {
-    throw 'Missing ddh_inject.exe for standalone Desktop mode'
+if (Test-Path -LiteralPath (Join-Path $desktopDir 'hook')) {
+    throw 'Desktop injection files must not be included'
 }
 if (Test-Path -LiteralPath (Join-Path $gameDir 'ddh_web')) {
     throw 'Game-side ddh_web must not be included in the desktop-only release'

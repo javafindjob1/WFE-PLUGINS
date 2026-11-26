@@ -16,18 +16,6 @@ public sealed class Settings
     public string ForceVersion = "";     // 非空则强制用这个版本的地址表
     public bool ReadPluginLog = true;    // 读游戏内插件日志补上“伤害来源”
 
-    /// <summary>侵入式伤害事件：注入 ddh.dll 挂引擎伤害函数（能看到 是否攻击/远程/攻击类型/伤害类型/来源）。</summary>
-    public bool HookEnabled = true;   // 默认开：伤害钩子是常规功能，界面上不再给开关
-    public string HookDll = "hook\\ddh.dll";
-    public string HookInjector = "hook\\ddh_inject.exe";
-
-    /// <summary>
-    /// "钩子需要管理员权限"那条启动提示是否已经显示过。
-    /// 钩子默认开着，如果每次启动都弹窗就成了骚扰；弹一次、记进 ini，之后只在日志里写一行。
-    /// 想再看一次就把 ini 里的 hook_admin_hint_shown 改成 0。
-    /// </summary>
-    public bool HookAdminHintShown = false;
-
     /// <summary>攻击类型编号→名字（`1=普通,2=近战,3=穿刺`）；空 = 用内置表。</summary>
     public string AttackTypeLabels = "";
 
@@ -94,10 +82,6 @@ public sealed class Settings
                     case "force_version": s.ForceVersion = v; break;
                     case "read_plugin_log": s.ReadPluginLog = v is "1" or "true" or "yes"; break;
                     case "plugin_log_path": if (v.Length > 0) s.PluginLogPath = v; break;
-                case "hook_enable": s.HookEnabled = v is "1" or "true" or "yes"; break;
-                case "hook_dll": if (v.Length > 0) s.HookDll = v; break;
-                case "hook_injector": if (v.Length > 0) s.HookInjector = v; break;
-                case "hook_admin_hint_shown": s.HookAdminHintShown = v is "1" or "true" or "yes" or "on"; break;
                 case "atype_labels": s.AttackTypeLabels = v; break;
                 case "dtype_labels": s.DamageTypeLabels = v; break;
                 case "ignore_unit_names": s.IgnoreUnitNames = v; break;
@@ -132,12 +116,6 @@ public sealed class Settings
             sb.AppendLine($"force_version={ForceVersion}");
             sb.AppendLine($"read_plugin_log={(ReadPluginLog ? 1 : 0)}");
             sb.AppendLine($"plugin_log_path={PluginLogPath}");
-        sb.AppendLine("; hook_enable : 1 = 注入 ddh.dll，挂钩引擎伤害函数，直接拿到 是否攻击/远程/攻击类型/伤害类型/伤害值（侵入式）");
-        sb.AppendLine($"hook_enable={(HookEnabled ? 1 : 0)}");
-        sb.AppendLine($"hook_dll={HookDll}");
-        sb.AppendLine($"hook_injector={HookInjector}");
-        sb.AppendLine("; hook_admin_hint_shown : 1 = 已提示过“钩子需要管理员权限”（改回 0 可再提示一次）");
-        sb.AppendLine($"hook_admin_hint_shown={(HookAdminHintShown ? 1 : 0)}");
         sb.AppendLine($"atype_labels={AttackTypeLabels}");
         sb.AppendLine($"dtype_labels={DamageTypeLabels}");
         sb.AppendLine("; ignore_unit_names : 手动按名字忽略单位（可选，默认空）；名字包含任一关键字就不进死亡结算；逗号/分号分隔。马甲单位由 Aloc 技能自动判定，不靠这里（环境变量 DSS_IGNORE_UNIT_NAMES 可覆盖）");

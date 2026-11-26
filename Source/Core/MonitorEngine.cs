@@ -130,12 +130,6 @@ public sealed class MonitorEngine : IDisposable
     public bool ReadPluginLog { get; set; } = true;
 
     // ---- 侵入式伤害事件（注入 ddh.dll 挂钩引擎伤害函数）----
-    /// <summary>是否启用侵入式伤害事件。</summary>
-    public bool HookEnabled { get; set; }
-    /// <summary>false = 不打开共享内存，只读 ddh 的 SQLite 明细（默认）。</summary>
-    public bool HookSharedMemory { get; set; }
-    public string HookDllPath { get; set; } = "hook\\ddh.dll";
-    public string HookInjectorPath { get; set; } = "hook\\ddh_inject.exe";
 
     /// <summary>
     /// 注入被完整性级别（MIC）拦下：游戏比本进程高时，OpenProcess 申请
@@ -149,9 +143,6 @@ public sealed class MonitorEngine : IDisposable
 
     /// <summary>被拦下时的简短说明（界面横幅用），形如"游戏 管理员（High） / 本程序 普通（Medium）"。</summary>
     public string HookIntegrityHint { get; private set; } = "";
-
-    /// <summary>已经就哪个 PID 报过"被 IL 拦下"，避免 50ms 一轮疯狂刷日志。</summary>
-    private int _hookIlBlockedPid = -1;
 
     /// <summary>插件日志路径（默认 WFE 的 Libraries 目录）。</summary>
     public string PluginLogPath { get; set; } =
@@ -261,7 +252,7 @@ public sealed class MonitorEngine : IDisposable
         _hookTried = false;
         _attachExistingPid = -1;
         HookAttached = false;
-        HookStatus = HookEnabled ? "准备注入…" : "未启用";
+        HookStatus = "WFE SQLite";
         try { _hook.Dispose(); } catch { }
     }
 
@@ -683,14 +674,11 @@ public sealed class MonitorEngine : IDisposable
         if (resetHook)
         {
             _lastHookSeq = 0;
-            _dbSinceWallMs = HookSharedMemory
-                ? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                : 0;
+            _dbSinceWallMs = 0;
             _hookTried = false;
             _attachExistingPid = -1;
             HookAttached = false;
-            HookStatus = HookEnabled ? "准备注入…" : "未启用";
-            _hookIlBlockedPid = -1;
+            HookStatus = "WFE SQLite";
             HookBlockedByIntegrity = false;
             HookIntegrityHint = "";
             try { _hook.Dispose(); } catch { }
@@ -1509,145 +1497,34 @@ public sealed class MonitorEngine : IDisposable
     }
 
     /// <summary>
-    /// 侵入式伤害事件：第一次连上游戏时把 ddh.dll 注入进去（挂 game.dll+0x67DC40 的钩子），
-    /// 之后每次循环从共享内存里读新事件。注入失败不影响主功能（只是没有引擎级归因）。
-    /// 如果游戏进程里已经有 ddh（WFE/ASI 在启动时加载），只接管共享内存，不再重复注入。
+    /// 桌面端只读取 WFE 注入的 ddh 写入 SQLite 的伤害事件，不注入、不打开共享内存。
     /// </summary>
     private void PumpHook(Wc3Game g, UnitScanner sc)
     {
-        if (!HookEnabled)
-        {
-            if (HookStatus != "未启用（ini 里 hook_enable=1 打开）")
-            {
-                HookStatus = "未启用（ini 里 hook_enable=1 打开）";
-                Log.Write("hook：" + HookStatus);
-            }
-            return;
-        }
+        _ = sc;
         if (!g.IsReady) return;
-
-        /* 不走共享内存：只读 ddh 写的 SQLite 明细（ddh v22）。 */
-        if (!HookSharedMemory && !_hookTried)
+        if (!_hookTried)
         {
             _hookTried = true;
             HookAttached = false;
-            HookStatus = "SQLite 明细（不走共享内存）";
-            Log.Write("hook：已禁用共享内存，伤害明细改读 " + DdhEventDb.FixedPath +
+            HookStatus = "WFE SQLite 明细";
+            Log.Write("hook：桌面端只读 WFE 写入的 SQLite，不注入、不打开共享内存：" + DdhEventDb.FixedPath +
                       "（session " + g.SessionId + "）");
         }
 
-        // 已经确认“这个进程有现成 ddh”，但共享内存还没就绪：每次循环重试打开，绝不注入。
-        if (_attachExistingPid == g.Mem.Pid && !_hook.IsOpen)
+        if (DateTime.UtcNow - _lastHookPoll < TimeSpan.FromMilliseconds(400)) return;
+        _lastHookPoll = DateTime.UtcNow;
+        List<DamageHook.HookEvent> fresh =
+            DdhEventDb.ReadAfter(g.SessionId, _lastHookSeq, 512, out string dbErr, _dbSinceWallMs);
+        if (dbErr.Length > 0)
         {
-            AdoptExistingHook(g);
-            if (!_hook.IsOpen) return;
-        }
-
-        if (!_hookTried)
-        {
-            // WFE/ASI 在游戏启动时就把 ddh.dll 加载了 → 不能再注入第二个实例（两条钩子/两套 seq 会写坏同一个环）。
-            if (DdhAlreadyPresent(g.Mem.Pid))
+            if (!_dbReadErrorLogged)
             {
-                AdoptExistingHook(g);
-                return;
+                _dbReadErrorLogged = true;
+                Log.Warn("ddh 明细库读取失败：" + dbErr + "（路径 " + DdhEventDb.FixedPath +
+                         "，session " + g.SessionId + "）");
             }
-
-            // ---- 预检：先比完整性级别，再决定要不要真去注入 ----
-            // 跨 IL 的写权限是内核直接拒的（err=5），硬着头皮注入只会白跑一趟、还要等 8 秒超时，
-            // 而且注入器退回的"OpenProcess 失败: 5"对用户毫无解释力。
-            IntegrityLevel gameIl = Integrity.OfProcess(g.Mem.Pid, out int ilErr);
-            // 两种情况都算"权限墙"：
-            //  ① 读到了 IL，但游戏更高 → 内核直接拒绝 VM_WRITE/CREATE_THREAD；
-            //  ② 连 QUERY_LIMITED 都失败且 err=5 → 目标是管理员/其他用户/受保护进程跑的，
-            //     这种情况多半连只读都成问题（界面会另有"权限不足"横幅），更别说注入。
-            bool blocked = gameIl == IntegrityLevel.Unknown
-                ? ilErr == 5
-                : !Integrity.CanInject(gameIl);
-            if (blocked)
-            {
-                if (_hookIlBlockedPid != g.Mem.Pid)
-                {
-                    _hookIlBlockedPid = g.Mem.Pid;
-                    HookBlockedByIntegrity = true;
-
-                    // 三种"打不开"必须分开说，否则用户只能瞎猜：
-                    //  A. 读到了 IL，游戏更高        → 完整性级别：提权才管用，SeDebug 帮不上
-                    //  B. 连查询都 err=5、SeDebug 没有 → 没提权，DACL 就把我们挡在门外
-                    //  C. 连查询都 err=5、SeDebug 已启用 → 仍然打不开：受保护进程 / 跨会话 / 跨用户
-                    string cause;
-                    if (gameIl != IntegrityLevel.Unknown)
-                    {
-                        cause = Integrity.Diff(Integrity.Self, gameIl) +
-                                "，跨完整性级别（提权才管用，SeDebugPrivilege 帮不上）";
-                        HookIntegrityHint = Integrity.Diff(Integrity.Self, gameIl);
-                    }
-                    else if (Privilege.DebugState == "已启用")
-                    {
-                        cause = "游戏拒绝访问（err=5），SeDebugPrivilege 已启用仍打不开"
-                              + "（可能是受保护进程，或跨会话/跨用户运行）";
-                        HookIntegrityHint = "游戏拒绝访问（err=5，SeDebug 已启用）";
-                    }
-                    else
-                    {
-                        cause = "游戏拒绝访问（err=5），当前没有 SeDebugPrivilege"
-                              + "（多半是平台/服务以更高权限拉起，需要以管理员身份重启）";
-                        HookIntegrityHint = "游戏拒绝访问（err=5）";
-                    }
-
-                    HookStatus = "注入被拦下：" + cause;
-                    Log.Write("hook：" + HookStatus);
-                }
-                return;   // 故意不置 _hookTried：换进程/提权重启后还要再试
-            }
-
-            _hookTried = true;
-            string dll = Path.IsPathRooted(HookDllPath) ? HookDllPath : Path.Combine(AppContext.BaseDirectory, HookDllPath);
-            string inj = Path.IsPathRooted(HookInjectorPath) ? HookInjectorPath : Path.Combine(AppContext.BaseDirectory, HookInjectorPath);
-            var r = DamageHook.Inject(g.Mem.Pid, inj, dll);
-            Log.Write($"hook 注入：{(r.ok ? "成功" : "失败")} —— {r.message}");
-            if (r.ok && _hook.Open(g.Mem.Pid))
-            {
-                HookAttached = _hook.HookOk;
-                HookStatus = HookAttached ? $"已挂钩（game.dll 基址 0x{_hook.GameDllBase:X8}，实际 RVA 0x{_hook.HookRva:X}）" : "注入成功但 DLL 报告挂钩失败";
-                Log.Write($"hook：ddh 协议 v{_hook.Version}，每条记录 {_hook.RecordSize} 字节，名字字段 {_hook.NameFieldSize} 字节");
-                // ddh 自己的日志：默认就写在 ddh.dll 同目录（ddh-<PID>.log），写不了才退 C:\ 根目录 / %TEMP%
-                try
-                {
-                    string dir = Path.GetDirectoryName(dll) ?? "";
-                    // 日志里用相对 exe 目录的路径（hook\ddh-1234.log）；控制台/报告另有绝对路径。
-                    Log.Write($"hook 日志：{Log.Relative(Path.Combine(dir, $"ddh-{g.Mem.Pid}.log"))}");
-                }
-                catch { }
-                if (_hook.HpSupported) Log.Write("hook：本 DLL 会采集“实际伤害”（伤害函数返回后重新读血）");
-            }
-            else HookStatus = "注入失败：" + (r.ok ? _hook.LastError : r.message);
-            Log.Write("hook 状态：" + HookStatus);
             return;
-        }
-
-        List<DamageHook.HookEvent> fresh;
-        if (_hook.IsOpen)
-        {
-            if (DateTime.UtcNow - _lastHookPoll < TimeSpan.FromMilliseconds(200)) return;
-            _lastHookPoll = DateTime.UtcNow;
-            fresh = _hook.Poll();
-        }
-        else
-        {
-            /* 共享内存没打开（旧 ddh / 只加载了 ddh 的写库模式）：改读 ddh 自己写的 SQLite 明细。 */
-            if (DateTime.UtcNow - _lastHookPoll < TimeSpan.FromMilliseconds(400)) return;
-            _lastHookPoll = DateTime.UtcNow;
-            fresh = DdhEventDb.ReadAfter(g.SessionId, _lastHookSeq, 512, out string dbErr, _dbSinceWallMs);
-            if (dbErr.Length > 0)
-            {
-                if (!_dbReadErrorLogged)
-                {
-                    _dbReadErrorLogged = true;
-                    Log.Warn("ddh 明细库读取失败：" + dbErr + "（路径 " + DdhEventDb.FixedPath +
-                             "，session " + g.SessionId + "）");
-                }
-                return;
-            }
         }
         if (fresh.Count == 0) return;
 

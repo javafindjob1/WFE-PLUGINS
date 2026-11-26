@@ -23,10 +23,6 @@ public sealed class CliOptions
     public bool NoHandleTable;
     /// <summary>关掉选区链发现（排障用；句柄表/钩子事件锚点仍然有效）。</summary>
     public bool NoSelection;
-    /// <summary>侵入式钩子：null = 跟随 ini；true/false = 命令行强制开/关（无界面模式也能用）。</summary>
-    public bool? Hook;
-    /// <summary>指定 ddh.dll 路径（默认 exe 目录下 hook\ddh.dll）。</summary>
-    public string? HookDll;
 
     public static CliOptions Parse(string[] args)
     {
@@ -55,11 +51,6 @@ public sealed class CliOptions
                     if (i + 1 < args.Length) o.PluginLogPath = args[++i];
                     break;
                 case "--no-plugin-log": o.NoPluginLog = true; break;
-                case "--hook": o.Hook = true; break;
-                case "--no-hook": o.Hook = false; break;
-                case "--hook-dll":
-                    if (i + 1 < args.Length) o.HookDll = args[++i];
-                    break;
                 case "--seconds":
                     if (i + 1 < args.Length && int.TryParse(args[++i], out int sec)) o.Seconds = Math.Clamp(sec, 1, 24 * 3600);
                     break;

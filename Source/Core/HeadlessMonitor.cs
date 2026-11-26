@@ -22,10 +22,6 @@ public static class HeadlessMonitor
             EnableHandleTable = !opt.NoHandleTable,
             EnableSelection = !opt.NoSelection,
             ReadPluginLog = !opt.NoPluginLog,
-            // 侵入式钩子：命令行 --hook / --no-hook 优先，否则跟随 ini
-            HookEnabled = opt.Hook ?? settings.HookEnabled,
-            HookDllPath = opt.HookDll ?? settings.HookDll,
-            HookInjectorPath = settings.HookInjector,
             // 用户自定义的名字忽略名单（可选，默认空）；马甲单位由 ddh 的 Aloc 技能判定自动过滤
             IgnoreUnitNames = settings.IgnoreUnitNames
         };

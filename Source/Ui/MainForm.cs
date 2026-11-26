@@ -254,16 +254,6 @@ public sealed class MainForm : Form
         _engine.PluginLogPath = _settings.PluginLogPath;
         // ini 里可以改「攻击类型/伤害类型编号 → 名字」的对照表（atype_labels / dtype_labels）
         DamageTypeNames.Override(_settings.AttackTypeLabels, _settings.DamageTypeLabels);
-        // 伤害钩子（侵入式）现在是**默认开启**：ini 里 hook_enable 默认就是 1，
-        // 界面上不再给开关（工具栏只留 查找游戏 / 生成诊断报告 / 打开日志）。
-        _engine.HookEnabled = _settings.HookEnabled;
-        _engine.HookDllPath = _settings.HookDll;
-        _engine.HookInjectorPath = _settings.HookInjector;
-
-        // 启动提示：钩子开着、但当前不是管理员 —— 只说一次（记进 ini，别每次启动都弹）。
-        // 窗口真正显示后再问，否则没有 owner，弹框会跑到错误的位置/被别的窗口盖住。
-        if (_settings.HookEnabled) Shown += (_, _) => HintHookNeedsAdminOnce();
-
         _engine.AttachOptions = _settings.ToAttach();
         if (_opt.Pid != null || _opt.Name != null || _opt.ForceVersion != null)
             _engine.AttachOptions = _opt.ToAttach();          // 命令行显式给的优先
@@ -273,7 +263,7 @@ public sealed class MainForm : Form
         // 用户自定义的名字忽略名单（可选，默认空）；马甲单位由 ddh 的 Aloc 技能判定自动过滤
         _engine.IgnoreUnitNames = _settings.IgnoreUnitNames;
         _engine.Start();
-        Log.Write($"界面已就绪：自动连接={(_engine.AutoAttach ? "开" : "关")}，伤害钩子={(_engine.HookEnabled ? "开" : "关")}，轮询 {_engine.IntervalMs}ms，" +
+        Log.Write($"界面已就绪：自动连接={(_engine.AutoAttach ? "开" : "关")}，采集数据=WFE SQLite，轮询 {_engine.IntervalMs}ms，" +
                   $"忽略名字 {(string.IsNullOrWhiteSpace(_engine.IgnoreUnitNames) ? "关" : _engine.IgnoreUnitNames)}，设置文件 {Log.Relative(Settings.DefaultPath)}");
     }
 
@@ -649,47 +639,6 @@ public sealed class MainForm : Form
             }
         }
         finally { _cmdFind.Enabled = true; }
-    }
-
-    /// <summary>
-    /// 启动时的一次性提示：伤害钩子要注入 ddh.dll，而注入需要"不比自己低 + 拿得到 DACL"。
-    /// <para>
-    /// 实测（本机 11 平台拉起的 war3）：**即使游戏也是 Medium**，普通权限下
-    /// <c>OpenProcess</c> 仍然 <c>err=5</c> —— 所以这功能实际上等于"需要管理员"。
-    /// 但也别把话说死：游戏由自己的启动器以普通权限拉起时，普通权限是能注入的。
-    /// </para>
-    /// </summary>
-    private void HintHookNeedsAdminOnce()
-    {
-        if (!_settings.HookEnabled) return;
-
-        if (Integrity.IsSelfElevated)
-        {
-            Log.Write("伤害钩子：已开启，当前是管理员权限 —— 注入不会被权限挡住。");
-            return;
-        }
-
-        Log.Write("伤害钩子：已开启，但本程序是 " + Integrity.Name(Integrity.Self) +
-                  " —— 若游戏由 11/网易等平台或服务拉起，注入会 err=5，需要以管理员身份运行。");
-
-        if (_settings.HookAdminHintShown) return;   // 提示过就不再骚扰，日志里仍有记录
-
-        try
-        {
-            var r = MessageBox.Show(this,
-                "配置里开启了伤害钩子（hook_enable=1），但本程序当前不是管理员权限。\n\n" +
-                "· 游戏由你自己的启动器以普通权限拉起 → 通常能正常注入；\n" +
-                "· 游戏由 11 平台 / 网易平台 / 服务拉起 → 注入会被系统拒绝（OpenProcess err=5，\n" +
-                "  连进程都查询不了），必须以管理员身份运行。\n\n" +
-                "现在以管理员身份重启吗？\n\n" +
-                "（选“否”继续用普通权限；这个提示只出现这一次，之后可在上方工具栏点【以管理员身份重启】）",
-                "伤害钩子需要管理员权限",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Information, MessageBoxDefaultButton.Button2);
-            if (r == DialogResult.Yes) { RestartAsAdmin(); return; }
-        }
-        catch (Exception ex) { Log.Warn("启动提示失败：" + ex.Message); }
-
-        try { _settings.HookAdminHintShown = true; _settings.Save(); } catch { }
     }
 
     /// <summary>以管理员身份重启自身（UseShellExecute + runas，不写任何注册表）。用户取消 UAC 不崩。</summary>

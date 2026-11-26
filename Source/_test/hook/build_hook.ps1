@@ -58,23 +58,6 @@ if (Test-Path $panelBlp) {
     Copy-Item -LiteralPath $panelBlp -Destination 'C:\3rd\war5\UI\ddh_panel.blp' -Force
 }
 
-Write-Host '== 2/2 ddh_inject.exe ==' -ForegroundColor Cyan
-& $msvc.Cl /nologo /O2 /MD /EHsc /W3 /utf-8 /D_CRT_SECURE_NO_WARNINGS ddh_inject.cpp /link /OUT:ddh_inject.exe /INCREMENTAL:NO
-if ($LASTEXITCODE -ne 0) { Die "ddh_inject.exe build failed ($LASTEXITCODE)" }
-
-# Embed ddh_inject.manifest with mt.exe: requireAdministrator makes Explorer show the UAC shield
-# and makes a direct double-click elevate. Do NOT use /MANIFESTUAC from PowerShell: its quoting
-# is easy to break, and the manifest then silently stays out of the exe.
-$mt = $null
-foreach ($b in @('C:\Windows Kits\10', 'D:\Windows Kits\10', 'C:\Program Files (x86)\Windows Kits\10')) {
-    if (-not (Test-Path $b)) { continue }
-    $cand = Join-Path $b "bin\$sdkVer\x86\mt.exe"
-    if (Test-Path $cand) { $mt = $cand; break }
-}
-if (-not $mt) { Die 'mt.exe not found (Windows SDK)' }
-& $mt -nologo -manifest ddh_inject.manifest -outputresource:'ddh_inject.exe;#1'
-if ($LASTEXITCODE -ne 0) { Die "ddh_inject.exe manifest embed failed ($LASTEXITCODE)" }
-
 Remove-Item *.obj, *.exp, *.lib -ErrorAction SilentlyContinue
 Write-Host '== done ==' -ForegroundColor Green
-Get-ChildItem ddh.dll, ddh_inject.exe | Select-Object Length, Name | Format-Table -AutoSize
+Get-ChildItem ddh.dll | Select-Object Length, Name | Format-Table -AutoSize
