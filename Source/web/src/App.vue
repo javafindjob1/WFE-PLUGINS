@@ -134,7 +134,9 @@ function loadSettlementPage(request: {
 
       <div class="window-controls">
         <button type="button" aria-label="最小化" title="最小化" @click="sendNativeTitle('minimize')">
-          —
+          <svg aria-hidden="true" viewBox="0 0 10 10">
+            <path d="M1 5.5h8" />
+          </svg>
         </button>
         <button
           type="button"
@@ -142,7 +144,13 @@ function loadSettlementPage(request: {
           :title="windowMaximized ? '还原' : '最大化'"
           @click="sendNativeTitle('toggle-maximize')"
         >
-          {{ windowMaximized ? '❐' : '□' }}
+          <svg v-if="windowMaximized" aria-hidden="true" viewBox="0 0 10 10">
+            <path d="M3.5 2.5h5v5" />
+            <path d="M1.5 4.5h5v5h-5z" />
+          </svg>
+          <svg v-else aria-hidden="true" viewBox="0 0 10 10">
+            <path d="M1.5 1.5h7v7h-7z" />
+          </svg>
         </button>
         <button
           type="button"
@@ -151,7 +159,9 @@ function loadSettlementPage(request: {
           title="关闭"
           @click="sendNativeTitle('close')"
         >
-          ×
+          <svg aria-hidden="true" viewBox="0 0 10 10">
+            <path d="m1.5 1.5 7 7m0-7-7 7" />
+          </svg>
         </button>
       </div>
     </header>
