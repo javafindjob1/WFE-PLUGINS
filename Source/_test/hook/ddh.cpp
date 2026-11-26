@@ -1634,25 +1634,16 @@ static void ResolveName(uint32_t obj, uint32_t code, char* out, size_t outSize)
 struct DdhPendingMeta
 {
     uint32_t seq;
-    uint32_t victim;
-    uint32_t source;
-    uint32_t victimCode;
-    uint32_t sourceCode;
 };
 
 static DdhPendingMeta g_pendingMeta[DDH_META_QUEUE_CAP];
 static uint32_t      g_pendingMetaCount = 0;
 
-static void DdhQueuePendingMeta(uint32_t seq, uint32_t victim, uint32_t source,
-                                uint32_t victimCode, uint32_t sourceCode)
+static void DdhQueuePendingMeta(uint32_t seq)
 {
     if (g_pendingMetaCount >= DDH_META_QUEUE_CAP) return;
     DdhPendingMeta* m = &g_pendingMeta[g_pendingMetaCount++];
     m->seq = seq;
-    m->victim = victim;
-    m->source = source;
-    m->victimCode = victimCode;
-    m->sourceCode = sourceCode;
 }
 
 static void DdhMarkPendingReadyWithoutEngine(void)
@@ -1668,7 +1659,7 @@ static void DdhMarkPendingReadyWithoutEngine(void)
     g_pendingMetaCount = 0;
 }
 
-static void DdhResolvePendingMeta(void)
+static void DdhCompletePendingEvents(void)
 {
     if (!g_shm) { g_pendingMetaCount = 0; return; }
 
@@ -1681,33 +1672,11 @@ static void DdhResolvePendingMeta(void)
         DdhEvent* e = &g_shm->ev[slot];
         if (e->seq != m->seq) continue;
 
-        __try
-        {
-            char text[64] = { 0 };
-            if (m->victimCode)
-            {
-                ResolveName(0, m->victimCode, text, sizeof(text));
-                if (text[0]) DdhUtf8SafeCopy(e->victimName, sizeof(e->victimName), text, sizeof(text) - 1);
-            }
-            text[0] = 0;
-            if (m->sourceCode)
-            {
-                ResolveName(0, m->sourceCode, text, sizeof(text));
-                if (text[0]) DdhUtf8SafeCopy(e->sourceName, sizeof(e->sourceName), text, sizeof(text) - 1);
-            }
-
-            if (m->victim && DdhAbilityInUnitList(m->victim, DDH_ABILITY_ALOC) > 0)
-                e->flags |= 1u;
-            if (m->source && DdhAbilityInUnitList(m->source, DDH_ABILITY_ALOC) > 0)
-                e->flags |= DDH_EVENT_FLAG_SOURCE_LOCUST;
-
-            DdhDbUpdateEventUnits(e);
-        }
+        __try { DdhDbUpdateEventUnits(e); }
         __except (EXCEPTION_EXECUTE_HANDLER)
         {
-            LogLine("延迟元数据处理失败：seq=%u code=%08X/%08X exception=%08X",
-                    m->seq, m->victimCode, m->sourceCode,
-                    (unsigned)GetExceptionCode());
+            LogLine("延迟单位缓存失败：seq=%u exception=%08X",
+                    m->seq, (unsigned)GetExceptionCode());
         }
 
         InterlockedExchange(&g_evReady[slot], 1);
@@ -1786,7 +1755,7 @@ static uint32_t RecordDamage(uint32_t victim, uint32_t infoPtr, uint32_t isPhysi
         e->flags |= DDH_EVENT_FLAG_VICTIM_ILLUSION;
     if (source && DdhUnitIllusionStateByObj(source) > 0)
         e->flags |= DDH_EVENT_FLAG_SOURCE_ILLUSION;
-    DdhQueuePendingMeta(seq, victim, source, e->victimCode, e->sourceCode);
+    DdhQueuePendingMeta(seq);
     g_shm->hdr.lastTick = e->tickMs;
     MemoryBarrier();
     if (outSeq) *outSeq = seq;
@@ -3439,16 +3408,7 @@ static void DdhRestoreGameWnd(void)
    全程 __try —�?任何一步抛异常都只写日志，绝不影响伤害钩子本身�?*/
 static void DdhProcessDeferred(void)
 {
-    DdhResolvePendingMeta();
-
-    /* GetLocalPlayer/GetPlayerId 只能在游戏线程调用。即使单位属性扫描已关闭，
-       C# 仍需要这个真实本地玩家号，因此每次最外层伤害退出时尝试一次，
-       成功以后 g_allyMaskDone 会把后续调用短路。 */
-    __try { DdhComputeAllyMask(); }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        LogLine("本地玩家探测异常 code=%08X（已吞掉）", (unsigned)GetExceptionCode());
-    }
+    DdhCompletePendingEvents();
 
     __try
     {
